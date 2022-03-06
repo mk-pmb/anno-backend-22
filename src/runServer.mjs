@@ -10,6 +10,7 @@ import mustBe from 'typechecks-pmb/must-be';
 import makeServer from './server.mjs';
 
 (async function cliMain() {
+  process.chdir('/');
   const allCliOpt = parseCliOpt(process.argv.slice(2));
   console.debug('Server CLI options:', allCliOpt);
   const cliOpt = objPop(allCliOpt, { mustBe }).mustBe;
