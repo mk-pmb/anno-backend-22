@@ -5,7 +5,7 @@ anno-server-22
 <!--/#echo -->
 
 <!--#echo json="package.json" key="description" -->
-Anntation Server, 2022 Edition
+UB-HD Web Anntation Server, 2022 Edition
 <!--/#echo -->
 
 
