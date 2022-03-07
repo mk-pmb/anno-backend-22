@@ -9,7 +9,7 @@ const relevantKeysRgx = /^(remote|shib)\b/i;
 
 const hnd = function whoamiHandler(req) {
   const relevantHeaders = filterObj(req.headers,
-    e => relevantKeysRgx.test(e[0]));
+    k => relevantKeysRgx.test(k));
   sendFinalTextResponse.json(req, relevantHeaders);
 };
 
