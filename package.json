@@ -25,7 +25,7 @@
 
   "main": "src/server.mjs",
   "scripts": {
-    "start": "nodemjs src/runServer.mjs",
+    "start": "nodemjs src/runServer.mjs --",
     "test": "elp && nodemjs test/all.mjs",
     "ZZZ": "echo This exists just because JSON doesn't allow a comma here -->"
   },
@@ -34,6 +34,7 @@
 
   "dependencies": {
     "absdir": "^1.0.6",
+    "cfg-cli-env-180111-pmb": "^0.1.2",
     "deviate": "^1.0.0",
     "express": "^4.17.3",
     "express-promise-router": "^4.1.1",
@@ -42,8 +43,8 @@
     "is-error": "^2.2.2",
     "is-string": "^1.0.7",
     "merge-options": "^3.0.4",
-    "minimist": "^1.2.5",
     "net-smartlisten-pmb": "^1.0.2",
+    "nodemjs": "^0.1.9",
     "objpop": "^0.2.1",
     "p-fatal": "^0.1.3",
     "pify": "^5.0.0",
@@ -53,8 +54,7 @@
   },
   "devDependencies": {
     "eslint-config-nodejs-pmb": "^0.2.5",
-    "eslint-pretty-pmb": "^1.0.2",
-    "nodemjs": "^0.1.9"
+    "eslint-pretty-pmb": "^1.0.2"
   },
 
 
