@@ -33,7 +33,10 @@ const ftr = function sendFinalTextResponse(req, how) {
 
 Object.assign(ftr, {
 
-  json(r, d, o) { ftr(r, { type: 'json', text: sortedJson(d), ...o }); },
+  json(req, data, opt) {
+    const text = sortedJson(data) + '\n';
+    return ftr(req, { type: 'json', text, ...opt });
+  },
 
 });
 
