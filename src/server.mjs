@@ -1,24 +1,28 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import mergeOpt from 'merge-options';
 import absDir from 'absdir';
-import pify from 'pify';
+import envcfgMergeConfigs from 'envcfg-merge-configs-pmb';
 import express from 'express';
-import PrRouter from 'express-promise-router';
 import makeRedirector from 'deviate';
+import mustBe from 'typechecks-pmb/must-be';
+import nodeHttp from 'http';
+import objPop from 'objpop';
+import pify from 'pify';
+import PrRouter from 'express-promise-router';
 import smartListen from 'net-smartlisten-pmb';
 
 import httpErrors from './httpErrors.mjs';
-import whoamiHandler from './whoamiHandler.mjs';
 import simpleFilenameRedirector from './simpleFilenameRedirector.mjs';
+import whoamiHandler from './whoamiHandler.mjs';
 
 
 const pathInRepo = absDir(import.meta, '..');
 
 const defaultConfig = {
 
-  wwwpubPath: pathInRepo('wwwpub'),
-  listenAddr: pathInRepo('tmp.debug/webserver.uds'),
+  envcfg_prefix: 'anno',
+  wwwpub_path: pathInRepo('wwwpub'),
+  listen_addr: pathInRepo('tmp.debug/webserver.uds'),
 
 };
 
@@ -30,9 +34,17 @@ function logIncomingRequest(req) {
 
 
 const EX = function createServer(customConfig) {
-  const cfg = mergeOpt(defaultConfig, customConfig);
+  const entireConfig = envcfgMergeConfigs({ ifPrefixProp: 'envcfg_prefix' },
+    defaultConfig, customConfig);
+  console.debug('Server config:', entireConfig);
+  const popCfg = objPop(entireConfig, { mustBe }).mustBe;
+  popCfg('str | eeq:false', 'envcfg_prefix');
 
   const app = express();
+  app.once('close', function cleanup(...args) {
+    console.debug('cleanup:', args);
+  });
+
   const rt = PrRouter({
     strict: true,
     /* ^- Discern /session from /session/, because the trailing slash
@@ -45,7 +57,7 @@ const EX = function createServer(customConfig) {
   app.use(httpErrors.handleUnknownError);
 
   rt.use(logIncomingRequest);
-  rt.use('/static', express.static(cfg.wwwpubPath));
+  rt.use('/static', express.static(popCfg('nonEmpty str', 'wwwpub_path')));
   rt.get('/', makeRedirector('/static/'));
 
   rt.get('/session/whoami', whoamiHandler);
@@ -56,14 +68,28 @@ const EX = function createServer(customConfig) {
 
   rt.get('/:filename', simpleFilenameRedirector('/static/:filename'));
 
+  const webSrv = nodeHttp.createServer();
+  webSrv.on('request', app);
 
   const srv = {
-    cfg,
+    popCfg,
+    listenAddr: popCfg('str | pos0 num', 'listen_addr'),
+    assertNoUnusedCfgOpts() {
+      popCfg.expectEmpty('Unsupported server config option(s)');
+    },
+
+    getLowLevelWebServer() { return webSrv; },
 
     async listen() {
-      const lsnSpec = smartListen(cfg.listenAddr);
-      await pify(cb => app.listen(lsnSpec, cb))();
+      const lsnSpec = smartListen(srv.listenAddr);
+      await pify(cb => webSrv.listen(lsnSpec, cb))();
       console.info('Listening on ' + lsnSpec);
+    },
+
+    async close() {
+      const closedPr = pify(cb => webSrv.once('close', cb))();
+      webSrv.close();
+      await closedPr;
     },
 
   };

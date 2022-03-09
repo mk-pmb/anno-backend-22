@@ -4,8 +4,6 @@ import 'p-fatal';
 import 'usnam-pmb';
 
 import cliEnvCfg from 'cfg-cli-env-180111-pmb/node.js';
-import objPop from 'objpop';
-import mustBe from 'typechecks-pmb/must-be';
 
 import makeServer from './server.mjs';
 
@@ -13,14 +11,15 @@ import makeServer from './server.mjs';
   process.chdir('/');
   const { allCliOpt } = cliEnvCfg();
   console.debug('Server CLI options:', allCliOpt);
-  const cliOpt = objPop(allCliOpt, { mustBe }).mustBe;
 
-  const testFx = cliOpt('str', 'testfx', '');
+  const srv = makeServer({
+    testfx_exit_soon_sec: 0,
+    ...allCliOpt,
+  });
 
-  // cliOpt.expectEmpty('Unsupported CLI option(s)');
+  const exitSoon = +srv.popCfg('num | str', 'testfx_exit_soon_sec', 0);
+  if (exitSoon) { setTimeout(() => srv.close(), exitSoon * 1e3); }
 
-  const srv = makeServer(allCliOpt);
+  srv.assertNoUnusedCfgOpts();
   await srv.listen();
-  // eslint-disable-next-line n/no-process-exit
-  if (testFx === 'exitSoon') { setTimeout(() => process.exit(0), 1e3); }
 }());
