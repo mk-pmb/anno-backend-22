@@ -17,6 +17,8 @@ import makeServer from './server.mjs';
     ...allCliOpt,
   });
 
+  process.once('SIGINT', () => srv.close());
+
   const exitSoon = +srv.popCfg('num | str', 'testfx_exit_soon_sec', 0);
   if (exitSoon) { setTimeout(() => srv.close(), exitSoon * 1e3); }
 
