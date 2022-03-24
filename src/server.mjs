@@ -22,7 +22,7 @@ const defaultConfig = {
 
   envcfg_prefix: 'anno',
   wwwpub_path: pathInRepo('wwwpub'),
-  listen_addr: pathInRepo('tmp.debug/webserver.uds'),
+  listen_addr: '127.0.0.1:33321',
 
 };
 
