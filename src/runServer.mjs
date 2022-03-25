@@ -12,7 +12,7 @@ import makeServer from './server.mjs';
   const { allCliOpt } = cliEnvCfg();
   console.debug('Server CLI options:', allCliOpt);
 
-  const srv = makeServer({
+  const srv = await makeServer({
     testfx_exit_soon_sec: 0,
     ...allCliOpt,
   });
