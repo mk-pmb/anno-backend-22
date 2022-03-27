@@ -3,6 +3,7 @@
 import express from 'express';
 import makeRedirector from 'deviate';
 
+import eternal from '../hnd/wrap/eternal.mjs';
 import httpErrors from '../httpErrors.mjs';
 import makeAnnoDecider from '../hnd/annoDecider.mjs';
 import requestDebugHandler from '../hnd/util/debugRequest.mjs';
@@ -21,7 +22,9 @@ const EX = async function installRootRoutes(srv) {
 
   rt.use(logIncomingRequest);
 
-  rt.use('/static', express.static(popCfg('nonEmpty str', 'wwwpub_path')));
+  const serveFile = express.static(popCfg('nonEmpty str', 'wwwpub_path'));
+  rt.use('/static/favicon.ico', eternal());
+  rt.use('/static', serveFile);
   rt.get('/', makeRedirector('/static/'));
 
   rt.get('/session/whoami', requestDebugHandler);
@@ -33,7 +36,7 @@ const EX = async function installRootRoutes(srv) {
   const annoDecider = await makeAnnoDecider(srv);
   rt.use('/anno/*', annoDecider);
 
-  rt.get('/:filename', simpleFilenameRedirector('/static/:filename'));
+  rt.get('/:filename', eternal(simpleFilenameRedirector('/static/:filename')));
 };
 
 
