@@ -31,7 +31,7 @@ const EX = async function installRootRoutes(srv) {
   rt.get('/session/login', makeRedirector('whoami'));
   // ^- This route is meant to be protected by a mandatory login
   //    requirement in a reverse proxy.
-  rt.get('/session/*', httpErrors.noSuchResource);
+  rt.get('/session/:subUrl', httpErrors.noSuchResource);
 
   const annoDecider = await makeAnnoDecider(srv);
   rt.use('/anno/*', annoDecider);

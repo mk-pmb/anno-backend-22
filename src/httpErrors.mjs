@@ -1,20 +1,21 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import isGetLikeMethod from './isGetLikeMethod.mjs';
 import sendFinalTextResponse from './finalTextResponse.mjs';
 
 
 const errs = {
 
   noSuchResource(req) {
-    const mtd = req.method;
-    const getLike = ((mtd === 'GET')
-      || (mtd === 'HEAD')
-      || (mtd === 'OPTIONS')
-    );
-    sendFinalTextResponse(req, (getLike
-      ? { code: 404, text: 'File not found' }
-      : { code: 405, text: 'Method Not Allowed' }));
+    if (!isGetLikeMethod(req)) { return errs.badMethod(req); }
+    sendFinalTextResponse(req, { code: 404, text: 'File not found' });
   },
+
+
+  badMethod(req) {
+    sendFinalTextResponse(req, { code: 405, text: 'Method Not Allowed' });
+  },
+
 
   handleUnknownError: function hunk(err, req, res, next) {
     if (!res) { return hunk(err, req, req.res, req.next); }
