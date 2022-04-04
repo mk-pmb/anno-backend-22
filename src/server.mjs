@@ -71,7 +71,7 @@ const EX = async function createServer(customConfig) {
     async close() {
       const closePrs = [
         pify(cb => webSrv.once('close', cb))(),
-        (srv.db && srv.db.close()),
+        (srv.db && srv.db.abandon()),
       ];
       webSrv.close();
       await Promise.all(closePrs);

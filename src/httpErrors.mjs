@@ -7,8 +7,9 @@ import sendFinalTextResponse from './finalTextResponse.mjs';
 const errs = {
 
   noSuchResource(req) {
+    console.trace('noSuchResource!', req.originalUrl);
     if (!isGetLikeMethod(req)) { return errs.badMethod(req); }
-    sendFinalTextResponse(req, { code: 404, text: 'File not found' });
+    return sendFinalTextResponse(req, { code: 404, text: 'File not found' });
   },
 
 
@@ -17,16 +18,36 @@ const errs = {
   },
 
 
+  custom500(msg) {
+    return function cannedReply(req) {
+      sendFinalTextResponse(req, { code: 500, text: msg });
+    };
+  },
+
+
+  httpStatusCode(err) {
+    const code = (err.code || err);
+    return (Number.isFinite(code) && (code >= 100) && (code < 600) && code);
+  },
+
   handleUnknownError: function hunk(err, req, res, next) {
     if (!res) { return hunk(err, req, req.res, req.next); }
     if (!err) { return next(); }
-    const { code } = err;
-    if (Number.isFinite(code) && (code >= 100) && (code < 600)) {
-      console.warn('Serving error message for:', err);
-      return sendFinalTextResponse(req, err);
+    let logVerb = 'Too late to serve';
+    let reply;
+    if (!req.complete) {
+      const code = errs.httpStatusCode(err);
+      if (code) {
+        reply = err;
+        logVerb = 'Serve';
+      } else {
+        reply = { code: 500, text: 'Internal Server Error' };
+        logVerb = 'Censor';
+      }
     }
-    console.warn('Not serving error message for:', err);
-    sendFinalTextResponse(req, { code: 500, text: 'Internal Server Error' });
+    console.warn('httpErrors.handleUnknownError: ' + logVerb
+      + ' error message for:', err);
+    if (reply) { sendFinalTextResponse(req, reply); }
   },
 
 
