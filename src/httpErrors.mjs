@@ -7,7 +7,6 @@ import sendFinalTextResponse from './finalTextResponse.mjs';
 const errs = {
 
   noSuchResource(req) {
-    console.trace('noSuchResource!', req.originalUrl);
     if (!isGetLikeMethod(req)) { return errs.badMethod(req); }
     return sendFinalTextResponse(req, { code: 404, text: 'File not found' });
   },
