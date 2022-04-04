@@ -26,7 +26,7 @@ const errs = {
       return sendFinalTextResponse(req, err);
     }
     console.warn('Not serving error message for:', err);
-    return next();
+    sendFinalTextResponse(req, { code: 500, text: 'Internal Server Error' });
   },
 
 

@@ -7,6 +7,7 @@ function all_tests () {
   local REPOPATH="$(readlink -m -- "$BASH_SOURCE"/../..)"
   cd -- "$REPOPATH" || return $?
 
+  echo 'D: lint: …'
   elp || return $?
   npm start testfx_exit_soon_sec=1
 
