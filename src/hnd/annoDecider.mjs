@@ -13,10 +13,8 @@ const namedEqual = equal.named.deepStrictEqual;
 const baseIdRgx = /^[A-Za-z0-9_\-]{10,36}$/;
 
 function noSuchAnno(req, why) {
-  sendFinalTextResponse(req, {
-    code: 404,
-    text: 'Annotation not found: ' + why,
-  });
+  const text = 'Annotation not found: ' + why;
+  sendFinalTextResponse(req, { code: 404, text });
 }
 
 const searchNotImpl = httpErrors.notImpl.explain(
@@ -30,7 +28,7 @@ const EX = async function makeAnnoDecider(srv) {
     const { method } = req;
     if (method !== 'GET') { return httpErrors.badVerb(req); }
 
-    console.debug('annoHnd: urlSubDirs =', urlSubDirs);
+    // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
     if (urlSubDirs.length !== 1) {
       return noSuchAnno(req, 'Subresource not implemented');
     }

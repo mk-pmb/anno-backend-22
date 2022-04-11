@@ -4,15 +4,10 @@ import express from 'express';
 import makeRedirector from 'deviate';
 
 import eternal from '../hnd/wrap/eternal.mjs';
+import logIncomingRequest from '../hnd/util/logIncomingRequest.mjs';
 import makeAnnoDecider from '../hnd/annoDecider.mjs';
 import makeSessionDecider from '../hnd/sessionDecider.mjs';
 import simpleFilenameRedirector from '../hnd/simpleFilenameRedirector.mjs';
-
-
-function logIncomingRequest(req) {
-  console.debug('Incoming request:', req.method, req.url, '?', req.query);
-  req.next();
-}
 
 
 const EX = async function installRootRoutes(srv) {
