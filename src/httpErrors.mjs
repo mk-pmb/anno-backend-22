@@ -4,10 +4,10 @@ import isGetLikeMethod from './isGetLikeMethod.mjs';
 import sendFinalTextResponse from './finalTextResponse.mjs';
 
 
-const errs = {
+const EX = {
 
   noSuchResource(req) {
-    if (!isGetLikeMethod(req)) { return errs.badMethod(req); }
+    if (!isGetLikeMethod(req)) { return EX.badMethod(req); }
     return sendFinalTextResponse(req, { code: 404, text: 'File not found' });
   },
 
@@ -35,7 +35,7 @@ const errs = {
     let logVerb = 'Too late to serve';
     let reply;
     if (!req.complete) {
-      const code = errs.httpStatusCode(err);
+      const code = EX.httpStatusCode(err);
       if (code) {
         reply = err;
         logVerb = 'Serve';
@@ -53,4 +53,4 @@ const errs = {
 };
 
 
-export default errs;
+export default EX;
