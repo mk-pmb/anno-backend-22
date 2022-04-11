@@ -19,6 +19,9 @@ function noSuchAnno(req, why) {
   });
 }
 
+const searchNotImpl = httpErrors.notImpl.explain(
+  'Unsupported combination of search criteria.');
+
 
 const EX = async function makeAnnoDecider(srv) {
 
@@ -32,6 +35,14 @@ const EX = async function makeAnnoDecider(srv) {
       return noSuchAnno(req, 'Subresource not implemented');
     }
     const [baseId] = urlSubDirs;
+    if (!baseId) {
+      const queryKeys = Object.keys(req.query);
+      if (queryKeys.length) {
+        return searchNotImpl(req);
+      }
+      return noSuchAnno(req, 'No ID given');
+    }
+
     const idMatch = (baseIdRgx.exec(baseId) || false);
     if (idMatch[0] !== baseId) {
       return noSuchAnno(req, 'Unsupported ID format');
