@@ -15,20 +15,32 @@ Object.assign(EX, {
 
   async annoRoute(req, srv) {
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
-    const { method } = req;
-    if (method !== 'GET') { return httpErrors.badVerb(req); }
-
     // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
     if (urlSubDirs.length !== 1) {
       return httpErrors.notImpl.explain(req,
         'Anno subresource not implemented');
     }
     const [baseId] = urlSubDirs;
-    if (!baseId) {
-      return emptyIdGet(req, srv);
-    }
-    return idGet(baseId, req, srv);
+    if (baseId) { return EX.annoIdRoute(baseId, req, srv); }
+    return EX.emptyIdRoute(req, srv);
   },
+
+
+  async emptyIdRoute(req, srv) {
+    const { method } = req;
+    if (method === 'GET') { return emptyIdGet(req, srv); }
+
+    return httpErrors.badVerb(req);
+  },
+
+
+  async annoIdRoute(baseId, req, srv) {
+    const { method } = req;
+    if (method === 'GET') { return idGet(baseId, req, srv); }
+
+    return httpErrors.badVerb(req);
+  },
+
 
 });
 
