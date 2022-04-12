@@ -3,31 +3,23 @@
 import isGetLikeMethod from './isGetLikeMethod.mjs';
 import sendFinalTextResponse from './finalTextResponse.mjs';
 
+const makeCanned = sendFinalTextResponse.simpleCanned;
+// ^-- Unfortunately the verb "(to) can" is easy to confuse with other "can"s.
+
 
 const EX = {
 
-  noSuchResource(req) {
-    if (!isGetLikeMethod(req)) { return EX.badMethod(req); }
-    return sendFinalTextResponse(req, { code: 404, text: 'File not found' });
-  },
-
-
-  badMethod(req) {
-    sendFinalTextResponse(req, { code: 405, text: 'Method Not Allowed' });
-  },
-
-
-  custom500(msg) {
-    return function cannedReply(req) {
-      sendFinalTextResponse(req, { code: 500, text: msg });
-    };
-  },
+  badVerb: makeCanned(405, 'Method Not Allowed'),
+  noSuchResource(r) { (isGetLikeMethod(r) ? EX.notFound : EX.badVerb)(r); },
+  notFound: makeCanned(404, 'File not found'),
+  notImpl: makeCanned(501, 'Not Implemented'),
 
 
   httpStatusCode(err) {
     const code = (err.code || err);
     return (Number.isFinite(code) && (code >= 100) && (code < 600) && code);
   },
+
 
   handleUnknownError: function hunk(err, req, res, next) {
     if (!res) { return hunk(err, req, req.res, req.next); }

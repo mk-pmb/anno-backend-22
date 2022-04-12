@@ -25,7 +25,7 @@ const EX = async function makeAnnoDecider(srv) {
   async function annoHnd(req) {
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     const { method } = req;
-    if (method !== 'GET') { return httpErrors.badMethod(req); }
+    if (method !== 'GET') { return httpErrors.badVerb(req); }
 
     console.debug('annoHnd: urlSubDirs =', urlSubDirs);
     if (urlSubDirs.length !== 1) {

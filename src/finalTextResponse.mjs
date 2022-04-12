@@ -21,7 +21,7 @@ const knwonTextTypes = [
 
 
 const ftr = function sendFinalTextResponse(req, how) {
-  console.debug('sendFinalTextResponse:', how);
+  // console.debug('sendFinalTextResponse:', how);
   if (isStr(how)) { return ftr(req, { text: how }); }
   const type = how.subType || 'plain';
   const code = how.code || (isErr(how) ? 500 : 200);
@@ -49,11 +49,26 @@ const ftr = function sendFinalTextResponse(req, how) {
   rsp.end();
 };
 
+
+function simpleCannedExplain(detail) {
+  const { opt } = (this || false);
+  const { code, text } = (opt || false);
+  return ftr.simpleCanned(code, text + ': ' + detail, opt);
+}
+
+
 Object.assign(ftr, {
 
   json(req, data, opt) {
     const text = sortedJson(data);
     return ftr(req, { type: 'json', text, ...opt });
+  },
+
+  simpleCanned(code, text, custom) {
+    const f = function cannedReply(req) { ftr(req, f.opt); };
+    f.opt = { type: 'text', ...custom, code, text };
+    f.explain = simpleCannedExplain;
+    return f;
   },
 
 });
