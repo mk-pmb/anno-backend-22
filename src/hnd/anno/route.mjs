@@ -2,10 +2,10 @@
 
 import equal from 'equal-pmb';
 
-import httpErrors from '../httpErrors.mjs';
-import sendFinalTextResponse from '../finalTextResponse.mjs';
+import httpErrors from '../../httpErrors.mjs';
+import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
-import plumb from './util/miscPlumbing.mjs';
+import plumb from '../util/miscPlumbing.mjs';
 
 
 const namedEqual = equal.named.deepStrictEqual;
@@ -21,7 +21,7 @@ const searchNotImpl = httpErrors.notImpl.explain(
   'Unsupported combination of search criteria.');
 
 
-const EX = async function makeAnnoDecider(srv) {
+const EX = async function makeAnnoRoute(srv) {
 
   async function annoHnd(req) {
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);

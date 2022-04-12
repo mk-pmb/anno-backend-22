@@ -12,7 +12,7 @@ import smartListen from 'net-smartlisten-pmb';
 
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import httpErrors from './httpErrors.mjs';
-import installRootRoutes from './routes/root.mjs';
+import installRootRoutes from './hnd/rootRoutes.mjs';
 
 const pathInRepo = absDir(import.meta, '..');
 

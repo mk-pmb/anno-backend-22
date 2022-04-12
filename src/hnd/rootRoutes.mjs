@@ -3,11 +3,11 @@
 import express from 'express';
 import makeRedirector from 'deviate';
 
-import eternal from '../hnd/wrap/eternal.mjs';
-import logIncomingRequest from '../hnd/util/logIncomingRequest.mjs';
-import makeAnnoDecider from '../hnd/annoDecider.mjs';
-import makeSessionDecider from '../hnd/sessionDecider.mjs';
-import simpleFilenameRedirector from '../hnd/simpleFilenameRedirector.mjs';
+import eternal from './wrap/eternal.mjs';
+import logIncomingRequest from './util/logIncomingRequest.mjs';
+import makeAnnoRoute from './anno/route.mjs';
+import makeSessionRoute from './sess/route.mjs';
+import simpleFilenameRedirector from './simpleFilenameRedirector.mjs';
 
 
 const EX = async function installRootRoutes(srv) {
@@ -21,8 +21,8 @@ const EX = async function installRootRoutes(srv) {
   rt.use('/static', serveFile);
   rt.get('/', makeRedirector('/static/'));
 
-  rt.use('/session/*', await makeSessionDecider(srv));
-  rt.use('/anno/*', await makeAnnoDecider(srv));
+  rt.use('/session/*', await makeSessionRoute(srv));
+  rt.use('/anno/*', await makeAnnoRoute(srv));
 
   rt.get('/:filename', eternal(simpleFilenameRedirector('/static/:filename')));
 };

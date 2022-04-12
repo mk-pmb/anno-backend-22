@@ -2,14 +2,14 @@
 
 import makeRedirector from 'deviate';
 
-import httpErrors from '../httpErrors.mjs';
-import requestDebugHandler from './util/debugRequest.mjs';
-// import sendFinalTextResponse from '../finalTextResponse.mjs';
+import httpErrors from '../../httpErrors.mjs';
+import requestDebugHandler from '../util/debugRequest.mjs';
+// import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
-import plumb from './util/miscPlumbing.mjs';
+import plumb from '../util/miscPlumbing.mjs';
 
 
-const EX = async function makeSessionDecider() {
+const EX = async function makeSessionRoute() {
 
   const redirectToWhoami = makeRedirector('whoami');
 
