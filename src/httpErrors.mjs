@@ -10,6 +10,7 @@ const makeCanned = sendFinalTextResponse.simpleCanned;
 const EX = {
 
   badVerb: makeCanned(405, 'Method Not Allowed'),
+  noSuchAnno: makeCanned(404, 'Annotation not found'),
   noSuchResource(r) { (isGetLikeMethod(r) ? EX.notFound : EX.badVerb)(r); },
   notFound: makeCanned(404, 'File not found'),
   unexpectedlySlowTask: makeCanned(500,
