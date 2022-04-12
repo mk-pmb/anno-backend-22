@@ -22,8 +22,13 @@ const searchNotImpl = httpErrors.notImpl.explain(
 
 
 const EX = async function makeAnnoRoute(srv) {
+  function rt(req) { return EX.annoRoute(req, srv); }
+  return rt;
+};
 
-  async function annoHnd(req) {
+Object.assign(EX, {
+
+  async annoRoute(req, srv) {
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     const { method } = req;
     if (method !== 'GET') { return httpErrors.badVerb(req); }
@@ -53,10 +58,9 @@ const EX = async function makeAnnoRoute(srv) {
     if (!nRows) { return noSuchAnno(req, 'ID not in database'); }
     namedEqual('Number of rows found for anno base ID ' + baseId, nRows, 1);
     return sendFinalTextResponse.json(req, rows[0].details);
-  }
+  },
 
-  return annoHnd;
-};
+});
 
 
 export default EX;
