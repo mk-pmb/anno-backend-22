@@ -15,6 +15,12 @@ const EX = {
   notImpl: makeCanned(501, 'Not Implemented'),
 
 
+  throwable(msg, opt) {
+    if (Number.isFinite(opt)) { return EX.throwable(msg, { code: opt }); }
+    return Object.assign(new Error(msg), opt);
+  },
+
+
   httpStatusCode(err) {
     const code = (err.code || err);
     return (Number.isFinite(code) && (code >= 100) && (code < 600) && code);
