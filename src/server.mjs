@@ -13,6 +13,7 @@ import smartListen from 'net-smartlisten-pmb';
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import httpErrors from './httpErrors.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
+import timeoutFallbackResponse from './timeoutFallbackResponse.mjs';
 
 const pathInRepo = absDir(import.meta, '..');
 
@@ -46,6 +47,7 @@ const EX = async function createServer(customConfig) {
           https://github.com/expressjs/express/issues/2281
     */
   });
+  app.use(timeoutFallbackResponse());
   app.use(rootRouter);
   app.use(httpErrors.handleUnknownError);
   const webSrv = nodeHttp.createServer();

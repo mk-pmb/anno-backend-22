@@ -42,6 +42,7 @@
     "equal-pmb": "^0.1.24",
     "express": "^4.17.3",
     "express-promise-router": "^4.1.1",
+    "express-timeout-handler": "^2.2.2",
     "getown": "^1.0.0",
     "is-error": "^2.2.2",
     "is-string": "^1.0.7",

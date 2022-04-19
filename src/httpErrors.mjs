@@ -12,6 +12,8 @@ const EX = {
   badVerb: makeCanned(405, 'Method Not Allowed'),
   noSuchResource(r) { (isGetLikeMethod(r) ? EX.notFound : EX.badVerb)(r); },
   notFound: makeCanned(404, 'File not found'),
+  unexpectedlySlowTask: makeCanned(500,
+    'Internal Server Error: Task exceeds expected time limit'),
   notImpl: makeCanned(501, 'Not Implemented'),
 
 
