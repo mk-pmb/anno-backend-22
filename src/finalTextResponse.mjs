@@ -60,6 +60,21 @@ function simpleCannedExplain(detail) {
 }
 
 
+function simpleCannedThrowable() {
+  const { opt } = (this || false);
+  const {
+    code,
+    text,
+    ...other
+  } = opt;
+  delete other.type;
+  const err = new Error(text);
+  Object.assign(err, other);
+  err.code = (code || 500);
+  return err;
+}
+
+
 Object.assign(ftr, {
 
   json(req, data, opt) {
@@ -71,6 +86,7 @@ Object.assign(ftr, {
     const f = function cannedReply(req) { ftr(req, f.opt); };
     f.opt = { type: 'text', ...custom, code, text };
     f.explain = simpleCannedExplain;
+    f.throwable = simpleCannedThrowable;
     return f;
   },
 

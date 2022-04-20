@@ -10,9 +10,9 @@ const EX = function verifyBaseIdFormat(baseId) {
     const idMatch = (baseIdRgx.exec(baseId) || false);
     if (idMatch[0] === baseId) { return baseId; }
   }
-  const msg = ('Annotation not found: '
-    + (baseId ? 'Unsupported ID format' : 'No ID given'));
-  throw httpErrors.throwable(404, msg);
+  const reason = (baseId ? 'Unsupported ID format' : 'No ID given');
+  const err = httpErrors.noSuchAnno.explain(reason).throwable();
+  throw err;
 };
 
 
