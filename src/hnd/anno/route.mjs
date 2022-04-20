@@ -11,9 +11,12 @@ const EX = async function makeAnnoRoute(srv) {
   return rt;
 };
 
+
 Object.assign(EX, {
 
   async annoRoute(req, srv) {
+    srv.confirmCors(req);
+    if (req.method === 'OPTIONS') { return; }
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
     if (urlSubDirs.length !== 1) {

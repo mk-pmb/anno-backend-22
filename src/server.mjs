@@ -25,6 +25,7 @@ const defaultConfig = {
   wwwpub_path: pathInRepo('wwwpub'),
   listen_addr: '127.0.0.1:33321',
   public_baseurl: '',
+  cors_accept_origin: '*',
   db: dbAdapter.getConfigDefaults(),
 
 };
