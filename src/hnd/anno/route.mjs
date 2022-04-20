@@ -21,22 +21,22 @@ Object.assign(EX, {
         'Anno subresource not implemented');
     }
     const [baseId] = urlSubDirs;
-    if (baseId) { return EX.annoIdRoute(baseId, req, srv); }
-    return EX.emptyIdRoute(req, srv);
+    if (baseId) { return EX.annoIdRoute(srv, req, baseId); }
+    return EX.emptyIdRoute(srv, req);
   },
 
 
-  async emptyIdRoute(req, srv) {
+  async emptyIdRoute(srv, req) {
     const { method } = req;
-    if (method === 'GET') { return emptyIdGet(req, srv); }
+    if (method === 'GET') { return emptyIdGet(srv, req); }
 
     return httpErrors.badVerb(req);
   },
 
 
-  async annoIdRoute(baseId, req, srv) {
+  async annoIdRoute(srv, req, baseId) {
     const { method } = req;
-    if (method === 'GET') { return idGet(baseId, req, srv); }
+    if (method === 'GET') { return idGet(srv, req, baseId); }
 
     return httpErrors.badVerb(req);
   },

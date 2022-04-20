@@ -9,14 +9,14 @@ const searchNotImpl = httpErrors.notImpl.explain(
   'Unsupported combination of search criteria.');
 
 
-const EX = async function emptyIdGet(req) {
+const EX = async function emptyIdGet(srv, req) {
   const queryEnts = Object.entries(req.query);
   const nQuery = queryEnts.length;
   if (!nQuery) { return verifyBaseIdFormat(); }
 
   if (nQuery === 1) {
     const [qk, qv] = queryEnts[0];
-    if (qk === '$target') { return legacySearchByTarget(req, qv); }
+    if (qk === '$target') { return legacySearchByTarget(srv, req, qv); }
   }
 
   return searchNotImpl(req);

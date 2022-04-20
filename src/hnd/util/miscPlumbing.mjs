@@ -11,8 +11,8 @@ const EX = {
     return EX.getFirstAsteriskUrlPart(req).split('/');
   },
 
-  guessOrigReqUrl(req) {
-    return req.getSrv().publicBaseUrlNoSlash + req.originalUrl;
+  guessOrigReqUrl(srv, req) {
+    return srv.publicBaseUrlNoSlash + req.originalUrl;
   },
 
 };
