@@ -25,7 +25,12 @@ import makeServer from './server.mjs';
   process.once('SIGINT', () => srv.close());
 
   const exitSoon = +srv.popCfg('num | str', 'testfx_exit_soon_sec', 0);
-  if (exitSoon) { setTimeout(() => srv.close(), exitSoon * 1e3); }
+  if (exitSoon) {
+    setTimeout(function prepareToQuit() {
+      console.debug('Closing server due to testfx_exit_soon_sec.');
+      srv.close();
+    }, exitSoon * 1e3);
+  }
 
   srv.assertNoUnusedCfgOpts();
   await srv.listen();
