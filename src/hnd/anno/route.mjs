@@ -1,9 +1,13 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
+import conciseValuePreview from 'concise-value-preview-pmb';
+
 import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import idGet from './idGet.mjs';
+import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 
 const EX = async function makeAnnoRoute(srv) {
@@ -24,6 +28,7 @@ Object.assign(EX, {
         'Anno subresource not implemented');
     }
     const [baseId] = urlSubDirs;
+    // req.logCkp('annoRoute', { method, baseId });
     if (baseId) { return EX.annoIdRoute(srv, req, baseId); }
     return EX.emptyIdRoute(srv, req);
   },
@@ -39,9 +44,17 @@ Object.assign(EX, {
 
   async annoIdRoute(srv, req, baseId) {
     const { method } = req;
+    const fx = (getOwn(EX, method.toLowerCase() + '_' + baseId)
+      || getOwn(EX, 'other_' + baseId));
+    req.logCkp('annoIdRoute fx:', conciseValuePreview(fx));
+    if (fx) { return fx(srv, req, baseId); }
     if (method === 'GET') { return idGet(srv, req, baseId); }
-
     return httpErrors.badVerb(req);
+  },
+
+
+  async post_acl(srv, req) {
+    return sendFinalTextResponse.json(req, { stub: true });
   },
 
 
