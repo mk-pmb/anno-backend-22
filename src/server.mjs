@@ -75,7 +75,7 @@ const EX = async function createServer(customConfig) {
       const lsnSpec = smartListen(srv.listenAddr, 0, 'http://');
       const lsnUrl = String(lsnSpec);
       await pify(cb => webSrv.listen(lsnSpec, cb))();
-      console.info('Listening on %s', lsnUrl);
+      console.info('Listening on %s', lsnUrl, 'pid:', process.pid);
       const pubUrl = customPublicBaseUrl;
       if (pubUrl) { console.info('  … which config says is %s', pubUrl); }
 
