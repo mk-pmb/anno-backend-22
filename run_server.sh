@@ -51,10 +51,11 @@ function actually_run_server () {
 
 
 function tee_output_to_logfile () {
-  mkdir --parents -- "$(dirname -- "${CFG[log_dest]}")"
-  >"${CFG[log_dest]}" || return 4$(
-    echo "E: Cannot write to logfile: ${CFG[log_dest]}" >&2)
-  exec &> >(tee -- "${CFG[log_dest]}") || return $?
+  local LOG="${CFG[log_dest]}"
+  [ -n "$LOG" ] || return 0
+  mkdir --parents -- "$(dirname -- "$LOG")"
+  >"$LOG" || return 4$(echo "E: Cannot write to logfile: $LOG" >&2)
+  exec &> >(tee -- "$LOG") || return 71
 }
 
 
@@ -67,7 +68,7 @@ function verify_run_prog () {
   else
     echo "E: ${CFG[run_prog]} failed. Is it in PATH? Try 'npm start' instead." >&2
   fi
-  return 8
+  return 81
 }
 
 
