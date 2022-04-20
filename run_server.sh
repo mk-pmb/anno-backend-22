@@ -11,7 +11,7 @@ function run_cli_main () {
     [run_task]='run_server_show_log_on_failure'
     [lint]=
     [run_prog]='nodemjs'
-    [log_dest]="logs.@$HOSTNAME/$FUNCNAME.log"
+    [log_dest]="logs.@$HOSTNAME/server.log"
     )
   tty --silent || CFG[run_task]='actually_run_server'
 
@@ -54,6 +54,12 @@ function tee_output_to_logfile () {
   local LOG="${CFG[log_dest]}"
   [ -n "$LOG" ] || return 0
   mkdir --parents -- "$(dirname -- "$LOG")"
+
+  local OLD="$LOG"
+  OLD="${OLD%.log}.prev.log"
+  [ ! -f "$LOG" ] || mv --verbose --no-target-directory \
+    -- "$LOG" "$OLD" || return $?
+
   >"$LOG" || return 4$(echo "E: Cannot write to logfile: $LOG" >&2)
   exec &> >(tee -- "$LOG") || return 71
 }
