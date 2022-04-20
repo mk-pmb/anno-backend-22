@@ -8,11 +8,15 @@ import verifyBaseIdFormat from './verifyBaseIdFormat.mjs';
 
 const namedEqual = equal.named.deepStrictEqual;
 
+const queryTpl = `
+  "details" FROM "anno_data"
+  WHERE "base_id" = $1 LIMIT 2;
+`.trim();
+
 
 async function idGet(srv, req, baseId) {
   verifyBaseIdFormat(baseId);
-  const reply = await srv.db.postgresSelect('"details" FROM "anno_data"'
-    + ' WHERE "base_id" = $1 LIMIT 2;', [baseId]);
+  const reply = await srv.db.postgresSelect(queryTpl, [baseId]);
   const { rows } = reply;
   const nRows = rows.length;
   if (!nRows) { return httpErrors.noSuchAnno(req, 'ID not in database'); }
