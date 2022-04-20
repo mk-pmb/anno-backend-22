@@ -11,6 +11,10 @@ const EX = {
     return EX.getFirstAsteriskUrlPart(req).split('/');
   },
 
+  guessOrigReqUrl(req) {
+    return req.getSrv().publicBaseUrlNoSlash + req.originalUrl;
+  },
+
 };
 
 export default EX;

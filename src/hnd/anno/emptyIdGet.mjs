@@ -1,8 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+// import debugRequest from '../util/debugRequest.mjs';
 import httpErrors from '../../httpErrors.mjs';
-import debugRequest from '../util/debugRequest.mjs';
-
+import legacySearchByTarget from './legacySearchByTarget.mjs';
 import verifyBaseIdFormat from './verifyBaseIdFormat.mjs';
 
 const searchNotImpl = httpErrors.notImpl.explain(
@@ -16,9 +16,7 @@ const EX = async function emptyIdGet(req) {
 
   if (nQuery === 1) {
     const [qk, qv] = queryEnts[0];
-    if (qk === '$target') {
-      return debugRequest(req) || qv;
-    }
+    if (qk === '$target') { return legacySearchByTarget(req, qv); }
   }
 
   return searchNotImpl(req);

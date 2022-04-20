@@ -55,7 +55,7 @@
     "postgres-pool-pmb": "^0.1.2",
     "safe-sortedjson": "^1.0.6",
     "summarize-express-request-pmb": "^0.1.0",
-    "typechecks-pmb": "^0.200620.4",
+    "typechecks-pmb": "^0.200620.5",
     "usnam-pmb": "^0.2.5"
   },
   "devDependencies": {

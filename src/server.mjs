@@ -12,8 +12,10 @@ import smartListen from 'net-smartlisten-pmb';
 
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import httpErrors from './httpErrors.mjs';
+import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
 import timeoutFallbackResponse from './timeoutFallbackResponse.mjs';
+
 
 const pathInRepo = absDir(import.meta, '..');
 
@@ -22,6 +24,7 @@ const defaultConfig = {
   envcfg_prefix: 'anno_',
   wwwpub_path: pathInRepo('wwwpub'),
   listen_addr: '127.0.0.1:33321',
+  public_baseurl: '',
   db: dbAdapter.getConfigDefaults(),
 
 };
@@ -39,6 +42,9 @@ const EX = async function createServer(customConfig) {
     console.debug('cleanup:', args);
   });
 
+  installGlobalRequestExtras(app);
+  app.use(timeoutFallbackResponse());
+
   const rootRouter = PrRouter({
     strict: true,
     /* ^- Discern /session from /session/, because the trailing slash
@@ -47,11 +53,12 @@ const EX = async function createServer(customConfig) {
           https://github.com/expressjs/express/issues/2281
     */
   });
-  app.use(timeoutFallbackResponse());
   app.use(rootRouter);
   app.use(httpErrors.handleUnknownError);
   const webSrv = nodeHttp.createServer();
   webSrv.on('request', app);
+
+  const customPublicBaseUrl = popCfg('str', 'public_baseurl', '');
 
   const srv = {
     popCfg,
@@ -66,8 +73,16 @@ const EX = async function createServer(customConfig) {
 
     async listen() {
       const lsnSpec = smartListen(srv.listenAddr, 0, 'http://');
+      const lsnUrl = String(lsnSpec);
       await pify(cb => webSrv.listen(lsnSpec, cb))();
-      console.info('Listening on ' + lsnSpec);
+      console.info('Listening on %s', lsnUrl);
+      const pubUrl = customPublicBaseUrl;
+      if (pubUrl) { console.info('  … which config says is %s', pubUrl); }
+
+      srv.publicBaseUrlNoSlash = String(pubUrl || lsnSpec)
+        // ^-- Please don't reinvent guessOrigReqUrl from
+        //     `hnd/util/miscPlumbing.mjs`!
+        .replace(/^TCP /, '').replace(/\/$/, '');
     },
 
     async close() {
@@ -83,6 +98,11 @@ const EX = async function createServer(customConfig) {
 
   await installRootRoutes(srv);
   srv.db = await dbAdapter.init({ popCfg });
+
+  app.globalRequestExtras({
+    getDb() { return srv.db; },
+    getSrv() { return srv; },
+  });
 
   return srv;
 };
