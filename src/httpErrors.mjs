@@ -20,6 +20,9 @@ const EX = {
 
   throwable(msg, opt) {
     if (Number.isFinite(opt)) { return EX.throwable(msg, { code: opt }); }
+    if ((opt !== undefined) && (typeof opt !== 'object')) {
+      return EX.throwable(msg, { unexpectedNonObjectDetails: opt });
+    }
     return Object.assign(new Error(msg), opt);
   },
 
@@ -46,7 +49,7 @@ const EX = {
       }
     }
     console.warn('httpErrors.handleUnknownError: ' + logVerb
-      + ' error message for:', err);
+      + ' error message for:', req.method, req.originalUrl, err);
     if (reply) { sendFinalTextResponse(req, reply); }
   },
 
