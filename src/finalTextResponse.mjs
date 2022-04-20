@@ -1,8 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import conciseValuePreview from 'concise-value-preview-pmb';
 import getOwn from 'getown';
-import isStr from 'is-string';
 import isErr from 'is-error';
+import isStr from 'is-string';
 import sortedJson from 'safe-sortedjson';
 
 
@@ -32,6 +33,9 @@ const ftr = function sendFinalTextResponse(req, how) {
   if (knwonTextTypes.includes(type)) {
     if (text.slice(-1) !== '\n') { text += '\n'; }
   }
+
+  console.debug('sendFinalTextResponse:', req.method, req.originalUrl,
+    '->', type, conciseValuePreview(text));
 
   const rsp = req.res;
   try {
