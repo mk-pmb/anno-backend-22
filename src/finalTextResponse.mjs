@@ -34,8 +34,7 @@ const ftr = function sendFinalTextResponse(req, how) {
     if (text.slice(-1) !== '\n') { text += '\n'; }
   }
 
-  console.debug('sendFinalTextResponse:', req.method, req.originalUrl,
-    '->', type, conciseValuePreview(text));
+  req.logCkp('sendFinalTextResponse:', '->', type, conciseValuePreview(text));
 
   const rsp = req.res;
   try {

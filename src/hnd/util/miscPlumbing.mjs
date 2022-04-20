@@ -13,7 +13,7 @@ const EX = {
   makeRedirector(pattern) {
     const redir = EX.legacyMultiArg(deviate(pattern));
     function hnd(req) {
-      console.debug('Redirecting:', req.method, req.originalUrl, '->', pattern);
+      req.logCkp('Redirecting:', '->', pattern);
       return redir(req);
     }
     return hnd;

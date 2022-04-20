@@ -48,8 +48,8 @@ const EX = {
         logVerb = 'Censor';
       }
     }
-    console.warn('httpErrors.handleUnknownError: ' + logVerb
-      + ' error message for:', req.method, req.originalUrl, err);
+    req.logCkp('httpErrors.handleUnknownError: ' + logVerb
+      + ' error message for:', err);
     if (reply) { sendFinalTextResponse(req, reply); }
   },
 

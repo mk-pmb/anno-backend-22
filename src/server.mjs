@@ -13,6 +13,7 @@ import httpErrors from './httpErrors.mjs';
 import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
 import installListenAddrPlumbing from './listenAddrPlumbing.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
+import logRequestCheckpoint from './logRequestCheckpoint.mjs';
 import timeoutFallbackResponse from './timeoutFallbackResponse.mjs';
 
 
@@ -27,7 +28,6 @@ const defaultConfig = {
   db: dbAdapter.getConfigDefaults(),
 
 };
-
 
 
 const EX = async function createServer(customConfig) {
@@ -76,6 +76,7 @@ const EX = async function createServer(customConfig) {
   app.globalRequestExtras({
     getDb() { return srv.db; },
     getSrv() { return srv; },
+    logCkp: logRequestCheckpoint,
   });
 
   return srv;
