@@ -79,7 +79,6 @@ function tee_output_to_logfile () {
 
 
 function verify_sigterm_compat () {
-  log_progress "${FUNCNAME//_/ }."
   local PID1_CMD="$(ps ho args 1)"
   if <<<"$PID1_CMD" grep -qPe "(^|/)(node|nodejs|npm)\b"; then
     echo "E: Process ID 1 seems to be npm." \
@@ -92,17 +91,35 @@ function verify_sigterm_compat () {
 
 
 function verify_run_prog () {
-  log_progress "Verify run_prog: ${CFG[run_prog]}"
-  </dev/null "${CFG[run_prog]}" -e 0 &>/dev/null && return 0
+  local PROG="${CFG[run_prog]}"
+  case "$PROG" in
+    '!no_verify!'* ) CFG[run_prog]="${PROG#!*!}"; return 0;;
+  esac
 
-  local ALTN="$(npm run sh which nodemjs | grep -Pe '^/')"
-  if [ -x "$ALTN" ] && </dev/null "$ALTN" -e 0; then
+  log_progress "Verify run_prog: $PROG"
+  { which "$PROG" && </dev/null "$PROG" -e 0; } &>/dev/null && return 0
+
+  local MAYBE=(
+    "$SELFPATH/node_modules/.bin/$PROG"
+    "/usr/lib/node_modules/.bin/$PROG"
+    "/usr/lib/node_modules/$PROG/bin/$PROG"
+    )
+  local ALTN=
+  for ALTN in "${MAYBE[@]}" ''; do
+    if [ -z "$ALTN" ]; then
+      log_progress "Using npm to search for run_prog locally." \
+        "This may take a few seconds."
+      ALTN="$(npm run sh which nodemjs | grep -Pe '^/')"
+    fi
+    [ -x "$ALTN" ] || continue
+    log_progress "Trying probable run_prog: $ALTN"
+    </dev/null "$ALTN" -e 0 &>/dev/null || continue
+    log_progress "Adjusting run_prog to: $ALTN"
     CFG[run_prog]="$ALTN"
-    log_progress "Adjusting run_prog to: ${CFG[run_prog]}"
     return 0
-  fi
+  done
 
-  echo "E: Even npm cannot find ${CFG[run_prog]}." \
+  echo "E: Even npm cannot find $PROG." \
     "Is the package installed correctly?" >&2
   return 81
 }
