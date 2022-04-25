@@ -26,7 +26,7 @@ const exitSoonSignalNames = [
 
   const srv = await makeServer({
     testfx_exit_soon_sec: 0,
-    alive_pid_intv_sec: 60,
+    alive_pid_intv_sec: 0,
     ...allCliOpt,
   });
 
