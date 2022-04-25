@@ -4,7 +4,8 @@
 
 function run_cli_main () {
   export LANG{,UAGE}=en_US.UTF-8  # make error messages search engine-friendly
-  local SELFPATH="$(readlink -m -- "$BASH_SOURCE"/..)"
+  local SELFFILE="$(readlink -m -- "$BASH_SOURCE")"
+  local SELFPATH="$(dirname -- "$SELFFILE")"
   cd -- "$SELFPATH" || return $?
 
   local -A CFG=(
@@ -15,6 +16,7 @@ function run_cli_main () {
     )
   tty --silent || CFG[run_task]='actually_run_server'
 
+  log_progress "Reading config file(s) for host '$HOSTNAME'."
   local ITEM=
   for ITEM in cfg.@"$HOSTNAME"{/*,.*,}.rc; do
     [ ! -f "$ITEM" ] || source -- "$ITEM" cfg:run || return $?
@@ -22,6 +24,9 @@ function run_cli_main () {
 
   "${CFG[run_task]}" "$@" || return $?
 }
+
+
+function log_progress () { printf '%(%F %T)T P: %s\n' -1 "$*"; }
 
 
 function run_server_show_log_on_failure () {
@@ -37,16 +42,24 @@ function run_server_show_log_on_failure () {
 
 function actually_run_server () {
   tee_output_to_logfile || return $?
+  verify_sigterm_compat || return $?
   verify_run_prog || return $?
 
   local LINT="${CFG[lint]}"
-  [ "$LINT" == + ] && LINT='elp'
-  [ -z "$LINT" ] || "$LINT" || return $?
+  if [ -n "$LINT" ]; then
+    [ "$LINT" == + ] && LINT='elp'
+    log_progress "Running linter: $LINT"
+    "$LINT" || return $?
+  fi
 
-  "${CFG[run_prog]}" src/runServer.mjs "$@"
-  local RV="$?"
-  echo "D: Server quit, rv=$RV"
-  return "$RV"
+  # In case we're process ID 1 (e.g. in docker), we must either forward
+  # signals like SIGTERM, or hand over PID 1 to a program that can ensure
+  # proper forwarding to the server.
+  # The easiest solution is to always hand over our PID to the server
+  # itself, independent of whether our PID is 1.
+  log_progress "Gonna replace pid $$ with: ${CFG[run_prog]}"
+  exec "${CFG[run_prog]}" src/runServer.mjs "$@" || return $?$(
+    echo "E: server exec failed, rv=$?" >&2)
 }
 
 
@@ -65,15 +78,32 @@ function tee_output_to_logfile () {
 }
 
 
-function verify_run_prog () {
-  </dev/null "${CFG[run_prog]}" -e 0 && return 0
-
-  if [ -n "$npm_lifecycle_event" ]; then
-    echo "E: Running inside npm but cannot find ${CFG[run_prog]}." \
-      "Is the package installed correctly?" >&2
-  else
-    echo "E: ${CFG[run_prog]} failed. Is it in PATH? Try 'npm start' instead." >&2
+function verify_sigterm_compat () {
+  log_progress "${FUNCNAME//_/ }."
+  local PID1_CMD="$(ps ho args 1)"
+  if <<<"$PID1_CMD" grep -qPe "(^|/)(node|nodejs|npm)\b"; then
+    echo "E: Process ID 1 seems to be npm." \
+      "This usually causes signal handling problems, mostly with SIGTERM." \
+      "If you're running this in a docker container, please use" \
+      "'$SELFFILE' as the docker command." >&2
+    return 80
   fi
+}
+
+
+function verify_run_prog () {
+  log_progress "Verify run_prog: ${CFG[run_prog]}"
+  </dev/null "${CFG[run_prog]}" -e 0 &>/dev/null && return 0
+
+  local ALTN="$(npm run sh which nodemjs | grep -Pe '^/')"
+  if [ -x "$ALTN" ] && </dev/null "$ALTN" -e 0; then
+    CFG[run_prog]="$ALTN"
+    log_progress "Adjusting run_prog to: ${CFG[run_prog]}"
+    return 0
+  fi
+
+  echo "E: Even npm cannot find ${CFG[run_prog]}." \
+    "Is the package installed correctly?" >&2
   return 81
 }
 
