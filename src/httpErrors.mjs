@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import errorDetailsWithoutLogSpam from 'error-details-without-log-spam-pmb';
+
 import sendFinalTextResponse from './finalTextResponse.mjs';
 
 const makeCanned = sendFinalTextResponse.simpleCanned;
@@ -49,7 +51,7 @@ const EX = {
       }
     }
     req.logCkp('httpErrors.handleUnknownError: ' + logVerb
-      + ' error message for:', err);
+      + ' error message for:', errorDetailsWithoutLogSpam(err));
     if (reply) { sendFinalTextResponse(req, reply); }
   },
 
