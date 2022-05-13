@@ -1,6 +1,5 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import isGetLikeMethod from './isGetLikeMethod.mjs';
 import sendFinalTextResponse from './finalTextResponse.mjs';
 
 const makeCanned = sendFinalTextResponse.simpleCanned;
@@ -11,11 +10,12 @@ const EX = {
 
   badVerb: makeCanned(405, 'Method Not Allowed'),
   noSuchAnno: makeCanned(404, 'Annotation not found'),
-  noSuchResource(r) { (isGetLikeMethod(r) ? EX.notFound : EX.badVerb)(r); },
-  notFound: makeCanned(404, 'File not found'),
+  notImpl: makeCanned(501, 'Not Implemented'),
+
+  noSuchResource: makeCanned(405, 'Method Not Allowed',
+    { getLike: { code: 404, text: 'Resource not found' } }),
   unexpectedlySlowTask: makeCanned(500,
     'Internal Server Error: Task exceeds expected time limit'),
-  notImpl: makeCanned(501, 'Not Implemented'),
 
 
   throwable(msg, opt) {
