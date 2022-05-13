@@ -9,6 +9,7 @@ import logIncomingRequest from './util/logIncomingRequest.mjs';
 import makeAnnoRoute from './anno/route.mjs';
 import makeSessionRoute from './sess/route.mjs';
 import simpleFilenameRedirector from './simpleFilenameRedirector.mjs';
+import siteLocalReservedRoutes from './siteLocalReservedRoutes.mjs';
 
 
 const EX = async function installRootRoutes(srv) {
@@ -24,6 +25,7 @@ const EX = async function installRootRoutes(srv) {
 
   rt.use('/session/*', await makeSessionRoute(srv));
   rt.use('/anno/*', await makeAnnoRoute(srv));
+  siteLocalReservedRoutes.installRoutes(rt);
 
   rt.get('/:filename', eternal(simpleFilenameRedirector('/static/:filename')));
 
