@@ -23,10 +23,12 @@ Object.assign(EX, {
     if (req.method === 'OPTIONS') { return; }
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
-    if (urlSubDirs.length !== 1) {
-      return httpErrors.notImpl.explain('Anno subresource not implemented'
-        + urlSubDirs[0])(req);
+    const nUrlSubDirs = urlSubDirs.length;
+    if (nUrlSubDirs >= 2) {
+      return httpErrors.notImpl.explain('Anno subresource not implemented: '
+        + urlSubDirs[1])(req);
     }
+    if (nUrlSubDirs !== 1) { throw new Error('Bad route declaration'); }
     const [baseId] = urlSubDirs;
     // req.logCkp('annoRoute', { method, baseId });
     if (baseId) { return EX.annoIdRoute(srv, req, baseId); }
