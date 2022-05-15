@@ -4,6 +4,7 @@ import express from 'express';
 
 import eternal from './wrap/eternal.mjs';
 import plumb from './util/miscPlumbing.mjs';
+import httpErrors from '../httpErrors.mjs';
 import logIncomingRequest from './util/logIncomingRequest.mjs';
 import makeAnnoRoute from './anno/route.mjs';
 import makeSessionRoute from './sess/route.mjs';
@@ -25,6 +26,10 @@ const EX = async function installRootRoutes(srv) {
   rt.use('/anno/*', await makeAnnoRoute(srv));
 
   rt.get('/:filename', eternal(simpleFilenameRedirector('/static/:filename')));
+
+
+  // If no previous route has matched, default to:
+  rt.use(httpErrors.noSuchResource);
 };
 
 
