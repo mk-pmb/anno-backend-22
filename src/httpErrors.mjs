@@ -1,10 +1,12 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import errorDetailsWithoutLogSpam from 'error-details-without-log-spam-pmb';
+import handleUnknownError from
+  'express-final-text-response-pmb/extras/handleUnknownError.mjs';
 
-import sendFinalTextResponse from './finalTextResponse.mjs';
+import finalTextResponse from './finalTextResponse.mjs';
 
-const makeCanned = sendFinalTextResponse.simpleCanned;
+
+const makeCanned = finalTextResponse.simpleCanned;
 // ^-- Unfortunately the verb "(to) can" is easy to confuse with other "can"s.
 
 
@@ -29,32 +31,7 @@ const EX = {
   },
 
 
-  httpStatusCode(err) {
-    const code = (err.code || err);
-    return (Number.isFinite(code) && (code >= 100) && (code < 600) && code);
-  },
-
-
-  handleUnknownError: function hunk(err, req, res, next) {
-    if (!res) { return hunk(err, req, req.res, req.next); }
-    if (!err) { return next(); }
-    let logVerb = 'Too late to serve';
-    let reply;
-    if (!req.complete) {
-      const code = EX.httpStatusCode(err);
-      if (code) {
-        reply = err;
-        logVerb = 'Serve';
-      } else {
-        reply = { code: 500, text: 'Internal Server Error' };
-        logVerb = 'Censor';
-      }
-    }
-    req.logCkp('httpErrors.handleUnknownError: ' + logVerb
-      + ' error message for:', errorDetailsWithoutLogSpam(err));
-    if (reply) { sendFinalTextResponse(req, reply); }
-  },
-
+  handleUnknownError: handleUnknownError.bind(null, finalTextResponse),
 
 };
 

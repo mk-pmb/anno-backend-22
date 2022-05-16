@@ -21,7 +21,7 @@ async function idGet(srv, req, baseId) {
   const nRows = rows.length;
   if (!nRows) { return httpErrors.noSuchAnno(req, 'ID not in database'); }
   namedEqual('Number of rows found for anno base ID ' + baseId, nRows, 1);
-  return sendFinalTextResponse.json(req, rows[0].details);
+  return sendFinalTextResponse.json(req, rows[0].details, { type: 'annoLD' });
 }
 
 

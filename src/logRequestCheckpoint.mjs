@@ -4,6 +4,7 @@ const EX = function logRequestCheckpoint(where, ...details) {
   const req = this;
   const hints = [
     (req.complete && '[complete]'),
+    (req.res.finished && '[finished]'),
   ].filter(Boolean);
   console.debug(where,
     req.method,
