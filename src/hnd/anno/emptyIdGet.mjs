@@ -3,7 +3,7 @@
 // import debugRequest from '../util/debugRequest.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import legacySearchByTarget from './legacySearchByTarget.mjs';
-import verifyBaseIdFormat from './verifyBaseIdFormat.mjs';
+import parseVersId from './parseVersionIdentifier.mjs';
 
 const searchNotImpl = httpErrors.notImpl.explain(
   'Unsupported combination of search criteria.');
@@ -12,7 +12,7 @@ const searchNotImpl = httpErrors.notImpl.explain(
 const EX = async function emptyIdGet(srv, req) {
   const queryEnts = Object.entries(req.query);
   const nQuery = queryEnts.length;
-  if (!nQuery) { return verifyBaseIdFormat(); }
+  if (!nQuery) { return parseVersId(); }
 
   if (nQuery === 1) {
     const [qk, qv] = queryEnts[0];
