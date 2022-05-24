@@ -8,21 +8,21 @@ const errBadId = httpErrors.noSuchAnno.explain('Unsupported anno ID format');
 
 const replySep = ubhdAnnoIdFmt.legacyReplySeparator;
 
-const versIdRgx = /^([A-Za-z0-9_\-]{10,36})(?:\.(\d+)|)(?:\~(\d+)|)$/;
+const versIdRgx = /^([A-Za-z0-9_\-]{10,36})((?:\.[\d\.]+)*)(?:\~(\d+)|)$/;
 
 
 const EX = function parseVersId(versId) {
   if (!versId) { throw errNoId.throwable(); }
   const m = versIdRgx.exec(versId);
   if (!m) { throw errBadId.throwable(); }
-  const legacyReplyNum = (+m[2] || 0);
   const parts = {
-    baseId: m[1],
-    legacyMongoId: m[1],
-    legacyReplyNum,
+    versId,
+    mongoId: m[1],
+    replySuf: (m[2] || ''),
     versNum: (+m[3] || 0),
   };
-  if (parts.legacyReplyNum) { parts.baseId += replySep + legacyReplyNum; }
+  parts.baseId = parts.mongoId + parts.replySuf;
+  parts.replyNums = parts.replySuf.split(replySep).slice(1).map(n => +n);
   return parts;
 };
 
