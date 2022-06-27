@@ -1,10 +1,11 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import httpErrors from '../../httpErrors.mjs';
-import requestDebugHandler from '../util/debugRequest.mjs';
+// import requestDebugHandler from '../util/debugRequest.mjs';
 // import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 import plumb from '../util/miscPlumbing.mjs';
+import whoamiHandler from './whoami.mjs';
 
 
 const EX = async function makeSessionRoute() {
@@ -18,9 +19,7 @@ const EX = async function makeSessionRoute() {
       // requirement in a reverse proxy.
       return redirectToWhoami(req);
     }
-    if (subUrl === 'whoami') {
-      return requestDebugHandler(req);
-    }
+    if (subUrl === 'whoami') { return whoamiHandler(req); }
     return httpErrors.noSuchResource(req);
   }
 
