@@ -8,6 +8,8 @@ import nodeHttp from 'http';
 import objPop from 'objpop';
 import PrRouter from 'express-promise-router';
 
+import collectionsAdapter from './cfg/collectionsAdapter.mjs';
+import configFilesAdapter from './cfg/configFilesAdapter.mjs';
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import httpErrors from './httpErrors.mjs';
 import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
@@ -22,11 +24,13 @@ const pathInRepo = absDir(import.meta, '..');
 const defaultConfig = {
 
   envcfg_prefix: 'anno_',
-  wwwpub_path: pathInRepo('wwwpub'),
+  db: dbAdapter.getConfigDefaults(),
+  cfgfiles: configFilesAdapter.getConfigDefaults(),
+
+  cors_accept_origin: '*',
   listen_addr: '127.0.0.1:33321',
   public_baseurl: '',
-  cors_accept_origin: '*',
-  db: dbAdapter.getConfigDefaults(),
+  wwwpub_path: pathInRepo('wwwpub'),
 
 };
 
@@ -70,6 +74,8 @@ const EX = async function createServer(customConfig) {
     getLowLevelWebServer() { return webSrv; },
   };
 
+  srv.configFiles = await configFilesAdapter.make({ popCfg });
+  srv.collections = await collectionsAdapter.make(srv);
   srv.db = await dbAdapter.init({ popCfg });
   await installListenAddrPlumbing(srv);
   await installRootRoutes(srv);

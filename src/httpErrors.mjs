@@ -21,6 +21,8 @@ const EX = {
   unexpectedlySlowTask: makeCanned(500,
     'Internal Server Error: Task exceeds expected time limit'),
 
+  aclDeny: makeCanned(403, 'Forbidden by ACL'),
+
 
   throwable(msg, opt) {
     if (Number.isFinite(opt)) { return EX.throwable(msg, { code: opt }); }

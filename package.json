@@ -55,9 +55,13 @@
     "pg": "^8.7.3",
     "pify": "^5.0.0",
     "postgres-pool-pmb": "^0.1.2",
+    "read-data-file": "^2.0.4",
+    "split-string-or-buffer-once-pmb": "^1.0.0",
     "summarize-express-request-pmb": "^0.1.2",
     "typechecks-pmb": "^0.200620.5",
-    "usnam-pmb": "^0.2.5"
+    "usnam-pmb": "^0.2.5",
+    "vtry": "^1.0.8",
+    "webanno-guess-subject-target-url-pmb": "^1.0.0"
   },
   "devDependencies": {
     "eslint-config-nodejs-pmb": "^0.3.4",
