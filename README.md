@@ -8,6 +8,8 @@ anno-server-22
 UB-HD Web Anntation Server, 2022 Edition
 <!--/#echo -->
 
+* 🇺🇸 [What is this project?](docs/about/whats_this.en.md)
+  / 🇩🇪 [Worum geht es hier?](docs/about/whats_this.de.md)
 
 
 
