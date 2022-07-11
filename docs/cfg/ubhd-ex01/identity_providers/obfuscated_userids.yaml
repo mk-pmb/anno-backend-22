@@ -1,0 +1,35 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+upstream_userid_transforms:
+
+   encodings:
+        # To try them, use `../../../../test/cfg/idp/encodings/from_file.mjs`
+
+        pbkdf2_key_220711:
+            # ^-- The encoding ID with which you want to refer to this
+            #   variant in your user config files.
+            #   It should consist of only [a-z0-9_].
+            enc:    pbkdf2
+            salt:   'K(TCND8Mvc?qLZ}*7Mzcwis4ipMEtrexfBfn9NEe'
+            iterations: 2
+                # ^-- Would be way too low for passwords, but should be ok
+                #   for mere username obfuscation.
+            digest: sha512
+            keylen: 128
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...
