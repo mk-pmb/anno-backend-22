@@ -98,6 +98,20 @@
         # Simplified according to `../identity_providers.yaml`
         - id: 'staging:V4B7UOXG77RIRCH4LSD2LMKPA3MA7SWS'    # hc42
 
+        # ====================================================================
+
+        # We might want to obscure names in order to lessen the secrecy
+        # requirements for our config files. This may be useful if you
+        # want to share your config file with strangers for debugging,
+        # or publish it as an example in documentation.
+        -   enc: pbkdf2_key_220711
+            # ^-- Defined in `../identity_providers/obfuscated_userids.yaml`
+            id: >
+                BogusBogusBogusBogusBogusBogusBogusBogus
+                BogusBogusBogusBogusBogusBogusBogusBogus
+                # We can break the value into multiple lines because whitespace
+                # is removed (see above).
+
 
 
 
