@@ -1,0 +1,65 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:  # <-- Anno user name. `^` means to use the basename of the filename.
+
+    author_identities:
+
+        main:
+            # ^-- The author ID key should consist of only [a-z0-9_].
+            display_name: "Arno Nym"
+            icon: "grey_fedora"
+            website: "https://arno.example.net/"
+
+
+    acl_user_groups:
+        # You can also declare group membership in a group config file.
+        # Membership declarations merge cumulatively, so this is redundant:
+        - 'diglit_proofreaders'
+
+
+    upstream_userid_aliases:
+        # The upstream reverse proxy may know this user under a name that's
+        # more complicated (e.h. Shibboleth) or might change in the future.
+        # This mapping translates the names from the identity provider (IDP)
+        # to names that make sense to the anno server admin.
+        #
+        # All below identities map to anno user "arno", because "arno" is the
+        # base name component of the filename of this user config file.
+
+        # ====================================================================
+
+        # IDP dummy email -> anno user
+        - id: "xyz12  345 @ example.net"
+        - id: "xyz12  c   @ example.net"
+        - id: "arno   22  @ example.net"
+        - id: "arno   nym @ example.net"
+        # We can nicely align them with spaces because all whitespace is
+        # removed from the id value for your convenience.
+        # If your upstream IDP uses usernames with whitespace in them,
+        # please file a feature request for URL encoded IDs and we'll
+        # most likely add that.
+
+        # ====================================================================
+
+        # Simplified according to `../identity_providers.yaml`
+        - id: 'staging:FZKXJKLQADEV65X4FN6VXV7VM2KRSFH6"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...

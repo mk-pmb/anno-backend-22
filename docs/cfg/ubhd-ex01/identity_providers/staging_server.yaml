@@ -1,0 +1,35 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+upstream_userid_transforms:
+    # The upstream reverse proxy may have overly complicated user IDs
+    # that you want to simplify for use in your user config files,
+    # or you might want use encoded versions of the user ID there.
+    # See `users/*.yaml` for examples.
+
+    simplify:
+        -   replace_regexp: >
+                ^https://idp\.uni-heidelberg\.de!https://\w+\.ub\.uni-heidelberg\.de/[#-~]+!
+                # ^-- Shibboleth URLs on our staging server.
+                # For regexp flags, you can use the syntax from
+                # [`regexp-flags-upfront`](https://npm.im/regexp-flags-upfront).
+            replace_with: 'staging:'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...

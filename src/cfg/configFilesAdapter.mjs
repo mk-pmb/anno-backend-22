@@ -9,13 +9,21 @@ import getOwn from 'getown';
 import mergeOpt from 'merge-options';
 import mustBe from 'typechecks-pmb/must-be';
 import readDataFile from 'read-data-file';
-// import vTry from 'vtry';
 
 
 const pathInRepo = absDir(import.meta, '../..');
 const cfgFileSuffix = '.yaml';
 
-function err2null() { return null; }
+
+async function ignoreENoEnt(pr) {
+  try {
+    return await pr;
+  } catch (err) {
+    if (err.code === 'ENOENT') { return undefined; }
+    throw err;
+  }
+}
+
 
 
 const EX = {
@@ -39,6 +47,14 @@ const EX = {
   },
 
 
+  async readConfigFileIfExists(path) {
+    const cfg = await ignoreENoEnt(readDataFile(path));
+    if (cfg === undefined) { return; } // File not found
+    mustBe.obj('Config data read from ' + path, cfg);
+    return cfg;
+  },
+
+
   api: {
 
     async read(topic) {
@@ -51,14 +67,19 @@ const EX = {
         basePath = pathLib.join(ad.cfgDir, basePath);
       }
 
-      const singlePr = readDataFile(basePath + cfgFileSuffix).catch(err2null);
-      const dirFiles = await (fsPromises.readdir(basePath).catch(err2null));
+      const singlePr = EX.readConfigFileIfExists(basePath + cfgFileSuffix);
+      const dirFiles = await ignoreENoEnt(fsPromises.readdir(basePath));
       const dirCfgFiles = (dirFiles || []).sort().filter(
         n => n.endsWith(cfgFileSuffix));
-      const dirConfigPrs = dirCfgFiles.map(function oneCfgFile(name) {
+      const dirConfigPrs = dirCfgFiles.map(async function oneCfgFile(name) {
         const bfn = name.slice(0, -cfgFileSuffix.length);
-        function wrap(x) { return { [bfn]: x }; }
-        return readDataFile(pathLib.join(basePath, name)).then(wrap, err2null);
+        const fullPath = pathLib.join(basePath, name);
+        const cfg = await EX.readConfigFileIfExists(fullPath);
+        if (cfg['^'] !== undefined) {
+          cfg[bfn] = cfg['^'];
+          delete cfg['^']; // Please don't use `^.yaml` as your filename.
+        }
+        return cfg;
       });
 
       const readableConfigs = (await Promise.all([

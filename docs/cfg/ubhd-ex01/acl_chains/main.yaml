@@ -1,0 +1,37 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:  # <-- Chain name. `^` means to use the basename of the filename.
+
+  - tendency: '*': deny
+    # `tendency` sets tentative decisions for selected privileges,
+    # which can be overturned by later rules.
+    # `*` is the fallback privilege, used when the required privilege
+    # has no explicit decision.
+    # This entire rule is redundant, because the built-in default is
+    # to deny everything.
+
+  - ifMemberOfAclGroup: 'suspended'
+    decide: '*': deny
+    # `decide` sets the decisions for selected privileges and stops
+    # ACL processing, thus making the decisions final.
+
+  - ifMemberOfAclGroup: 'superadmin'
+    decide: '*': allow
+
+  - ifParamInList: collectionId
+    list:
+        - 'diglit'
+    aclSubChain: 'diglit'   # Apply the rules from `diglit.yaml` right now.
+
+
+
+
+
+
+
+
+
+
+...
