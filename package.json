@@ -48,6 +48,7 @@
     "express-promise-router": "^4.1.1",
     "express-timeout-handler": "^2.2.2",
     "getown": "^1.0.0",
+    "merge-options": "^3.0.4",
     "net-smartlisten-pmb": "^1.0.3",
     "nodemjs": "^0.1.11",
     "objpop": "^0.3.1",
@@ -60,7 +61,6 @@
     "summarize-express-request-pmb": "^0.1.2",
     "typechecks-pmb": "^0.200620.5",
     "usnam-pmb": "^0.2.5",
-    "vtry": "^1.0.8",
     "webanno-guess-subject-target-url-pmb": "^1.0.0"
   },
   "devDependencies": {
