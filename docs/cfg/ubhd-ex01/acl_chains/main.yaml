@@ -4,25 +4,40 @@
 
 ^:  # <-- Chain name. `^` means to use the basename of the filename.
 
-  - tendency: '*': deny
-    # `tendency` sets tentative decisions for selected privileges,
-    # which can be overturned by later rules.
-    # `*` is the fallback privilege, used when the required privilege
-    # has no explicit decision.
-    # This entire rule is redundant, because the built-in default is
-    # to deny everything.
+  - if: always
+    tendency:
+        '*': deny
+        # `tendency` sets tentative decisions for selected privileges,
+        # which can be overturned by later rules.
+        # `*` is the fallback privilege, used when the required privilege
+        # has no explicit decision.
+        # This entire rule is redundant, because the built-in default is
+        # to deny everything.
 
-  - ifMemberOfAclGroup: 'suspended'
-    decide: '*': deny
-    # `decide` sets the decisions for selected privileges and stops
-    # ACL processing, thus making the decisions final.
+  - if:
+        memberOfAclGroup: 'suspended'
+    decide:
+        '*': deny
+        # `decide` sets the decisions for selected privileges and stops
+        # ACL processing, thus making the decisions final.
 
-  - ifMemberOfAclGroup: 'superadmin'
-    decide: '*': allow
+  - if:
+        memberOfAclGroup: 'superadmin'
+    decide:
+        '*': allow
 
-  - ifParamInList: serviceId
-    list:
-        - 'diglit'
+  - unless:
+        memberOfAclGroup: 'superadmin'
+    decide:
+        'restart': deny
+        # Lack of a '*' entry means this rule have no effect for actions not
+        # mentioned. The ACL processing will continue unfettered for requests
+        # that do not require the "restart" permission.
+
+  - param: 'serviceId'
+    if:
+        paramInList:
+            - 'diglit'
     aclSubChain: 'diglit'   # Apply the rules from `diglit.yaml` right now.
 
 
