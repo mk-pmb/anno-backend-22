@@ -8,9 +8,9 @@
 
         main:
             # ^-- The author ID key should consist of only [a-z0-9_].
-            display_name: "Arno Nym"
-            icon: "grey_fedora"
-            website: "https://arno.example.net/"
+            display_name: 'Arno Nym'
+            icon: 'grey_fedora'
+            website: 'https://arno.example.net/'
 
 
     acl_user_groups:
@@ -31,10 +31,10 @@
         # ====================================================================
 
         # IDP dummy email -> anno user
-        - id: "xyz12  345 @ example.net"
-        - id: "xyz12  c   @ example.net"
-        - id: "arno   22  @ example.net"
-        - id: "arno   nym @ example.net"
+        - id: 'xyz12  345 @ example.net'
+        - id: 'xyz12  c   @ example.net'
+        - id: 'arno   22  @ example.net'
+        - id: 'arno   nym @ example.net'
         # We can nicely align them with spaces because all whitespace is
         # removed from the id value for your convenience.
         # If your upstream IDP uses usernames with whitespace in them,
@@ -44,7 +44,7 @@
         # ====================================================================
 
         # Simplified according to `../identity_providers.yaml`
-        - id: 'staging:FZKXJKLQADEV65X4FN6VXV7VM2KRSFH6"
+        - id: 'staging:FZKXJKLQADEV65X4FN6VXV7VM2KRSFH6'
 
 
 
