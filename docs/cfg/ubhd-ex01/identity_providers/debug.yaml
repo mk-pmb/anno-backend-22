@@ -1,0 +1,32 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+identity_sources:
+    # As explained in `./staging_server.yaml`, we use number prefixes
+    # for priority. If this file config is enabeld (symlinked),
+    # the debug cookie will be tried before the Apache headers are.
+    # Thus, when a cookie by this name and with a non-empty value is
+    # found, the cookie will win.
+
+    10_debug_cookie:
+        method: 'cookie'
+        cookie_name: 'user'
+        # Set in your browser console: document.cookie = 'user=arno';
+        # For guest access, use special username '-' (U+002D hyphen-minus).
+
+    # The cookie IDP worked conveniently for about a week or so, until one day
+    # when cookies set via Firefox's JS console started to become unreliable.
+    # They were sent with some requests but not others, and depending on the
+    # page being displayed, `document.cookie` silently ignored changes,
+    # or would even insist to be just an empty string no matter what.
+    # I had the choice to either debug Firefox and/or my addons,
+    # or add a more reliable fallback:
+
+    11_debug_file:
+        method: 'static_from_file'
+        path: 'cfg://identity_providers/_whoami.yaml'
+        # Prefix `cfg://` points to the server's config directory.
+
+
+...

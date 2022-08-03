@@ -5,19 +5,18 @@ import splitOnce from 'split-string-or-buffer-once-pmb';
 import httpErrors from '../httpErrors.mjs';
 
 
-const OrderedMap = Map; // just to clarify where we do care.
+const OrderedMap = Map; // to clarify where we do care.
 
 
 const EX = {
 
   async make(srv) {
-    const origCfg = await srv.configFiles.read('services');
-    const svcs = new Map(Object.entries(origCfg));
+    const svcs = await srv.configFiles.readAsMap('services');
     Object.assign(svcs, {
       idByPrefix: new OrderedMap(),
       ...EX.api,
     });
-    Object.entries(origCfg).forEach(function learn([svcId, origDetails]) {
+    svcs.forEach(function learn(origDetails, svcId) {
       const det = { ...origDetails, svcId };
       svcs.set(svcId, det);
       if (!det) { return; }
@@ -26,7 +25,7 @@ const EX = {
         tumCfg.prefixes.forEach(pfx => svcs.idByPrefix.set(pfx, svcId));
       }
     });
-    console.debug(svcs);
+    console.debug('services:', svcs.toDict());
     return svcs;
   },
 

@@ -4,7 +4,7 @@
 
 ^:  # <-- Group name. `^` means to use the basename of the filename.
 
-    users:
+    usernames:
         # You can also declare group membership in a user config file.
         # Membership declarations merge cumulatively, so this is redundant:
         - 'arno'

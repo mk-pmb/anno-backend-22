@@ -8,7 +8,6 @@ import nodeHttp from 'http';
 import objPop from 'objpop';
 import PrRouter from 'express-promise-router';
 
-import servicesAdapter from './cfg/servicesAdapter.mjs';
 import configFilesAdapter from './cfg/configFilesAdapter.mjs';
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import httpErrors from './httpErrors.mjs';
@@ -16,6 +15,9 @@ import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
 import installListenAddrPlumbing from './listenAddrPlumbing.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
 import logRequestCheckpoint from './logRequestCheckpoint.mjs';
+import lusrmgr from './cfg/lusrmgr/index.mjs';
+import prepareAcl from './acl/prepareAcl.mjs';
+import servicesAdapter from './cfg/servicesAdapter.mjs';
 import timeoutFallbackResponse from './timeoutFallbackResponse.mjs';
 
 
@@ -76,6 +78,8 @@ const EX = async function createServer(customConfig) {
 
   srv.configFiles = await configFilesAdapter.make({ popCfg });
   srv.services = await servicesAdapter.make(srv);
+  srv.lusrmgr = await lusrmgr.make(srv);
+  srv.acl = await prepareAcl(srv);
   srv.db = await dbAdapter.init({ popCfg });
   await installListenAddrPlumbing(srv);
   await installRootRoutes(srv);

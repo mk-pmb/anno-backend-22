@@ -2,6 +2,25 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
+identity_sources:
+    # First successful identity source wins.
+    # They will be sorted by name, so we use a number prefix for priority.
+    # On our staging server, we just have Apache with shibboleth:
+
+    60_apache:
+        method: 'headers'
+        # Header names can be given as a string or as a list.
+        # In case of a list, the first header with a non-empty
+        # value will be used.
+        # All header names are expected to be in all-lowercase.
+        userId:
+            - 'remote_user'
+        renewalAvailableBefore:
+            - 'shib-session-inactivity'
+        sessionExpiryHardLimit:
+            - 'shib-session-expires'
+
+
 upstream_userid_transforms:
     # The upstream reverse proxy may have overly complicated user IDs
     # that you want to simplify for use in your user config files,

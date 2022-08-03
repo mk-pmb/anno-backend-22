@@ -6,13 +6,16 @@ import fsPromises from 'fs/promises';
 import absDir from 'absdir';
 import crObAss from 'create-object-and-assign';
 import getOwn from 'getown';
+import makeExtendedOrderedMap from 'ordered-map-extended-pmb';
 import mergeOpt from 'merge-options';
 import mustBe from 'typechecks-pmb/must-be';
+import objPop from 'objpop';
 import readDataFile from 'read-data-file';
 
 
 const pathInRepo = absDir(import.meta, '../..');
 const cfgFileSuffix = '.yaml';
+const firstCharStrictlyAlnumRgx = /^[0-9a-zA-Z]/;
 
 
 async function ignoreENoEnt(pr) {
@@ -57,7 +60,15 @@ const EX = {
 
   api: {
 
-    async read(topic) {
+    isPluggableConfigFilename(n) {
+      return !!(n
+        && n.endsWith(cfgFileSuffix)
+        && firstCharStrictlyAlnumRgx.test(n)
+      );
+    },
+
+
+    async readAsDict(topic) {
       mustBe.nest('Config topic', topic);
       const ad = this;
       const descr = ('config for topic ' + topic);
@@ -69,8 +80,8 @@ const EX = {
 
       const singlePr = EX.readConfigFileIfExists(basePath + cfgFileSuffix);
       const dirFiles = await ignoreENoEnt(fsPromises.readdir(basePath));
-      const dirCfgFiles = (dirFiles || []).sort().filter(
-        n => n.endsWith(cfgFileSuffix));
+      const dirCfgFiles = (dirFiles
+        || []).filter(EX.api.isPluggableConfigFilename).sort();
       const dirConfigPrs = dirCfgFiles.map(async function oneCfgFile(name) {
         const bfn = name.slice(0, -cfgFileSuffix.length);
         const fullPath = pathLib.join(basePath, name);
@@ -91,6 +102,18 @@ const EX = {
         throw new Error('Found no config settings AT ALL for topic ' + topic);
       }
       return merged;
+    },
+
+
+    async readMustPop(topic) {
+      const cfgDict = await this.readAsDict(topic);
+      const mustPop = objPop(cfgDict, { mustBe }).mustBe;
+      return mustPop;
+    },
+
+    async readAsMap(topic) {
+      const cfgDict = await this.readAsDict(topic);
+      return makeExtendedOrderedMap().upd(cfgDict);
     },
 
   },

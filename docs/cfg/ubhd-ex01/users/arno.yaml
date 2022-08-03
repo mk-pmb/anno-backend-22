@@ -3,6 +3,8 @@
 ---
 
 ^:  # <-- Anno user name. `^` means to use the basename of the filename.
+    # The user name will be visible to clients via the whoami API and
+    # possibly in other places.
 
     author_identities:
 
