@@ -3,8 +3,6 @@
 import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
-import acl from '../../acl/index.mjs';
-
 
 const {
   versionNumberSeparator,
@@ -12,8 +10,10 @@ const {
 
 
 const EX = async function legacySearchByTarget(srv, req, origTargetSpec) {
-  (await acl(srv, req, { targetUrl: origTargetSpec })
-  ).requirePerm('discover');
+  await srv.acl.requirePerm(req, {
+    targetUrl: origTargetSpec,
+    privilegeName: 'discover',
+  });
   const reply = await srv.db.postgresSelect(EX.queryTpl, [origTargetSpec]);
   const { rows } = reply;
   const annos = rows.map(EX.recombineAnno);

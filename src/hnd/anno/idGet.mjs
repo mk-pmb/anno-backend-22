@@ -5,7 +5,6 @@ import equal from 'equal-pmb';
 import guessAndParseSubjectTargetUrl
   from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
 
-import acl from '../../acl/index.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
@@ -34,7 +33,10 @@ async function getExactVersion(srv, req, idParts) {
 
   const subjTgt = guessAndParseSubjectTargetUrl(details);
   // ^-- Using parse because it includes safety checks.
-  (await acl(srv, req, { targetUrl: subjTgt.url })).requirePerm('read');
+  await srv.acl.requirePerm(req, {
+    targetUrl: subjTgt.url,
+    privilegeName: 'read',
+  });
   return sendFinalTextResponse.json(req, details, { type: 'annoLD' });
 }
 
