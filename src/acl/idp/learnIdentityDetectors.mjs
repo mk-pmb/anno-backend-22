@@ -5,8 +5,8 @@ import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 import vTry from 'vtry';
 
-import idfDebug from './identityDetectorFactories/debug.mjs';
-import idfHeaders from './identityDetectorFactories/headers.mjs';
+import idfDebug from './idfDebug.mjs';
+import idfHeaders from './idfHeaders.mjs';
 
 
 const EX = function learnIdentityDetectors(srv, acl, userIdSrcCfgDict) {
