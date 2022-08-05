@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import learnAllAclChains from './chains/learn.mjs';
 import learnIdentityProviders from './idp/learnIdpCfg.mjs';
 import whyDeny from './whyDeny.mjs';
 
@@ -14,6 +15,7 @@ const EX = async function prepareAcl(srv) {
     },
   };
   await Promise.all([
+    learnAllAclChains(acl),
     learnIdentityProviders(acl),
   ]);
   delete acl.initTmp;

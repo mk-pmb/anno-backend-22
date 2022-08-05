@@ -4,7 +4,8 @@
 
 ^:  # <-- Chain name. `^` means to use the basename of the filename.
 
-  - tendency:
+  - if: always
+    tendency:
         '*': deny
         read: allow
 

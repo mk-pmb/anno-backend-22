@@ -5,7 +5,7 @@ import sortedJson from 'safe-sortedjson';
 
 import httpErrors from '../httpErrors.mjs';
 
-import aclSubChain from './chainConditions/aclSubChain.mjs';
+import aclSubChain from './chains/aclSubChain.mjs';
 import detectUserIdentity from './detectUserIdentity.mjs';
 
 
