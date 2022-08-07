@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import nullifyObjValues from 'nullify-object-values-shallow-inplace';
+
 import learnAllAclChains from './chains/learn.mjs';
 import learnIdentityProviders from './idp/learnIdpCfg.mjs';
 import whyDeny from './whyDeny.mjs';
@@ -18,7 +20,10 @@ const EX = async function prepareAcl(srv) {
     learnAllAclChains(acl),
     learnIdentityProviders(acl),
   ]);
-  delete acl.initTmp;
+
+  nullifyObjValues(acl.initTmp); // <- help garbage-collect accidential refs
+  delete acl.initTmp; // <- block accidential late access
+
   return acl;
 };
 
@@ -26,6 +31,8 @@ const EX = async function prepareAcl(srv) {
 EX.api = {
 
   whyDeny,
+
+  getChainByName(cn) { return this.chainsByName.get(cn); },
 
   async requirePerm(req, initMeta) {
     const acl = this;

@@ -30,7 +30,7 @@
         memberOfAclGroup: 'superadmin'
     decide:
         'restart': deny
-        # Lack of a '*' entry means this rule have no effect for actions not
+        # Lack of a '*' entry means this rule has no effect for actions not
         # mentioned. The ACL processing will continue unfettered for requests
         # that do not require the "restart" permission.
 

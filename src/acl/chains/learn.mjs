@@ -1,16 +1,17 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import getOwn from 'getown';
-import isStr from 'is-string';
 import mustBe from 'typechecks-pmb/must-be';
 import objFromKeys from 'obj-from-keys-list';
 import objPop from 'objpop';
+import pEachSeries from 'p-each-series';
 import pMap from 'p-map';
 import pProps from 'p-props';
 import vTry from 'vtry';
 
-import conditionCheckFactories from './conditionCheckFactories/all.mjs';
 import decisionEnum from '../decisionEnum.mjs';
+import parseConditionGroup from './parseConditionGroup.mjs';
+
+const traceApi = { toString() { return '[' + this.traceDescr + ']'; } };
 
 
 const EX = async function learnAllAclChains(acl) {
@@ -23,19 +24,30 @@ const EX = async function learnAllAclChains(acl) {
 
 Object.assign(EX, {
 
+  supportedCondGroups: [
+    { propKeyBase: 'if', isNegation: false },
+    { propKeyBase: 'unless', isNegation: true },
+  ],
+
+  conflictingRuleProps: [
+    ['decide', 'aclSubChain'],
+  ],
+
+
   async learnOneChain(acl, origRulesList, chainName) {
     mustBe.ary('Rules for ACL chain ' + chainName, origRulesList);
-    console.debug('learnOneChain', chainName, origRulesList);
+    // console.debug('learnOneChain', chainName, origRulesList);
     function eachRule(origRuleSpec, ruleIdx) {
       const ruleNum = ruleIdx + 1;
-      const traceHint = 'Parse ACL chain ' + chainName + ' rule #' + ruleNum;
+      const traceDescr = 'ACL[' + chainName + ']#' + ruleNum;
       const how = {
         acl,
         chainName,
         origRuleSpec,
-        traceHint,
+        traceDescr,
+        ...traceApi,
       };
-      return vTry.pr(EX.parseOneRule, traceHint)(how);
+      return vTry.pr(EX.parseOneRule, 'Parse ' + traceDescr)(how);
     }
     const parsedRules = await pMap(origRulesList, eachRule);
     acl.chainsByName.set(chainName, parsedRules);
@@ -44,62 +56,51 @@ Object.assign(EX, {
   async parseOneRule(origHow) {
     const {
       origRuleSpec,
-      traceHint,
+      traceDescr,
     } = origHow;
+    // console.debug(traceDescr, origRuleSpec);
     const popRuleProp = objPop(origRuleSpec, { mustBe }).mustBe;
 
+    EX.conflictingRuleProps.forEach(function check(group) {
+      const used = group.filter(p => (origRuleSpec[p] !== undefined));
+      if (used.length < 2) { return; }
+      throw new Error('Rule can use at most on of: ' + used.join(', '));
+    });
+
     const rule = {
+      traceDescr,
+      ...traceApi,
       ...objFromKeys(function popDecisionDict(key) {
         return decisionEnum.popValidateDict(popRuleProp, key);
       }, [
         'decide',
         'tendency',
       ]),
+      condGroups: {},
+      aclSubChain: popRuleProp('nonEmpty str | undef', 'aclSubChain'),
     };
 
-    const subHow = {
-      ...origHow,
-      popRuleProp,
-      rule,
-    };
-    console.debug(traceHint, 'D: ACL rule', origRuleSpec);
+    await pEachSeries(EX.supportedCondGroups, async function cg(spec) {
+      const { propKeyBase } = spec;
+      const cgrHow = {
+        ...spec,
+        popRuleProp,
+        traceDescr,
+        ...traceApi,
+      };
+      const groupState = await parseConditionGroup(cgrHow);
+      if (!groupState.hadAnyRuleProp) { return; }
+      rule.condGroups[propKeyBase] = groupState;
+    });
 
-    let hadAnyCondition = false;
-
-    const condIfOne = popRuleProp('nonEmpty str | obj | undef', 'if');
-    if (condIfOne) {
-      hadAnyCondition = true;
-      if (condIfOne !== 'always') {
-        rule.condIf = await vTry.pr(EX.makeCheckFunc,
-          'Parse "if" condition')(condIfOne, subHow);
-      }
-    }
-
-    if (!hadAnyCondition) {
+    if (!Object.keys(rule.condGroups)) {
       const msg = 'No condition. For clarity, please add "if: always".';
       throw new Error(msg);
     }
 
     popRuleProp.expectEmpty('Unsupported left-over properties');
-  },
 
-
-  detectCondName(spec) {
-    if (isStr(spec)) { return [spec, false]; }
-    const e = Object.entries(spec);
-    const n = e.length;
-    if (n === 1) { return e; }
-    if (!n) { throw new Error('Found no condition name'); }
-    throw new Error('Found too many condition names');
-  },
-
-
-  makeCheckFunc(condSpec, how) {
-    const [condName, condArgs] = EX.detectCondName(condSpec);
-    const makeCkf = getOwn(conditionCheckFactories, condName);
-    if (!makeCkf) { throw new Error('Unknown condition ' + condName); }
-    return vTry.pr(makeCkf, 'Compile condition ' + condName)(
-      { ...how, condName, condArgs });
+    return rule;
   },
 
 

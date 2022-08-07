@@ -51,6 +51,7 @@
     "getown": "^1.0.0",
     "is-string": "^1.0.7",
     "lodash.mapvalues": "^4.6.0",
+    "lodash.pick": "^4.4.0",
     "merge-options": "^3.0.4",
     "net-smartlisten-pmb": "^1.0.3",
     "nodemjs": "^0.1.12",

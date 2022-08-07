@@ -22,6 +22,7 @@ const EX = async function whyDeny(req, initMeta) {
   const pubMeta = {
     // ACL metadata that is ok to be "public" in the sense that it
     // may be sent to the client as part of explanation.
+    // privilegeName: not here becaue it's in the main error message already.
     userId: (userIdentityMeta.userId || ''),
     urlMeta,
   };
