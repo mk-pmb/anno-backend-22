@@ -10,7 +10,7 @@ import PrRouter from 'express-promise-router';
 
 import configFilesAdapter from './cfg/configFilesAdapter.mjs';
 import dbAdapter from './dbAdapter/pg/index.mjs';
-import httpErrors from './httpErrors.mjs';
+import fallbackErrorHandler from './hnd/fallbackErrorHandler.mjs';
 import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
 import installListenAddrPlumbing from './listenAddrPlumbing.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
@@ -34,6 +34,8 @@ const defaultConfig = {
   public_baseurl: '',
   wwwpub_path: pathInRepo('wwwpub'),
 
+  ...fallbackErrorHandler.configDefaults,
+
 };
 
 
@@ -44,6 +46,7 @@ const EX = async function createServer(customConfig) {
   const popCfg = objPop(entireConfig, { mustBe }).mustBe;
   popCfg('str | eeq:false', 'envcfg_prefix');
 
+  const webSrv = nodeHttp.createServer();
   const app = express();
   app.once('close', function cleanup(...args) {
     console.debug('cleanup:', args);
@@ -61,8 +64,7 @@ const EX = async function createServer(customConfig) {
     */
   });
   app.use(rootRouter);
-  app.use(httpErrors.handleUnknownError);
-  const webSrv = nodeHttp.createServer();
+  app.use(fallbackErrorHandler.decide(popCfg, webSrv));
   webSrv.on('request', app);
 
   const srv = {
