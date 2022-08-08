@@ -35,8 +35,8 @@ const EX = {
     await EX.learnConfigTopic(srv, mgr, 'users', learnLocalUser);
     await EX.learnConfigTopic(srv, mgr, 'acl_user_groups', learnAclUserGroup);
 
-    console.debug('users:', mgr.users.toDict());
-    console.debug('upstreamUserIdAliases:', mgr.upstreamUserIdAliases);
+    // console.debug('users:', mgr.users.toDict());
+    // console.debug('upstreamUserIdAliases:', mgr.upstreamUserIdAliases);
 
     return mgr;
   },

@@ -25,7 +25,7 @@ const EX = {
         tumCfg.prefixes.forEach(pfx => svcs.idByPrefix.set(pfx, svcId));
       }
     });
-    console.debug('services:', svcs.toDict());
+    // console.debug('services:', svcs.toDict());
     return svcs;
   },
 
