@@ -1,8 +1,11 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-// import mustBe from 'typechecks-pmb/must-be';
+import mustBe from 'typechecks-pmb/must-be';
 import pEachSeries from 'p-each-series';
 import vTry from 'vtry';
+
+
+const condResultMustBeBool = mustBe('bool', 'condition check result');
 
 
 const EX = async function aclSubChain(chainCtx, chainName) {
@@ -49,8 +52,10 @@ Object.assign(EX, {
       skipRule = someNotMet;
       if (cgr.negate) { skipRule = !skipRule; };
 
-      console.debug('D: ACL rule cond group?', cgr.traceDescr, cgr,
-        { allMet, skipRule });
+      console.debug('D: ACL rule cond group?', cgr.traceDescr, {
+        ...cgr,
+        checkFuncsList: '[…]',
+      }, { allMet, skipRule });
     }
     await pEachSeries(Object.values(rule.condGroups), oneCondGroup);
     return skipRule;
@@ -62,10 +67,12 @@ Object.assign(EX, {
     let allMet = initiallyMet;
     const cfl = cgr.checkFuncsList;
     if (!cfl) { return allMet; }
-    await pEachSeries(cfl, async function oneCond(cond) {
+    await pEachSeries(cfl, async function oneCond(checkFunc) {
       if (allMet !== initiallyMet) { return; }
-      const oneMet = await cond.check(chainCtx);
-      console.debug('D: ACL rule cond', cond.traceDescr, { allMet, oneMet });
+      const oneMet = await checkFunc(chainCtx);
+      condResultMustBeBool(oneMet);
+      console.debug('D: ACL rule cond', checkFunc.traceDescr,
+        { allMet, oneMet });
 
       // Next assignment needs no condition branch because it either
       // won't cause a change anyway, or will be the last to cause

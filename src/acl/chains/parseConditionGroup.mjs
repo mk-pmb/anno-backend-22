@@ -15,25 +15,27 @@ const initMet = { initiallyMet: true };
 
 const EX = async function parseConditionGroup(origHow) {
   const traceDescr = (origHow.traceDescr + ':' + origHow.propKeyBase + '*');
-  const groupState = {
+  const grSt = {
     hadAnyRuleProp: false,
     hadAnyCheckableCond: false,
     initiallyMet: false, // result until a checkFunc disagrees
-    checkFuncsList: false,
+    checkFuncsList: [],
     negate: mustBe.tProp(traceDescr + '.', origHow, 'bool', 'isNegation'),
     traceDescr,
   };
   const how = {
     ...origHow, // <- popRuleProp, propKeyBase, isNegation
     traceDescr,
-    groupState,
+    groupState: grSt,
   };
 
   await EX.parseCondKey({ ...how, singleCond: true });
   await EX.parseCondKey({ ...how, keySuffix: 'Any' });
   await EX.parseCondKey({ ...how, keySuffix: 'All', setGS: initMet });
 
-  return groupState;
+  if (!grSt.checkFuncsList.length) { grSt.checkFuncsList = false; }
+
+  return grSt;
 };
 
 
@@ -85,20 +87,24 @@ Object.assign(EX, {
   async makeCheckFunc(origHow, condName, condArgs) {
     const makeCkf = getOwn(conditionCheckFactories, condName);
     if (!makeCkf) { throw new Error('Unknown condition ' + condName); }
+    const traceDescr = origHow.traceDescr + ':' + condName;
     const how = {
       name: condName,
       args: condArgs,
+      traceDescr,
+      ...loPick(origHow, [
+        'popRuleProp',
+      ]),
+
       // Pass all other stuff only on demand, to avoid accidential refs.
       // That way, when we release those getters later, garbage collection
       // should be able to release the entire `origHow`.
-      ...loPick(origHow, [
-        'popRuleProp',
-        'traceDescr',
-      ]),
       more() { return origHow; },
     };
     const ckf = await makeCkf(how);
     mustBe.fun('The check function', ckf);
+    Object.assign(ckf, { condName, traceDescr });
+    origHow.groupState.checkFuncsList.push(ckf);
 
     // Invalidate above refs to help garbage collection:
     nullifyObjValues(how);
