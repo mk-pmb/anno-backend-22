@@ -1,13 +1,12 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import learnIdentityDetectors from './learnIdentityDetectors.mjs';
+import learnDetectors from './learnDetectors.mjs';
 
 
 const EX = async function learnIdentityProvidersConfig(acl) {
   const popIdpCfg = await acl.initTmp.cfg.readMustPop('identity_providers');
 
-  learnIdentityDetectors(acl,
-    popIdpCfg('nonEmpty obj', 'identity_sources'));
+  learnDetectors(acl, popIdpCfg('nonEmpty obj', 'identity_sources'));
 
   popIdpCfg('obj | undef', 'upstream_userid_transforms');
 
