@@ -31,7 +31,7 @@ Object.assign(EX, {
   async oneRule(rule, chainCtx) {
     const chainState = chainCtx.state;
     if (chainState.decision) { return; }
-    console.debug('D: ACL rule check:', rule.traceDescr);
+    // console.debug('D: ACL rule check:', rule.traceDescr);
 
     const skipRule = await EX.decideSkipRule(rule, chainCtx);
     if (skipRule) {
@@ -51,11 +51,6 @@ Object.assign(EX, {
       const someNotMet = !allMet;
       skipRule = someNotMet;
       if (cgr.negate) { skipRule = !skipRule; };
-
-      console.debug('D: ACL rule cond group?', cgr.traceDescr, {
-        ...cgr,
-        checkFuncsList: '[…]',
-      }, { allMet, skipRule });
     }
     await pEachSeries(Object.values(rule.condGroups), oneCondGroup);
     return skipRule;
