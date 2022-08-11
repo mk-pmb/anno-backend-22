@@ -4,20 +4,9 @@ import pathLib from 'path';
 
 import readDataFile from 'read-data-file';
 
+import idfGuestAccessOnly from './idfGuestAccessOnly.mjs';
 
-const msecPerMinute = 6e4;
-
-
-function dummyGuestSession(report) {
-  if (!report) { return false; }
-  const soon = Date.now() + (10 * msecPerMinute);
-  return {
-    userId: '',
-    renewalAvailableBefore: soon,
-    sessionExpiryHardLimit: soon,
-    ...report,
-  };
-}
+const { dummyGuestSession } = idfGuestAccessOnly;
 
 
 const EX = {
@@ -47,7 +36,8 @@ const EX = {
   static_from_file(ctx) {
     let srcPath = ctx.popDetail('nonEmpty str', 'path');
     if (srcPath.startsWith('cfg://')) {
-      srcPath = pathLib.join(ctx.srv.configFiles.cfgDir, srcPath.slice(6));
+      const { cfgDir } = ctx.acl.initTmp.cfg;
+      srcPath = pathLib.join(cfgDir, srcPath.slice(6));
       console.debug('IDP static_from_file: effective path:', srcPath);
     }
     return async function detectIdentityStaticFromFile() {

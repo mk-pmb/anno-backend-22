@@ -49,6 +49,6 @@ const exitSoonSignalNames = [
       exitSoon * 1e3).unref();
   }
 
-  srv.assertNoUnusedCfgOpts();
+  srv.initialConfigDone();
   await srv.listen();
 }());

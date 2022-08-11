@@ -7,7 +7,7 @@ const EX = async function learnIdentityProvidersConfig(acl) {
   const popIdpCfg = await acl.initTmp.cfg.readMustPop('identity_providers');
 
   learnIdentityDetectors(acl,
-    popIdpCfg('obj | undef', 'identity_sources'));
+    popIdpCfg('nonEmpty obj', 'identity_sources'));
 
   popIdpCfg('obj | undef', 'upstream_userid_transforms');
 

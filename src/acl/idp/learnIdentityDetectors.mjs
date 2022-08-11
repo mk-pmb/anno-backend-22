@@ -6,16 +6,16 @@ import objPop from 'objpop';
 import vTry from 'vtry';
 
 import idfDebug from './idfDebug.mjs';
+import idfGuestAccessOnly from './idfGuestAccessOnly.mjs';
 import idfHeaders from './idfHeaders.mjs';
 
 
-const EX = function learnIdentityDetectors(srv, acl, userIdSrcCfgDict) {
-  if (!userIdSrcCfgDict) { return; }
+const EX = function learnIdentityDetectors(acl, userIdSrcCfgDict) {
   const userIdSrcOrder = Object.keys(userIdSrcCfgDict).sort();
   userIdSrcOrder.forEach(function dareLearn(userIdSrcName) {
     const details = getOwn(userIdSrcCfgDict, userIdSrcName);
     const popDetail = objPop(details, { mustBe }).mustBe;
-    const ctx = { srv, acl, userIdSrcName, popDetail };
+    const ctx = { acl, userIdSrcName, popDetail };
     const detector = vTry(EX.learnOneIdSrc,
       'Configure identity source ' + userIdSrcName)(ctx);
     acl.identityDetectors.push(detector);
@@ -43,6 +43,7 @@ Object.assign(EX, {
 
   userIdSrcFactories: {
     ...idfDebug,
+    guest_access_only: idfGuestAccessOnly,
     headers: idfHeaders,
   },
 

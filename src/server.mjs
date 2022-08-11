@@ -70,8 +70,9 @@ const EX = async function createServer(customConfig) {
   const srv = {
     popCfg,
 
-    assertNoUnusedCfgOpts() {
+    initialConfigDone() {
       popCfg.expectEmpty('Unsupported server config option(s)');
+      srv.popCfg = EX.denyLateConfigRead;
     },
 
     getRootRouter() { return rootRouter; },
@@ -96,6 +97,16 @@ const EX = async function createServer(customConfig) {
 };
 
 
+Object.assign(EX, {
+
+  denyLateConfigRead(expectedType, slot) {
+    const err = new Error('Late attempt to read server config');
+    Object.assign(err, { expectedType, slot });
+    throw err;
+  },
+
+
+});
 
 
 export default EX;

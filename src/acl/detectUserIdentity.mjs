@@ -19,7 +19,8 @@ const EX = async function detectUserIdentity(req) {
     sDet = det.name;
   }
 
-  await pEachSeries(req.getSrv().acl.identityDetectors, tryOneDetector);
+  const detectors = req.getSrv().acl.identityDetectors;
+  await pEachSeries(detectors, tryOneDetector);
   req.logCkp('detectUserIdentity', 'using result from', sDet);
   return sess;
 };
