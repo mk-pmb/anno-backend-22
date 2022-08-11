@@ -25,6 +25,9 @@ const EX = function learnIdentityDetectors(acl, userIdSrcCfgDict) {
 
 Object.assign(EX, {
 
+  configSectionName: 'identity_sources',
+  expectedConfigSectionFormat: 'nonEmpty obj',
+
   learnOneIdSrc(ctx) {
     const { popDetail } = ctx;
     const mtd = popDetail('nonEmpty str', 'method');
