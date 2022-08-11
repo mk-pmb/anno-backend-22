@@ -50,6 +50,7 @@
     "express-timeout-handler": "^2.2.2",
     "getown": "^1.0.0",
     "is-string": "^1.0.7",
+    "lodash.get": "^4.4.2",
     "lodash.mapvalues": "^4.6.0",
     "lodash.pick": "^4.4.0",
     "merge-options": "^3.0.4",

@@ -5,6 +5,7 @@ import mustBe from 'typechecks-pmb/must-be';
 
 
 function alwaysFalse() { return false; }
+function orf(x) { return x || false; }
 
 
 const EX = {
@@ -16,8 +17,10 @@ const EX = {
     const ckf = function checkMemberOfAclGroup(aclCtx) {
       const { userId } = aclCtx.allMeta;
       const userInfo = aclCtx.getReq().getSrv().lusrmgr.users.get(userId);
-      if (!userInfo) { return false; } // <- ensure we return a boolean
-      return userInfo.aclUserGroups.has(groupName);
+      const groups = orf(userInfo).aclUserGroups;
+      const result = orf(groups && groups.has(groupName));
+      console.debug('D: memberOfAclGroup?', { groupName, groups, result });
+      return result;
     };
     return ckf;
   },
@@ -26,7 +29,10 @@ const EX = {
     const paramName = how.popRuleProp('nonEmpty str', 'param');
     const list = mustBe('nonEmpty ary', 'list of accepted values')(how.args);
     const ckf = function checkParamInList(aclCtx) {
-      return list.includes(getOwn(aclCtx, paramName));
+      const paramValue = getOwn(aclCtx.allMeta, paramName);
+      const found = list.includes(paramValue);
+      console.debug('D: paramInList?', { paramValue, list, found });
+      return found;
     };
     return ckf;
   },
