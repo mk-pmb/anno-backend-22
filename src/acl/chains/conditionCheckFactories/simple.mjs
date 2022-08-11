@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import getOwn from 'getown';
+import loGet from 'lodash.get';
 import mustBe from 'typechecks-pmb/must-be';
 
 
@@ -26,12 +26,12 @@ const EX = {
   },
 
   paramInList(how) {
-    const paramName = how.popRuleProp('nonEmpty str', 'param');
+    const paramPath = how.popRuleProp('nonEmpty str | nonEmpty ary', 'param');
     const list = mustBe('nonEmpty ary', 'list of accepted values')(how.args);
     const ckf = function checkParamInList(aclCtx) {
-      const paramValue = getOwn(aclCtx.allMeta, paramName);
+      const paramValue = loGet(aclCtx.allMeta, paramPath);
       const found = list.includes(paramValue);
-      console.debug('D: paramInList?', { paramValue, list, found });
+      console.debug('D: paramInList?', { paramPath, paramValue, list, found });
       return found;
     };
     return ckf;
