@@ -3,6 +3,7 @@
 import vTry from 'vtry';
 
 import learnDetectors from './learnDetectors.mjs';
+import learnTransforms from './learnTransforms.mjs';
 
 
 const EX = async function learnIdentityProvidersConfig(acl) {
@@ -15,8 +16,7 @@ const EX = async function learnIdentityProvidersConfig(acl) {
   }
 
   dareLearn(learnDetectors);
-
-  popIdpCfg('obj | undef', 'upstream_userid_transforms');
+  dareLearn(learnTransforms);
 
   popIdpCfg.done('Unsupported identity provider config categories');
 };

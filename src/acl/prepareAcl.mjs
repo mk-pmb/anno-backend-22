@@ -10,6 +10,7 @@ import whyDeny from './whyDeny.mjs';
 const EX = async function prepareAcl(srv) {
   const acl = {
     identityDetectors: [],
+    userIdTransforms: [],
     chainsByName: new Map(),
     ...EX.api,
     initTmp: {

@@ -1,6 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import mustBe from 'typechecks-pmb/must-be';
 import pEachSeries from 'p-each-series';
+import vTry from 'vtry';
 
 
 const logCkpTopic = 'detectUserIdentity';
@@ -19,11 +21,44 @@ const EX = async function detectUserIdentity(req) {
     sDet = det.name;
   }
 
-  const detectors = req.getSrv().acl.identityDetectors;
-  await pEachSeries(detectors, tryOneDetector);
-  req.logCkp('detectUserIdentity', 'using result from', sDet);
+  const { acl, lusrmgr } = req.getSrv();
+  await pEachSeries(acl.identityDetectors, tryOneDetector);
+  let u = sess.userId;
+  const userIdStages = { detected: u };
+  if (u) {
+    u = EX.applyUserIdTransforms(acl, u);
+    userIdStages.transformed = u;
+
+    u = (u && mustBe.nest('User ID after resolving alias ' + u,
+      lusrmgr.upstreamUserIdAliases.get(u, u)));
+    userIdStages.aliasResolved = u;
+
+    sess.userId = u;
+  }
+
+  req.logCkp('detectUserIdentity', 'using result from', sDet, userIdStages);
   return sess;
 };
+
+
+Object.assign(EX, {
+
+  applyUserIdTransforms(acl, orig) {
+    if (!orig) { return orig; }
+    const steps = acl.userIdTransforms;
+    // console.debug('D: applyUserIdTransforms: steps =', steps);
+    return steps.reduce(EX.applyOneUserIdTransform, orig);
+  },
+
+  applyOneUserIdTransform(orig, trFunc) {
+    if (!orig) { return orig; }
+    const { traceDescr } = trFunc;
+    const u = vTry(trFunc, traceDescr)(orig);
+    mustBe.nest('userId after transforming ' + traceDescr, u);
+    return u;
+  },
+
+});
 
 
 export default EX;

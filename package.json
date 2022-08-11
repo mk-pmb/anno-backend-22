@@ -67,6 +67,7 @@
     "pify": "^5.0.0",
     "postgres-pool-pmb": "^0.1.2",
     "read-data-file": "^2.0.5",
+    "regexp-flags-upfront": "^0.1.0",
     "safe-sortedjson": "^1.0.7",
     "split-string-or-buffer-once-pmb": "^1.0.0",
     "summarize-express-request-pmb": "^0.1.2",
