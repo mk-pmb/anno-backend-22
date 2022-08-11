@@ -24,7 +24,7 @@ const EX = async function whyDeny(req, initMeta) {
     // may be sent to the client as part of explanation.
     // privilegeName: not here becaue it's in the main error message already.
     userId: (userIdentityMeta.userId || ''),
-    urlMeta,
+    ...urlMeta,
   };
   Object.assign(allMeta, pubMeta);
 
