@@ -8,6 +8,7 @@ import httpErrors from '../httpErrors.mjs';
 import logIncomingRequest from './util/logIncomingRequest.mjs';
 import makeAnnoRoute from './anno/route.mjs';
 import makeSessionRoute from './sess/route.mjs';
+import shutdownHandler from './shutdownHandler.mjs';
 import simpleFilenameRedirector from './simpleFilenameRedirector.mjs';
 import siteLocalReservedRoutes from './siteLocalReservedRoutes.mjs';
 
@@ -26,6 +27,8 @@ const EX = async function installRootRoutes(srv) {
   rt.use('/session/*', await makeSessionRoute(srv));
   rt.use('/anno/*', await makeAnnoRoute(srv));
   siteLocalReservedRoutes.installRoutes(rt);
+
+  rt.use('/admin/shutdown*', shutdownHandler);
 
   rt.get('/:filename', eternal(simpleFilenameRedirector('/static/:filename')));
 

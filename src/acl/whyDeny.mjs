@@ -17,8 +17,9 @@ const EX = async function whyDeny(req, initMeta) {
   const mustMeta = mustBe.tProp('ACL metadata property ', allMeta);
 
   const userIdentityMeta = await detectUserIdentity(req);
-  const tgtUrl = mustMeta('nonEmpty str', 'targetUrl');
-  const urlMeta = req.getSrv().services.findMetadataByTargetUrl(tgtUrl);
+  const tgtUrl = (mustMeta('nonEmpty str | undef', 'targetUrl') || false);
+  const urlMeta = (tgtUrl
+    && req.getSrv().services.findMetadataByTargetUrl(tgtUrl));
 
   const pubMeta = {
     // ACL metadata that is ok to be "public" in the sense that it
