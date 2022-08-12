@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
 import mustBe from 'typechecks-pmb/must-be';
 import sortedJson from 'safe-sortedjson';
 
@@ -45,7 +46,14 @@ const EX = async function whyDeny(req, initMeta) {
   req.logCkp('ACL meta before', allMeta);
   await aclSubChain(chainCtx, 'main');
   req.logCkp('ACL state after', chainCtx.state);
-  const { decision } = chainCtx.state;
+  let { decision } = chainCtx.state;
+
+  if (decision === null) {
+    const { tendencies } = chainCtx.state;
+    console.debug('D: Fallback decision:', allMeta.privilegeName, tendencies);
+    decision = getOwn(tendencies, allMeta.privilegeName);
+    if (decision === undefined) { decision = getOwn(tendencies, '*'); }
+  }
 
   if (decision === 'allow') {
     // req.logCkp('D: ACL: allow.');

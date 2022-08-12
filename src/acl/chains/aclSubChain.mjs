@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
 import mustBe from 'typechecks-pmb/must-be';
 import pEachSeries from 'p-each-series';
 import vTry from 'vtry';
@@ -39,7 +40,30 @@ Object.assign(EX, {
       return;
     }
 
+    if (rule.decide && EX.applyRuleDecide(rule, chainCtx)) { return; }
+
     console.debug('D: ACL rule apply!', { ...rule, condGroups: '[…]' });
+    Object.assign(chainState.tendencies, rule.tendency);
+
+    const subChainName = rule.aclSubChain;
+    await (subChainName && EX(chainCtx, subChainName));
+  },
+
+
+  applyRuleDecide(rule, chainCtx) {
+    function maybe(slot) {
+      const decision = getOwn(rule.decide, slot);
+      console.debug('D: ACL decision?', rule.traceDescr, { slot, decision });
+      if (decision === undefined) { return false; }
+      // ^- Exact equality check: Even if the value is invalid,
+      //    stop evaluating the chain. Complaining about invalid
+      //    ACL results is done elsewhere. (2022-08-12: in whyDeny)
+      Object.assign(chainCtx.state, { decision });
+      return true;
+    }
+    const pn = chainCtx.allMeta.privilegeName;
+    const ruleHasBeenDecided = maybe(pn) || maybe('*');
+    return ruleHasBeenDecided;
   },
 
 
@@ -66,8 +90,6 @@ Object.assign(EX, {
       if (allMet !== initiallyMet) { return; }
       const oneMet = await checkFunc(chainCtx);
       condResultMustBeBool(oneMet);
-      console.debug('D: ACL rule cond', checkFunc.traceDescr,
-        { allMet, oneMet });
 
       // Next assignment needs no condition branch because it either
       // won't cause a change anyway, or will be the last to cause
