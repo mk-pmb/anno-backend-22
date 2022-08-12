@@ -16,6 +16,9 @@ const EX = async function prepareAcl(srv) {
     initTmp: {
       cfg: srv.configFiles,
     },
+    debugFlags: {
+      sessionDetectors: false,
+    },
   };
   await Promise.all([
     learnAllAclChains(acl),

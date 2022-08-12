@@ -44,14 +44,13 @@ const EX = async function whyDeny(req, initMeta) {
       decision: null,
     },
   };
-  req.logCkp('ACL meta before', allMeta);
+  // req.logCkp('ACL meta before', allMeta);
   await aclSubChain(chainCtx, 'main');
-  req.logCkp('ACL state after', chainCtx.state);
+  // req.logCkp('ACL state after', chainCtx.state);
   let { decision } = chainCtx.state;
 
   if (decision === null) {
     const { tendencies } = chainCtx.state;
-    console.debug('D: Fallback decision:', allMeta.privilegeName, tendencies);
     decision = getOwn(tendencies, allMeta.privilegeName);
     if (decision === undefined) { decision = getOwn(tendencies, '*'); }
   }

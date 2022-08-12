@@ -36,13 +36,13 @@ Object.assign(EX, {
 
     const skipRule = await EX.decideSkipRule(rule, chainCtx);
     if (skipRule) {
-      console.debug('D: ACL rule skip!', rule.traceDescr);
+      // console.debug('D: ACL rule skip!', rule.traceDescr);
       return;
     }
 
     if (rule.decide && EX.applyRuleDecide(rule, chainCtx)) { return; }
 
-    console.debug('D: ACL rule apply!', { ...rule, condGroups: '[…]' });
+    // console.debug('D: ACL rule apply!', { ...rule, condGroups: '[…]' });
     Object.assign(chainState.tendencies, rule.tendency);
 
     const subChainName = rule.aclSubChain;
@@ -53,7 +53,7 @@ Object.assign(EX, {
   applyRuleDecide(rule, chainCtx) {
     function maybe(slot) {
       const decision = getOwn(rule.decide, slot);
-      console.debug('D: ACL decision?', rule.traceDescr, { slot, decision });
+      // console.debug('D: ACL decision?', rule.traceDescr, { slot, decision });
       if (decision === undefined) { return false; }
       // ^- Exact equality check: Even if the value is invalid,
       //    stop evaluating the chain. Complaining about invalid

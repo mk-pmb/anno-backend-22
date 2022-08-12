@@ -11,17 +11,20 @@ const logCkpTopic = 'detectUserIdentity';
 const EX = async function detectUserIdentity(req) {
   let sess = false;
   let sDet = null;
+  const { acl, lusrmgr } = req.getSrv();
+  const debug = acl.debugFlags.sessionDetectors;
 
   async function tryOneDetector(det) {
     if (sess) { return; }
     const found = await det(req);
-    req.logCkp(logCkpTopic, 'detector:', det.name, 'found:', found);
+    if (debug) {
+      req.logCkp(logCkpTopic, 'detector:', det.name, 'found:', found);
+    }
     if (!found) { return; }
     sess = found;
     sDet = det.name;
   }
 
-  const { acl, lusrmgr } = req.getSrv();
   await pEachSeries(acl.identityDetectors, tryOneDetector);
   let u = sess.userId;
   const userIdStages = { detected: u };
@@ -36,7 +39,9 @@ const EX = async function detectUserIdentity(req) {
     sess.userId = u;
   }
 
-  req.logCkp('detectUserIdentity', 'using result from', sDet, userIdStages);
+  if (debug) {
+    req.logCkp('detectUserIdentity', 'using result from', sDet, userIdStages);
+  }
   return sess;
 };
 
