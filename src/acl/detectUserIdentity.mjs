@@ -30,7 +30,7 @@ const EX = async function detectUserIdentity(req) {
     userIdStages.transformed = u;
 
     u = (u && mustBe.nest('User ID after resolving alias ' + u,
-      lusrmgr.upstreamUserIdAliases.get(u, u)));
+      lusrmgr.upstreamUserIdAliases.get(u) || u));
     userIdStages.aliasResolved = u;
 
     sess.userId = u;
