@@ -9,11 +9,9 @@
         '*': deny
         read: allow
 
-
-
-
-
-
+  - if: isLoggedIn
+    tendency:
+        discover: 'allow'
 
 
 

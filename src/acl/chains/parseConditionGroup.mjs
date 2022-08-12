@@ -75,7 +75,7 @@ Object.assign(EX, {
 
 
   detectCondName(spec) {
-    if (isStr(spec)) { return [spec, false]; }
+    if (isStr(spec)) { return [spec]; }
     const e = Object.entries(spec);
     const n = e.length;
     if (n === 1) { return e[0]; }
