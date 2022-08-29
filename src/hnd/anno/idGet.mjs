@@ -26,7 +26,10 @@ const queryTpl = {
 
 
 async function getExactVersion(srv, req, idParts) {
-  const { baseId, versNum } = idParts;
+  const { baseId, versNum, versId } = idParts;
+
+  await srv.acl.requirePerm(req,
+    { privilegeName: 'lookupAnnoTargets', versId });
 
   const { details } = (await srv.db.postgresSelect(queryTpl.annoDetails,
     [baseId, versNum])).expectSingleRow();

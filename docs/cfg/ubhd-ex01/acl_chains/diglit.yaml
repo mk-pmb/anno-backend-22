@@ -11,7 +11,7 @@
 
   - if: isLoggedIn
     tendency:
-        discover: 'allow'
+        discover: allow
 
 
 
