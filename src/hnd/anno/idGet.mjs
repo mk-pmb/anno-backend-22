@@ -2,6 +2,7 @@
 
 import guessAndParseSubjectTargetUrl
   from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
+import makeDictList from 'dictlist-util-pmb';
 
 import httpErrors from '../../httpErrors.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
@@ -25,6 +26,15 @@ const queryTpl = {
 };
 
 
+function clientPrefersHtml(req) {
+  const acceptedMediaTypes = req.header('accept');
+  // Ideally we'd check the order with respect to priorities assigned.
+  // However, in practice, for all usual browsers, this simple prefix
+  // check is enough:
+  return String(acceptedMediaTypes || '').startsWith('text/html,');
+}
+
+
 async function getExactVersion(srv, req, idParts) {
   const { baseId, versNum, versId } = idParts;
 
@@ -41,7 +51,22 @@ async function getExactVersion(srv, req, idParts) {
     targetUrl: subjTgt.url,
     privilegeName: 'read',
   });
-  return sendFinalTextResponse.json(req, details, { type: 'annoLD' });
+
+  const ftrOpt = { type: 'annoLD' };
+  if (clientPrefersHtml(req)) {
+    const [scope1] = makeDictList(details.target).getEachOwnProp('scope');
+    if (scope1) {
+      ftrOpt.redirTo = scope1;
+      /*
+        We do not use req.res.redirect() because it would send a generic
+        HTML body with a fallback link to the redirect URL, whereas the
+        FTR redirTo allows us to still send the annotation data.
+        This way, annotations are still easy to debug in browsers that
+        support manual approval of redirects.
+      */
+    }
+  }
+  return sendFinalTextResponse.json(req, details, ftrOpt);
 }
 
 
