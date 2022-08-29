@@ -14,8 +14,7 @@ const EX = async function legacySearchByTarget(srv, req, origTargetSpec) {
     targetUrl: origTargetSpec,
     privilegeName: 'discover',
   });
-  const reply = await srv.db.postgresSelect(EX.queryTpl, [origTargetSpec]);
-  const { rows } = reply;
+  const rows = await srv.db.postgresSelect(EX.queryTpl, [origTargetSpec]);
   const annos = rows.map(EX.recombineAnno);
   fmtAnnoCollection.replyToRequest(srv, req, { annos });
 };
