@@ -37,24 +37,39 @@ function clientPrefersHtml(req) {
 
 async function getExactVersion(srv, req, idParts) {
   const { baseId, versNum, versId } = idParts;
-
-  await srv.acl.requirePerm(req,
+  const targetLookupDeniedReason = await srv.acl.whyDeny(req,
     { privilegeName: 'lookupAnnoTargets', versId });
+  const targetLookupAllowed = !targetLookupDeniedReason;
 
-  const { details } = (await srv.db.postgresSelect(queryTpl.annoDetails,
+  const detailsReply = (await srv.db.postgresSelect(queryTpl.annoDetails,
     [baseId, versNum])).expectSingleRow();
-  if (details === 0) { throw errNotInDb.throwable(); }
+  const versionNotFound = (detailsReply === 0);
+  const annoDetails = detailsReply.details;
+  let subjTgtUrlForAclCheckRead = 'about:unknowntarget';
+  if (targetLookupAllowed) {
+    if (versionNotFound) {
+      // At this point, permission to disclose non-existence stems from the
+      // permission to lookup the target.
+      throw errNotInDb.throwable();
+    }
+    subjTgtUrlForAclCheckRead = guessAndParseSubjectTargetUrl(annoDetails).url;
+    // ^-- Using parse because it includes safety checks.
+  }
 
-  const subjTgt = guessAndParseSubjectTargetUrl(details);
-  // ^-- Using parse because it includes safety checks.
   await srv.acl.requirePerm(req, {
-    targetUrl: subjTgt.url,
     privilegeName: 'read',
+    targetUrl: subjTgtUrlForAclCheckRead,
   });
+
+  if (versionNotFound) {
+    // At this point, permission to disclose non-existence stems from the
+    // permission to read the entire annotation.
+    throw errNotInDb.throwable();
+  }
 
   const ftrOpt = { type: 'annoLD' };
   if (clientPrefersHtml(req)) {
-    const [scope1] = makeDictList(details.target).getEachOwnProp('scope');
+    const [scope1] = makeDictList(annoDetails.target).getEachOwnProp('scope');
     if (scope1) {
       ftrOpt.redirTo = scope1;
       /*
@@ -66,7 +81,7 @@ async function getExactVersion(srv, req, idParts) {
       */
     }
   }
-  return sendFinalTextResponse.json(req, details, ftrOpt);
+  return sendFinalTextResponse.json(req, annoDetails, ftrOpt);
 }
 
 
