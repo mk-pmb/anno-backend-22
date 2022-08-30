@@ -6,8 +6,8 @@
 
     targetUrlMetadata:
         prefixes:
-          - 'https://digi.ub.uni-heidelberg.de/diglit/'
-          # Example annotation: 0b3c9340-11f7-3ec8-8721-09504062a007
+          - 'https://archivum-laureshamense-digital.de/view/'
+          # Example annotations: a10a4cf67a aea8699a8e ef5d92d228 fb25d8d0a6
         vSubDirs:
           - 'projectName'
           - 'pageNumStr'
