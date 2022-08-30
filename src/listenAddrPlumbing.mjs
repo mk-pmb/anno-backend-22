@@ -10,13 +10,14 @@ import plumb from './hnd/util/miscPlumbing.mjs';
 const EX = function installListenAddrPlumbing(srv) {
   const listenAddr = srv.popCfg('str | pos0 num', 'listen_addr');
   const lsnSpec = smartListen(listenAddr, 0, 'http://');
-  const lsnUrl = String(lsnSpec);
-  const pubUrl = srv.popCfg('str', 'public_baseurl', '');
+  const origLsnDescr = String(lsnSpec);
+  const lsnUrl = EX.fmtLsnUrl(origLsnDescr);
+  const cfgPubUrl = srv.popCfg('str', 'public_baseurl', '');
+  const pubUrl = (cfgPubUrl || lsnUrl);
 
-  const noSlashPubUrl = String(pubUrl || lsnSpec)
-    // ^-- Please don't reinvent guessOrigReqUrl from
-    //     `hnd/util/miscPlumbing.mjs`!
-    .replace(/^TCP /, '').replace(/\/$/, '');
+  const noSlashPubUrl = pubUrl.replace(/\/$/, '');
+  // ^-- Please don't reinvent guessOrigReqUrl from
+  //     `hnd/util/miscPlumbing.mjs`!
 
   const confirmCors = plumb.legacyMultiArg(makeGenericAsyncCorsHandler({
     origin: srv.popCfg('nonEmpty str', 'cors_accept_origin'),
@@ -27,8 +28,13 @@ const EX = function installListenAddrPlumbing(srv) {
 
 
   async function listen() {
-    let descr = 'Gonna listen on ' + lsnUrl;
-    if (pubUrl) { descr += ' which config says is also ' + pubUrl; }
+    const aliasReason = (function whyAlias() {
+      if (cfgPubUrl) { return 'config says'; }
+      if (pubUrl !== origLsnDescr) { return 'we assume'; }
+    }());
+    const aliasHint = (aliasReason && (' which ' + aliasReason
+      + ' is also ' + pubUrl));
+    const descr = ('Gonna listen on ' + origLsnDescr + aliasHint);
     console.info(descr);
     await pify(cb => webSrv.listen(lsnSpec, cb))();
     console.info('Now listening.');
@@ -53,6 +59,18 @@ const EX = function installListenAddrPlumbing(srv) {
   });
   return srv;
 };
+
+
+Object.assign(EX, {
+
+  fmtLsnUrl(lsnSpec) {
+    let u = String(lsnSpec);
+    u = u.replace(/^TCP (\w+:\/{2})127\.0\.0\.1(?=:|\/|$)/, '$1localhost');
+    return u;
+  },
+
+
+});
 
 
 export default EX;
