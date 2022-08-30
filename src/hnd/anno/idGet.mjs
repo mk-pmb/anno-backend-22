@@ -7,6 +7,7 @@ import makeDictList from 'dictlist-util-pmb';
 import httpErrors from '../../httpErrors.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
+import redundantGenericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 import parseVersId from './parseVersionIdentifier.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
@@ -81,7 +82,8 @@ async function getExactVersion(srv, req, idParts) {
       */
     }
   }
-  return sendFinalTextResponse.json(req, annoDetails, ftrOpt);
+  const fullAnno = redundantGenericAnnoMeta.add(srv, idParts, annoDetails);
+  return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
 }
 
 

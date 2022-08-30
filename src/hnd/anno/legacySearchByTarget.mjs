@@ -1,12 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
-import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
-
-
-const {
-  versionNumberSeparator,
-} = ubhdAnnoIdFmt;
+import redundantGenericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 
 
 const EX = async function legacySearchByTarget(srv, req, origTargetSpec) {
@@ -15,7 +10,7 @@ const EX = async function legacySearchByTarget(srv, req, origTargetSpec) {
     privilegeName: 'discover',
   });
   const rows = await srv.db.postgresSelect(EX.queryTpl, [origTargetSpec]);
-  const annos = rows.map(EX.recombineAnno);
+  const annos = rows.map(a => EX.recombineAnno(srv, a));
   fmtAnnoCollection.replyToRequest(srv, req, { annos });
 };
 
@@ -37,10 +32,13 @@ Object.assign(EX, {
 
   queryTpl,
 
-  recombineAnno(rec) {
-    const versionId = rec.base_id + versionNumberSeparator + rec.version_num;
-    const anno = { id: versionId, ...rec.details };
-    return anno;
+  recombineAnno(srv, rec) {
+    const idParts = {
+      baseId: rec.base_id,
+      versNum: rec.version_num,
+    };
+    const fullAnno = redundantGenericAnnoMeta.add(srv, idParts, rec.details);
+    return fullAnno;
   },
 
 });
