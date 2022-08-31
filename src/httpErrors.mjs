@@ -12,6 +12,7 @@ const makeCanned = finalTextResponse.simpleCanned;
 
 const EX = {
 
+  badRequest: makeCanned(400, 'Bad Request'),
   badVerb: makeCanned(405, 'Method Not Allowed'),
   noSuchAnno: makeCanned(404, 'Annotation not found'),
   notImpl: makeCanned(501, 'Not Implemented'),

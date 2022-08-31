@@ -7,6 +7,7 @@ import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import idGet from './idGet.mjs';
+import postNewAnno from './postNewAnno.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 
@@ -39,6 +40,7 @@ Object.assign(EX, {
   async emptyIdRoute(srv, req) {
     const { method } = req;
     if (method === 'GET') { return emptyIdGet(srv, req); }
+    if (method === 'POST') { return postNewAnno(srv, req); }
 
     return httpErrors.badVerb(req);
   },

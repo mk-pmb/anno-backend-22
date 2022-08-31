@@ -12,6 +12,7 @@
   - if: isLoggedIn
     tendency:
         discover: allow
+        create: allow
 
 
 

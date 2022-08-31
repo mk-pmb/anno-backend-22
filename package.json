@@ -36,6 +36,7 @@
   "engines": { "npm": ">=7.0.0", "node": ">=16.0.0" },
   "dependencies": {
     "absdir": "^1.0.6",
+    "body-parser": "^1.20.0",
     "cfg-cli-env-180111-pmb": "^0.1.2",
     "concise-value-preview-pmb": "^0.1.1",
     "cors-async": "^0.2.1",

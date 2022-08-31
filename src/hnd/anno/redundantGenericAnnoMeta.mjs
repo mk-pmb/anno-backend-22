@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import loMapValues from 'lodash.mapvalues';
+
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
 const vnSep = ubhdAnnoIdFmt.versionNumberSeparator;
@@ -30,6 +32,16 @@ const EX = {
       ...annoDetails,
     };
     return fullAnno;
+  },
+
+  mustPopAllStatic(pop) {
+    loMapValues(EX.commonStaticAnnoMeta, function verify(want, key) {
+      const actual = pop('undef | str', key);
+      if (actual === want) { return; }
+      const msg = ('Unsupported value for field "' + key
+        + '", expected ' + JSON.stringify(want));
+      throw new Error(msg);
+    });
   },
 
 };
