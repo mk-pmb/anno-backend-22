@@ -37,6 +37,16 @@
         # mentioned. The ACL processing will continue unfettered for requests
         # that do not require the "shutdown" permission.
 
+  - ifAll:
+      - paramInList:
+            param: 'serviceId'
+            list:
+              - 'anno-frontend-tests'
+      - isLoggedIn
+    decide:
+        create: allow
+
+
   - param: 'serviceId'
     if:
         paramInList:

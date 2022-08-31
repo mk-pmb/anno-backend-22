@@ -57,8 +57,16 @@ const EX = {
   },
 
   paramInList(how) {
-    const path = how.popRuleProp('nonEmpty str | nonEmpty ary', 'param');
-    const list = mustBe('nonEmpty ary', 'list of accepted values')(how.args);
+    let { param: path, list } = how.args;
+    const pathFmt = ['nonEmpty str | nonEmpty ary', 'param'];
+    const listFmt = ['nonEmpty ary', 'list of accepted values'];
+    if (path || list) {
+      mustBe(...pathFmt)(path);
+      mustBe(...listFmt)(list);
+    } else {
+      path = how.popRuleProp(...pathFmt);
+      list = mustBe(...listFmt)(how.args);
+    }
     const ckf = function check(aclCtx) {
       const val = loGet(aclCtx.allMeta, path);
       const found = list.includes(val);
