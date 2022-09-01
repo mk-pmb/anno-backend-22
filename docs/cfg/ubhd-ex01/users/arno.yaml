@@ -7,12 +7,27 @@
     # possibly in other places.
 
     author_identities:
+        # All identities should conform to the `Agent` model as described
+        # in https://www.w3.org/TR/annotation-model/#agents .
 
         main:
-            # ^-- The author ID key should consist of only [a-z0-9_].
-            display_name: 'Arno Nym'
-            icon: 'grey_fedora'
-            website: 'https://arno.example.net/'
+            # ^-- The author ID key:
+            #   … should either consist of only [A-Za-z0-9_-]+ or be a URL.
+            #   … is meant to be human readable for admin convenience.
+            #
+            # In cases where you don't have a preference, we suggest using a
+            # randomness-based (i.e. v4) UUID packaged as a URL by adding the
+            # prefix `urn:uuid:` (RFC 4122).
+            # Linux has a UUID generator in `/proc/sys/kernel/random/uuid`.
+            #
+            # Author ID keys that look like a URL will be used as the default
+            # value for the Agent's `id` field. Otherwise, the Agent ID
+            # defaults to a false-y value. False-y values for the Agent ID
+            # will be replaced with an auto-generated UUID URL.
+
+            name: 'Arno Nym'
+            INHERITS:
+                - './icons/wp_vector_anon.yaml'
 
 
     acl_user_groups:
