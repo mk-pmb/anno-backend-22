@@ -13,8 +13,7 @@ import parseRequestBody from '../util/parseRequestBody.mjs';
 import redundantGenericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 
 
-const errNoTargets = httpErrors.badRequest.explain(
-  'Unable to determine annotation target(s).');
+const failBadRequest = httpErrors.badRequest.throwable;
 
 const verbatimCopyKeysMandatedByProtocol = [
   'canonical',
@@ -25,7 +24,7 @@ function findTargetOrBail(anno) {
     return guessAndParseSubjectTargetUrl(anno);
     // ^-- Using parse because it includes safety checks.
   } catch (errTgt) {
-    throw errNoTargets.throwable();
+    throw failBadRequest('Unable to determine annotation target(s).');
   }
 }
 
@@ -73,7 +72,7 @@ Object.assign(EX, {
       return EX.parseSubmittedAnno(origInput);
     } catch (parseErr) {
       const msg = ('Parse annotation: ' + String(parseErr));
-      throw httpErrors.badRequest.explain(msg).throwable();
+      throw failBadRequest(msg);
     }
   },
 

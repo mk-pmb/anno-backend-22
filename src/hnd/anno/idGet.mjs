@@ -11,7 +11,7 @@ import redundantGenericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 import parseVersId from './parseVersionIdentifier.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
-const errNotInDb = httpErrors.noSuchAnno.explain('ID not in database');
+const { noSuchAnno } = httpErrors.throwable;
 
 const versionSep = ubhdAnnoIdFmt.versionNumberSeparator;
 
@@ -51,7 +51,7 @@ async function getExactVersion(srv, req, idParts) {
     if (versionNotFound) {
       // At this point, permission to disclose non-existence stems from the
       // permission to lookup the target.
-      throw errNotInDb.throwable();
+      throw noSuchAnno();
     }
     subjTgtUrlForAclCheckRead = guessAndParseSubjectTargetUrl(annoDetails).url;
     // ^-- Using parse because it includes safety checks.
@@ -65,7 +65,7 @@ async function getExactVersion(srv, req, idParts) {
   if (versionNotFound) {
     // At this point, permission to disclose non-existence stems from the
     // permission to read the entire annotation.
-    throw errNotInDb.throwable();
+    throw noSuchAnno();
   }
 
   const ftrOpt = { type: 'annoLD' };
@@ -92,7 +92,7 @@ async function redirToLatestVersion(srv, req, idParts) {
   // :ATTN:ACL: Currently no ACL checks for this lookup.
   const { latest } = (await srv.db.postgresSelect(queryTpl.latestVersion,
     [baseId])).expectSingleRow();
-  if (!latest) { throw errNotInDb.throwable(); }
+  if (!latest) { throw noSuchAnno(); }
   return req.res.redirect(baseId + versionSep + latest);
 }
 

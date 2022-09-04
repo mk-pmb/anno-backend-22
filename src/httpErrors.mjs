@@ -2,6 +2,7 @@
 
 import handleUnknownError from
   'express-final-text-response-pmb/extras/handleUnknownError.mjs';
+import mapValues from 'lodash.mapvalues';
 
 import finalTextResponse from './finalTextResponse.mjs';
 
@@ -9,8 +10,7 @@ import finalTextResponse from './finalTextResponse.mjs';
 const makeCanned = finalTextResponse.simpleCanned;
 // ^-- Unfortunately the verb "(to) can" is easy to confuse with other "can"s.
 
-
-const EX = {
+const simpleCanneds = {
 
   badRequest: makeCanned(400, 'Bad Request'),
   badVerb: makeCanned(405, 'Method Not Allowed'),
@@ -24,6 +24,12 @@ const EX = {
 
   aclDeny: makeCanned(403, 'Forbidden by ACL'),
 
+};
+
+
+const EX = {
+
+  ...simpleCanneds,
 
   throwable(msg, opt) {
     if (Number.isFinite(opt)) { return EX.throwable(msg, { code: opt }); }
@@ -33,10 +39,11 @@ const EX = {
     return Object.assign(new Error(msg), opt);
   },
 
-
   handleUnknownError: handleUnknownError.bind(null, finalTextResponse),
 
 };
+
+Object.assign(EX.throwable, mapValues(simpleCanneds, sc => sc.throwable));
 
 
 export default EX;

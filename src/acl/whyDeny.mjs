@@ -66,7 +66,7 @@ const EX = async function whyDeny(req, initMeta) {
 
   const denyMsg = ('Lacking permission ' + allMeta.privilegeName
     + ' on ' + sortedJson(pubMeta, { mergeNlWsp: true }));
-  const errDeny = httpErrors.aclDeny.explain(denyMsg).throwable();
+  const errDeny = httpErrors.aclDeny.throwable(denyMsg);
   return errDeny;
 };
 

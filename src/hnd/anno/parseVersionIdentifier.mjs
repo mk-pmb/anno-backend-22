@@ -3,8 +3,7 @@
 import httpErrors from '../../httpErrors.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
-const errNoId = httpErrors.noSuchAnno.explain('No anno ID given');
-const errBadId = httpErrors.noSuchAnno.explain('Unsupported anno ID format');
+const failNoSuchAnno = httpErrors.noSuchAnno.throwable;
 
 const replySep = ubhdAnnoIdFmt.legacyReplySeparator;
 
@@ -12,9 +11,9 @@ const versIdRgx = /^([A-Za-z0-9_\-]{10,36})((?:\.[\d\.]+)*)(?:\~(\d+)|)$/;
 
 
 const EX = function parseVersId(versId) {
-  if (!versId) { throw errNoId.throwable(); }
+  if (!versId) { throw failNoSuchAnno('No anno ID given'); }
   const m = versIdRgx.exec(versId);
-  if (!m) { throw errBadId.throwable(); }
+  if (!m) { throw failNoSuchAnno('Unsupported anno ID format'); }
   const parts = {
     versId,
     mongoId: m[1],

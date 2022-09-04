@@ -6,8 +6,8 @@ import pify from 'pify';
 
 import httpErrors from '../../httpErrors.mjs';
 
-const errParseBody = httpErrors.badRequest.explain(
-  'Cannot parse request body');
+const failParseBody = httpErrors.badRequest.explain(
+  'Cannot parse request body').throwable;
 
 const promisifiedParsers = {
   json: pify(bodyParser.json({})),
@@ -16,7 +16,7 @@ const promisifiedParsers = {
 
 function explainBodyParseError(err) {
   if (err.statusCode !== 400) { throw err; }
-  throw errParseBody.explain(err.message).throwable();
+  throw failParseBody(err.message);
 }
 
 
