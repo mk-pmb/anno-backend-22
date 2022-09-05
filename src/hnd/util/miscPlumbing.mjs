@@ -19,10 +19,7 @@ const EX = {
     return hnd;
   },
 
-  getFirstAsteriskUrlPart(req) {
-    return String(req.params['0'] // Yes, express really uses a string.
-      || '');
-  },
+  getFirstAsteriskUrlPart(req) { return String(req.params[0] || ''); },
 
   getFirstAsteriskDirs(req) {
     return EX.getFirstAsteriskUrlPart(req).split('/');
