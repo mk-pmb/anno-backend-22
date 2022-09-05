@@ -78,13 +78,13 @@ const EX = async function createServer(customConfig) {
     getRootRouter() { return rootRouter; },
     getLowLevelWebServer() { return webSrv; },
   };
+  await installListenAddrPlumbing(srv);
 
   srv.configFiles = await configFilesAdapter.make({ popCfg });
   srv.services = await servicesAdapter.make(srv);
   srv.lusrmgr = await lusrmgr.make(srv);
   srv.acl = await prepareAcl(srv);
   srv.db = await dbAdapter.init({ popCfg });
-  await installListenAddrPlumbing(srv);
   await installRootRoutes(srv);
 
   app.globalRequestExtras({

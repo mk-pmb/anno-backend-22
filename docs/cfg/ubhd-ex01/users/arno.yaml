@@ -26,6 +26,7 @@
             # will be replaced with an auto-generated UUID URL.
 
             name: 'Arno Nym'
+            type: Person
             INHERITS:
                 - './icons/wp_vector_anon.yaml'
 

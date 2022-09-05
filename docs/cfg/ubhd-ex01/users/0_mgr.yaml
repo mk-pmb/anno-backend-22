@@ -1,0 +1,21 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+'': # <-- Empty username = not a user but server-wide settings.
+
+    author_agent_uuid5_baseurl:
+        ''
+        # Empty = construct from server base URL. Usually good enough.
+
+
+
+
+
+
+
+
+
+
+
+...

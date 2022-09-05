@@ -76,6 +76,7 @@
     "summarize-express-request-pmb": "^0.1.2",
     "typechecks-pmb": "^0.200620.6",
     "usnam-pmb": "^0.2.5",
+    "uuidv5": "^1.0.0",
     "vtry": "^1.0.9",
     "webanno-guess-subject-target-url-pmb": "^1.0.1"
   },

@@ -44,11 +44,27 @@ const EX = {
 
   async learnConfigTopic(srv, mgr, topic, how) {
     const cfg = await srv.configFiles.readAsMap(topic);
-    const descr = 'lusrmgr: Learn config topic ' + topic + ', entry ';
-    cfg.forEach(function learnListEntry(details, key) {
+    const descr = 'lusrmgr: Learn config topic ' + topic;
+    const meta = { ...cfg.get('') };
+    cfg.delete('');
+    if (how.learnMeta) {
+      const mustPopMeta = objPop(meta, { mustBe }).mustBe;
+      await vTry.pr(how.learnMeta, descr + ', common settings')({
+        meta,
+        mgr,
+        mustPopMeta,
+        srv,
+      });
+      mustPopMeta.expectEmpty(descr + ': Unsupported common setting(s)');
+    }
+
+    const prs = [];
+    cfg.forEach(function learnListEntry(details, topicId) {
       const mustPopDetail = objPop(details, { mustBe }).mustBe;
-      vTry(how, descr + key)(mgr, key, mustPopDetail);
+      prs.push(vTry.pr(how, descr + ', entry ' + topicId)(
+        mgr, topicId, mustPopDetail, meta));
     });
+    await Promise.all(prs);
   },
 
 
