@@ -18,14 +18,14 @@ function initEmptyUserRecord() {
 };
 
 
-const EX = async function learnLocalUser(mgr, userName, mustPopDetail) {
+const EX = async function learnLocalUser(mgr, userName, mustPopDetail, meta) {
   const user = mgr.users.getOrInit(userName, null, initEmptyUserRecord);
 
   (mustPopDetail('undef | nul | ary', 'acl_user_groups') || []).forEach(
     grpName => user.aclUserGroups.add(grpName));
 
   await pProps(mustPopDetail('undef | obj', 'author_identities') || false,
-    (v, k) => learnOneAuthorIdentitiy(mgr, user, k, v));
+    (v, k) => learnOneAuthorIdentitiy(mgr, meta, user, k, v));
 
   learnUpstreamUserIdAliases(mgr, userName,
     mustPopDetail('undef | ary', 'upstream_userid_aliases'));
@@ -36,13 +36,14 @@ const EX = async function learnLocalUser(mgr, userName, mustPopDetail) {
 
 Object.assign(EX, {
 
-  learnMeta(ctx) {
-    const { mgr, srv, mustPopMeta } = ctx;
+  async learnMeta(ctx) {
+    const { meta, mgr, srv, mustPopMeta } = ctx;
     mgr.authorAgentUuidBaseUrl = (
       mustPopMeta('str | undef', 'author_agent_uuid5_baseurl')
       || (mustBe.tProp('Server property ', srv,
         'nonEmpty str', 'publicBaseUrlNoSlash')
         + '/authors/by/uuid/'));
+    meta.fragments = await srv.configFiles.readAsDict('users/fragments');
   },
 
 

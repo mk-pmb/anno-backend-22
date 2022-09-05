@@ -1,10 +1,21 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import loGet from 'lodash.get';
+import mergeOpt from 'merge-options';
 import uuidv5 from 'uuidv5';
 
 
-const EX = async function learnOneAuthorIdentitiy(mgr, user, aidKey, spec) {
-  const agent = { ...spec };
+const EX = function learnOneAuthorIdentitiy(mgr, meta, user, aidKey, spec) {
+  if (!spec) { return; }
+  const agent = mergeOpt(...[
+    ...(spec.INHERITS || []).map(function lookupInherit(path) {
+      const inc = loGet(meta.fragments, path);
+      if (inc !== undefined) { return inc; }
+      throw new Error('Cannot find fragment ' + path);
+    }),
+    spec,
+  ]);
+  delete agent.INHERITS;
 
   let agentId = spec.id;
   if (!agentId) {

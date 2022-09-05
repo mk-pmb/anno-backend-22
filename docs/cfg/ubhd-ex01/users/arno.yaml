@@ -28,7 +28,7 @@
             name: 'Arno Nym'
             type: Person
             INHERITS:
-                - './icons/wp_vector_anon.yaml'
+                - 'icon_wp_vector_anon'
 
 
     acl_user_groups:
