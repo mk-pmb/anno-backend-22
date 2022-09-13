@@ -15,7 +15,6 @@ const EX = async function aclSubChain(chainCtx, chainName) {
   }
   const subCtx = {
     ...chainCtx,
-    decision: null,
     chainNamesStack: [...chainCtx.chainNamesStack, chainName],
   };
 
@@ -31,12 +30,17 @@ Object.assign(EX, {
 
   async oneRule(rule, chainCtx) {
     const chainState = chainCtx.state;
+    const trace = rule.traceDescr;
     if (chainState.decision) { return; }
-    // console.debug('D: ACL rule check:', rule.traceDescr);
+    // console.debug('D: ACL rule check:', trace);
 
     const skipRule = await EX.decideSkipRule(rule, chainCtx);
+    if (rule.debugDump === 'meta') {
+      console.debug('D: ACL meta @', trace, { skipRule },
+        'allMeta:', chainCtx.allMeta);
+    }
     if (skipRule) {
-      // console.debug('D: ACL rule skip!', rule.traceDescr);
+      // console.debug('D: ACL rule skip!', trace);
       return;
     }
 

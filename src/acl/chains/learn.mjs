@@ -93,6 +93,12 @@ Object.assign(EX, {
       rule.condGroups[propKeyBase] = groupState;
     });
 
+    (function dd() {
+      const key = 'debugDump';
+      const val = popRuleProp('undef | str', key);
+      if (val) { rule[key] = val; }
+    }());
+
     if (!Object.keys(rule.condGroups)) {
       const msg = 'No condition. For clarity, please add "if: always".';
       throw new Error(msg);

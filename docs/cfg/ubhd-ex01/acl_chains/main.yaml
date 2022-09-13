@@ -45,6 +45,7 @@
       - isLoggedIn
     decide:
         create: allow
+    debugDump: meta
 
 
   - param: 'serviceId'
