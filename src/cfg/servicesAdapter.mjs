@@ -59,7 +59,7 @@ const EX = {
       (tumCfg.vSubDirs || []).reduce(function learn(remain, slot) {
         const rmnOrEmpty = (remain || '');
         const [val, more] = (splitOnce('/', rmnOrEmpty) || [rmnOrEmpty]);
-        meta[slot] = val;
+        if (slot) { meta[slot] = val; }
         return more;
       }, subUrl);
 
