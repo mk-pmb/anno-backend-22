@@ -75,7 +75,13 @@ function tee_output_to_logfile () {
     -- "$LOG" "$OLD" || return $?
 
   >"$LOG" || return 4$(echo "E: Cannot write to logfile: $LOG" >&2)
-  exec &> >(tee -- "$LOG") || return 71
+  exec &> >(tee_output_to_logfile__then_optimize) || return 71
+}
+
+
+function tee_output_to_logfile__then_optimize () {
+  tee -- "$LOG" || return $?
+  "$SELFPATH"/src/unclutter_server_logfile.sed -i -- "$LOG" || return $?
 }
 
 
