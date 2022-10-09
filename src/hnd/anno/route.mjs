@@ -7,7 +7,7 @@ import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import idGet from './idGet.mjs';
-import postNewAnno from './postNewAnno.mjs';
+import postNewAnno from './postNewAnno/index.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 

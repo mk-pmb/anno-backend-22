@@ -7,10 +7,10 @@ import guessAndParseSubjectTargetUrl
 import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 
-import httpErrors from '../../httpErrors.mjs';
-import parseRequestBody from '../util/parseRequestBody.mjs';
-import redundantGenericAnnoMeta from './redundantGenericAnnoMeta.mjs';
-import sendFinalTextResponse from '../../finalTextResponse.mjs';
+import httpErrors from '../../../httpErrors.mjs';
+import parseRequestBody from '../../util/parseRequestBody.mjs';
+import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
+import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
 
 const failBadRequest = httpErrors.badRequest.throwable;
