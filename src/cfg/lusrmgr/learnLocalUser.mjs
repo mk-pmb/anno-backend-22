@@ -18,16 +18,18 @@ function initEmptyUserRecord() {
 };
 
 
-const EX = async function learnLocalUser(mgr, userName, mustPopDetail, meta) {
-  const user = mgr.users.getOrInit(userName, null, initEmptyUserRecord);
+const EX = async function learnLocalUser(ctx, userName, mustPopDetail) {
+  const { mgr } = ctx;
+  const userDetails = mgr.users.getOrInit(userName, null, initEmptyUserRecord);
+  const subCtx = { ...ctx, userName, userDetails };
 
   (mustPopDetail('undef | nul | ary', 'acl_user_groups') || []).forEach(
-    grpName => user.aclUserGroups.add(grpName));
+    grpName => userDetails.aclUserGroups.add(grpName));
 
   await pProps(mustPopDetail('undef | obj', 'author_identities') || false,
-    (v, k) => learnOneAuthorIdentitiy(mgr, meta, user, k, v));
+    (v, k) => learnOneAuthorIdentitiy(subCtx, k, v));
 
-  learnUpstreamUserIdAliases(mgr, userName,
+  learnUpstreamUserIdAliases(subCtx, userName,
     mustPopDetail('undef | ary', 'upstream_userid_aliases'));
 
   mustPopDetail.done('Unsupported user account option(s)');
@@ -36,14 +38,17 @@ const EX = async function learnLocalUser(mgr, userName, mustPopDetail, meta) {
 
 Object.assign(EX, {
 
-  async learnMeta(ctx) {
-    const { meta, mgr, srv, mustPopMeta } = ctx;
+  async learnMeta(ctx, mustPopCfgMeta) {
+    const { cfgMeta, mgr, srv } = ctx;
+
+    const serverBaseUrl = mustBe.tProp('Server property ', srv,
+      'nonEmpty str', 'publicBaseUrlNoSlash');
     mgr.authorAgentUuidBaseUrl = (
-      mustPopMeta('str | undef', 'author_agent_uuid5_baseurl')
-      || (mustBe.tProp('Server property ', srv,
-        'nonEmpty str', 'publicBaseUrlNoSlash')
-        + '/authors/by/uuid/'));
-    meta.fragments = await srv.configFiles.readAsDict('users/fragments');
+      mustPopCfgMeta('str | undef', 'author_agent_uuid5_baseurl')
+      || (serverBaseUrl + '/authors/by-uuid/')
+    );
+
+    cfgMeta.fragments = await srv.configFiles.readAsDict('users/fragments');
   },
 
 

@@ -4,9 +4,9 @@ import mustBe from 'typechecks-pmb/must-be.js';
 import objPop from 'objpop';
 
 
-const EX = function learnUpstreamUserIdAliases(mgr, userName, aliases) {
+const EX = function learnUpstreamUserIdAliases(ctx, userName, aliases) {
   if (!aliases) { return; }
-  const known = mgr.upstreamUserIdAliases;
+  const known = ctx.mgr.upstreamUserIdAliases;
   aliases.forEach(function learnAlias(origAliasSpec) {
     const popSpec = objPop(origAliasSpec, { mustBe }).mustBe;
     let aka = popSpec('str', 'id'); // additional external user ID
