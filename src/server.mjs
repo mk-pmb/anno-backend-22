@@ -8,7 +8,7 @@ import nodeHttp from 'http';
 import objPop from 'objpop';
 import PrRouter from 'express-promise-router';
 
-import configFilesAdapter from './cfg/configFilesAdapter.mjs';
+import configFilesAdapter from './cfg/configFilesAdapter/ad.mjs';
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import fallbackErrorHandler from './hnd/fallbackErrorHandler.mjs';
 import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
