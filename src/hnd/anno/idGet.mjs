@@ -7,11 +7,15 @@ import makeDictList from 'dictlist-util-pmb';
 import httpErrors from '../../httpErrors.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
-import redundantGenericAnnoMeta from './redundantGenericAnnoMeta.mjs';
-import parseVersId from './parseVersionIdentifier.mjs';
+import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
+import genericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
+import parseVersId from './parseVersionIdentifier.mjs';
 
-const { noSuchAnno } = httpErrors.throwable;
+const {
+  noSuchAnno,
+  noSuchResource,
+} = httpErrors.throwable;
 
 const versionSep = ubhdAnnoIdFmt.versionNumberSeparator;
 
@@ -22,6 +26,9 @@ const queryTpl = {
   ),
   latestVersion: (
     'MAX("version_num") AS "latest"'
+    + ' FROM "anno_data" WHERE "base_id" = $1'
+  ),
+  allVersions: ('"version_num", "time_created"'
     + ' FROM "anno_data" WHERE "base_id" = $1'
   ),
 };
@@ -82,25 +89,53 @@ async function getExactVersion(srv, req, idParts) {
       */
     }
   }
-  const fullAnno = redundantGenericAnnoMeta.add(srv, idParts, annoDetails);
+  const fullAnno = genericAnnoMeta.add(srv, idParts, annoDetails);
   return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
 }
 
 
-async function redirToLatestVersion(srv, req, idParts) {
+async function retrieveLatestVersion(srv, req, idParts) {
   const { baseId } = idParts;
-  // :ATTN:ACL: Currently no ACL checks for this lookup.
   const { latest } = (await srv.db.postgresSelect(queryTpl.latestVersion,
     [baseId])).expectSingleRow();
   if (!latest) { throw noSuchAnno(); }
-  return req.res.redirect(baseId + versionSep + latest);
+  return latest;
 }
 
 
-function idGet(srv, req, versId) {
+async function redirToLatestVersion(srv, req, idParts) {
+  // :ATTN:ACL: Currently no ACL checks for this lookup.
+  const latest = await retrieveLatestVersion(srv, req, idParts);
+  return req.res.redirect(idParts.baseId + versionSep + latest);
+}
+
+
+async function listVersions(srv, req, idParts) {
+  // Example for an annotation with many versions:
+  // https://anno.ub.uni-heidelberg.de/anno/anno/JhTAtRbrSOib9OJERGptUg
+  const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
+  await retrieveLatestVersion(srv, req, idParts);
+  // :TODO: Consider ACL permissions
+  const { baseId } = idParts;
+  const allVers = await srv.db.postgresSelect(queryTpl.allVersions,
+    [baseId]);
+  const previews = allVers.map(rec => ({
+    id: latestPubUrl + versionSep + rec.version_num,
+    created: rec.time_created.toISOString(),
+  }));
+  fmtAnnoCollection.replyToRequest(srv, req, { annos: previews });
+}
+
+
+function idGet(srv, req, versId, subRoute) {
   const idParts = parseVersId(versId);
-  if (idParts.versNum) { return getExactVersion(srv, req, idParts); }
-  return redirToLatestVersion(srv, req, idParts);
+  if (idParts.versNum) {
+    if (subRoute) { return noSuchResource(req); }
+    return getExactVersion(srv, req, idParts);
+  }
+  if (!subRoute) { return redirToLatestVersion(srv, req, idParts); }
+  if (subRoute === 'versions') { return listVersions(srv, req, idParts); }
+  return noSuchResource(req);
 }
 
 

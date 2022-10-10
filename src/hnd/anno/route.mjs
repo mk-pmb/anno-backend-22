@@ -24,16 +24,26 @@ Object.assign(EX, {
     if (req.method === 'OPTIONS') { return; }
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
-    const nUrlSubDirs = urlSubDirs.length;
-    if (nUrlSubDirs >= 2) {
-      return httpErrors.notImpl.explain('Anno subresource not implemented: '
-        + urlSubDirs[1])(req);
-    }
-    if (nUrlSubDirs !== 1) { throw new Error('Bad route declaration'); }
-    const [versId] = urlSubDirs;
+    const { versId, subRoute } = EX.decideSubRoute(urlSubDirs);
     // req.logCkp('annoRoute', { method, versId });
-    if (versId) { return EX.annoIdRoute(srv, req, versId); }
-    return EX.emptyIdRoute(srv, req);
+    if (versId) { return EX.annoIdRoute(srv, req, versId, subRoute); }
+    return EX.emptyIdRoute(srv, req, subRoute);
+  },
+
+
+  decideSubRoute(urlSubDirs) {
+    const nSub = urlSubDirs.length;
+    const [versId, sub1] = urlSubDirs;
+    const deci = { versId, subRoute: (sub1 || false) };
+    if (nSub === 1) { return deci; }
+    if (versId && (nSub === 2)) {
+      if (sub1 === 'versions') { return deci; }
+    }
+    if (nSub >= 2) {
+      const msg = 'Anno subresource not implemented: ' + sub1;
+      throw httpErrors.notImpl.explain(msg).throwable();
+    }
+    throw new Error('Bad route declaration');
   },
 
 
@@ -46,13 +56,14 @@ Object.assign(EX, {
   },
 
 
-  async annoIdRoute(srv, req, versId) {
+  async annoIdRoute(srv, req, versId, subRoute) {
     const { method } = req;
-    const fx = (getOwn(EX, method.toLowerCase() + '_' + versId)
-      || getOwn(EX, 'other_' + versId));
-    req.logCkp('annoIdRoute fx?', 'fx =', conciseValuePreview(fx));
-    if (fx) { return fx(srv, req, versId); }
-    if (method === 'GET') { return idGet(srv, req, versId); }
+    const fxKey = versId + (subRoute ? '_' + subRoute : '');
+    const fxFunc = (getOwn(EX, method.toLowerCase() + '_' + fxKey)
+      || getOwn(EX, 'other_' + fxKey));
+    req.logCkp('annoIdRoute fx?', 'fxFunc =', conciseValuePreview(fxFunc));
+    if (fxFunc) { return fxFunc(srv, req, versId, subRoute); }
+    if (method === 'GET') { return idGet(srv, req, versId, subRoute); }
     return httpErrors.badVerb(req);
   },
 

@@ -12,16 +12,21 @@ const EX = {
     '@context': 'http://www.w3.org/ns/anno.jsonld',
   },
 
-  add(srv, idParts, annoDetails) {
-    const { baseId, versNum } = idParts;
-    const latestPubUrl = (srv.publicBaseUrlNoSlash
+  constructLatestPubUrl(srv, idParts) {
+    return (srv.publicBaseUrlNoSlash
       + '/anno/'
-      + baseId
+      + idParts.baseId
     );
+  },
+
+  add(srv, idParts, annoDetails) {
+    const { versNum } = idParts;
+    const latestPubUrl = EX.constructLatestPubUrl(srv, idParts);
     const fullPubUrl = latestPubUrl + vnSep + versNum;
     const addMeta = {
       id: fullPubUrl,
       'dc:isVersionOf': latestPubUrl,
+      'iana:version-history': latestPubUrl + '/versions',
     };
     if (versNum >= 2) {
       addMeta['dc:replaces'] = latestPubUrl + vnSep + (versNum - 1);
