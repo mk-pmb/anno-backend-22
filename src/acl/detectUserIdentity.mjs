@@ -63,6 +63,15 @@ Object.assign(EX, {
     return u;
   },
 
+
+  async andDetails(req) {
+    const who = await EX(req);
+    if (!who) { return who; }
+    const { userId } = who;
+    const details = (req.getSrv().lusrmgr.users.get(userId) || false);
+    return { ...who, details };
+  },
+
 });
 
 

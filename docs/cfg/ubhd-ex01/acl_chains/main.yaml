@@ -45,6 +45,7 @@
       - isLoggedIn
     decide:
         create: allow
+        read: allow
     debugDump: meta
 
 

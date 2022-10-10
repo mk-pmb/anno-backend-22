@@ -21,6 +21,7 @@ const simpleCanneds = {
     { getLike: { code: 404, text: 'Resource not found' } }),
   unexpectedlySlowTask: makeCanned(500,
     'Internal Server Error: Task exceeds expected time limit'),
+  fubar: makeCanned(500, 'Internal Server Error'),
 
   aclDeny: makeCanned(403, 'Forbidden by ACL'),
 
