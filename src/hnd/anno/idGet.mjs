@@ -4,6 +4,7 @@ import guessAndParseSubjectTargetUrl
   from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
 import makeDictList from 'dictlist-util-pmb';
 
+import clientPrefersHtml from '../util/guessClientPrefersHtml.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
@@ -32,15 +33,6 @@ const queryTpl = {
     + ' FROM "anno_data" WHERE "base_id" = $1'
   ),
 };
-
-
-function clientPrefersHtml(req) {
-  const acceptedMediaTypes = req.header('accept');
-  // Ideally we'd check the order with respect to priorities assigned.
-  // However, in practice, for all usual browsers, this simple prefix
-  // check is enough:
-  return String(acceptedMediaTypes || '').startsWith('text/html,');
-}
 
 
 async function getExactVersion(srv, req, idParts) {
