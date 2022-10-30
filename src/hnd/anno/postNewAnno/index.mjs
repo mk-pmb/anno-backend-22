@@ -16,7 +16,10 @@ import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 import decideAuthorIdentity from './decideAuthorIdentity.mjs';
 import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 
-const failBadRequest = httpErrors.badRequest.throwable;
+const {
+  badRequest,
+} = httpErrors.throwable;
+
 const errDuplicateRandomUuid = httpErrors.fubar.explain(
   'ID assignment failed: Duplicate generated random UUID.').throwable;
 
@@ -26,7 +29,7 @@ function findTargetOrBail(anno) {
     return guessAndParseSubjectTargetUrl(anno);
     // ^-- Using parse because it includes safety checks.
   } catch (errTgt) {
-    throw failBadRequest('Unable to determine annotation target(s).');
+    throw badRequest('Unable to determine annotation target(s).');
   }
 }
 
@@ -45,12 +48,17 @@ const EX = async function postNewAnno(srv, req) {
   const who = await detectUserIdentity.andDetails(req);
   // console.debug('postNewAnno who:', who);
 
-  const anno = parseSubmittedAnno.fallible(req, origInput, failBadRequest);
+  const anno = parseSubmittedAnno.fallible(req, origInput, badRequest);
   const previewMode = (anno.id === 'about:preview');
   if ((!previewMode) && (anno.id !== undefined)) {
     const msg = ('Please omit the "id" field from your submission,'
       + ' as it will be assigned by the server.');
-    throw failBadRequest(msg);
+    throw badRequest(msg);
+    // We consider an ID submission as bad request rather than a mere
+    // policy-based denial, because the anno-protocol doesn't even
+    // consider this way of conveying the IRI suggestion. Instead,
+    // it explicitly describes another mechanism for suggesting an IRI:
+    // The "Slug" header. (Which we "may" just ignore.)
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
 

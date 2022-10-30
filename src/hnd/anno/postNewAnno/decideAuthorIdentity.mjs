@@ -4,7 +4,11 @@ import isStr from 'is-string';
 
 import httpErrors from '../../../httpErrors.mjs';
 
-const failBadRequest = httpErrors.badRequest.throwable;
+const {
+  badRequest,
+  genericDeny,
+  notImplemented,
+} = httpErrors.throwable;
 
 function isNonEmptyStr(x) { return x && isStr(x) && x; }
 
@@ -25,7 +29,7 @@ const EX = function decideAuthorIdentity(ctx) {
   );
   if (accepted) { return accepted; }
 
-  throw failBadRequest('Unable to detect or guess a valid author identity.');
+  throw badRequest('Unable to detect or guess a valid author identity.');
 };
 
 
@@ -35,7 +39,7 @@ Object.assign(EX, {
     const orig = [].concat(anno.creator).filter(Boolean);
     const nOrig = orig.length;
     if (nOrig > 1) {
-      throw failBadRequest('Multiple authors in "creator" not supported yet.');
+      throw notImplemented('Multiple authors in "creator" not supported yet.');
     }
     const [crea1] = orig;
     return (crea1 || false);
@@ -46,7 +50,7 @@ Object.assign(EX, {
     const origAuthorId = crea1.id || crea1;
     if (!isNonEmptyStr(origAuthorId)) {
       const msg = 'When a creator field is given, it must carry an id.';
-      throw failBadRequest(msg);
+      throw badRequest(msg);
     }
     const knownIdentities = who.details.authorIdentities;
     const accepted = knownIdentities.byAgentId.get(origAuthorId);
@@ -54,7 +58,7 @@ Object.assign(EX, {
     if (accepted) { return accepted; }
     const msg = ('The requested creator id was not found in'
       + ' your configured identities.');
-    throw failBadRequest(msg);
+    throw genericDeny(msg);
   },
 
   guessMissingAuthorId(srv, who) {
