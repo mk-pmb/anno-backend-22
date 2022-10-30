@@ -1,0 +1,45 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+# Ideally, we want anno clients to send an explicit author identity,
+# because with the licenses we use, correct attribution is very important.
+# Any guessing on our side is thus prone to causing legal trouble, so in
+# case of any doubt, the safe option is to abort with error.
+
+# In development however, we had a need to experiment with a client software
+# for which we weren't able to implement sending author info yet. In order to
+# investigate whether that software is useful enough to warrant more effort
+# for adding that ability, we need a stopgap that guesses author identity.
+
+#   !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
+#   !!                                                                   !!
+#   !!  BEWARE: Using this in environments where some of the clients     !!
+#   !!  are capable of sending author info, will silently conceal        !!
+#   !!  client failures (e.g. due to typo or missing web config)         !!
+#   !!  and fill the void with sneaky lies.                              !!
+#   !!                                                                   !!
+#   !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
+
+
+'': # <-- Empty username = not a user but server-wide settings.
+
+    missing_author_fallback_identity_keys:
+        # This option is the stopgap described above.
+        # You can give a priority list of author identity keys that will
+        # be tried in order. The first valid one wins.
+        - 'fallback'
+        - 'default'
+        - 'main'
+
+
+
+
+
+
+
+
+
+
+
+...
