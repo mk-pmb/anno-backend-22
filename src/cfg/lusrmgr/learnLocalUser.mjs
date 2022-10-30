@@ -41,12 +41,17 @@ Object.assign(EX, {
   async learnMeta(ctx, mustPopCfgMeta) {
     const { cfgMeta, mgr, srv } = ctx;
 
-    const serverBaseUrl = mustBe.tProp('Server property ', srv,
-      'nonEmpty str', 'publicBaseUrlNoSlash');
-    mgr.authorAgentUuidBaseUrl = (
-      mustPopCfgMeta('str | undef', 'author_agent_uuid5_baseurl')
-      || (serverBaseUrl + '/authors/by-uuid/')
-    );
+    mgr.authorAgentUuidBaseUrl = (function parse() {
+      const cfgKey = 'author_agent_uuid5_baseurl';
+      let bu = mustPopCfgMeta('str | undef', cfgKey);
+      bu = (bu || '/authors/by-uuid/');
+      if (bu.startsWith('/')) {
+        const serverBaseUrl = mustBe.tProp('Server property ', srv,
+          'nonEmpty str', 'publicBaseUrlNoSlash');
+        bu = serverBaseUrl + bu;
+      }
+      return bu;
+    }());
 
     cfgMeta.fragments = await srv.configFiles.readAsDict('users/fragments');
   },
