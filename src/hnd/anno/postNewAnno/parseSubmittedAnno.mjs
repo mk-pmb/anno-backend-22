@@ -24,7 +24,7 @@ const EX = function parseSubmittedAnno(origInput) {
   copy('id', 'undef | nonEmpty str');
   copy('target', 'obj | ary');
   copy('title', 'nonEmpty str');
-  // copy('author', 'obj');
+  copy('creator', 'obj | ary | nonEmpty str | undef');
   copy('body', 'obj | ary');
   copy('rights', 'nonEmpty str | undef');
 

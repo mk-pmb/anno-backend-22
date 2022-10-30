@@ -13,6 +13,7 @@ import parseRequestBody from '../../util/parseRequestBody.mjs';
 import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
+import decideAuthorIdentity from './decideAuthorIdentity.mjs';
 import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 
 const failBadRequest = httpErrors.badRequest.throwable;
@@ -53,14 +54,13 @@ const EX = async function postNewAnno(srv, req) {
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
 
-  // await EX.validateOrUpdateAuthorInplace(srv, req, anno);
-
   const relations = { subject: subjTgt.url };
   const baseId = (anno.id || randomUuid());
   const versNum = 1;
   const idParts = { baseId, versNum };
+  anno.creator = await decideAuthorIdentity({ srv, req, who, anno });
+  anno.created = (new Date()).toISOString();
   const fullAnno = redundantGenericAnnoMeta.add(srv, idParts, anno);
-  fullAnno.created = (new Date()).toISOString();
   const ftrOpt = {
     type: 'annoLD',
   };
