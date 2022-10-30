@@ -53,6 +53,13 @@ Object.assign(EX, {
       return bu;
     }());
 
+    mgr.missingAuthorFallbackIdentityKeys = (function parse() {
+      const cfgKey = 'missing_author_fallback_identity_keys';
+      const origSpec = mustPopCfgMeta('ary | nul | undef', cfgKey);
+      const aiKeys = [].concat(origSpec).filter(Boolean);
+      return aiKeys;
+    }());
+
     cfgMeta.fragments = await srv.configFiles.readAsDict('users/fragments');
   },
 

@@ -10,7 +10,7 @@ function isNonEmptyStr(x) { return x && isStr(x) && x; }
 
 const EX = function decideAuthorIdentity(ctx) {
   const {
-    // srv,
+    srv,
     // req,
     who,
     anno,
@@ -19,8 +19,11 @@ const EX = function decideAuthorIdentity(ctx) {
   if (!anno) { throw new Error('Cannot ' + EX.name + ' without anno.'); }
   const firstOrigCreator = EX.findFirstOrigCreator(anno);
 
-  const acceptedExplicit = EX.fromExplicitAuthorId(firstOrigCreator, who);
-  if (acceptedExplicit) { return acceptedExplicit; }
+  const accepted = (
+    EX.fromExplicitAuthorId(firstOrigCreator, who)
+    || EX.guessMissingAuthorId(srv, who)
+  );
+  if (accepted) { return accepted; }
 
   throw failBadRequest('Unable to detect or guess a valid author identity.');
 };
@@ -52,6 +55,14 @@ Object.assign(EX, {
     const msg = ('The requested creator id was not found in'
       + ' your configured identities.');
     throw failBadRequest(msg);
+  },
+
+  guessMissingAuthorId(srv, who) {
+    const fallbackIds = srv.lusrmgr.missingAuthorFallbackIdentityKeys;
+    if (!fallbackIds) { return; }
+    const knownIdentities = who.details.authorIdentities;
+    const found = fallbackIds.find(k => knownIdentities.has(k));
+    return (found && knownIdentities.get(found));
   },
 
 });
