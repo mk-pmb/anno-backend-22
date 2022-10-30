@@ -8,6 +8,7 @@ import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import idGet from './idGet.mjs';
 import postNewAnno from './postNewAnno/index.mjs';
+import searchBy from './searchBy/index.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 
@@ -23,6 +24,8 @@ Object.assign(EX, {
     srv.confirmCors(req);
     if (req.method === 'OPTIONS') { return; }
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
+    const [dir1, ...subDirs] = urlSubDirs;
+    if (dir1 === 'by') { return searchBy(subDirs, req, srv); }
     // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
     const { versId, subRoute } = EX.decideSubRoute(urlSubDirs);
     // req.logCkp('annoRoute', { method, versId });
