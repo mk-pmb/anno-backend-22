@@ -1,10 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import makeGenericAsyncCorsHandler from 'cors-async';
 import pify from 'pify';
 import smartListen from 'net-smartlisten-pmb';
 
-import plumb from './hnd/util/miscPlumbing.mjs';
+import makeGenericCorsHandler from './hnd/util/genericCorsHandler.mjs';
 
 
 const EX = function installListenAddrPlumbing(srv) {
@@ -19,11 +18,7 @@ const EX = function installListenAddrPlumbing(srv) {
   // ^-- Please don't reinvent guessOrigReqUrl from
   //     `hnd/util/miscPlumbing.mjs`!
 
-  const confirmCors = plumb.legacyMultiArg(makeGenericAsyncCorsHandler({
-    origin: srv.popCfg('nonEmpty str', 'cors_accept_origin'),
-    optionsSuccessStatus: 200, // as recommended by npm:cors
-  }));
-
+  const confirmCors = makeGenericCorsHandler();
   const webSrv = srv.getLowLevelWebServer();
 
 

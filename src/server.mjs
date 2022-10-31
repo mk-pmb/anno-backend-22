@@ -29,7 +29,6 @@ const defaultConfig = {
   db: dbAdapter.getConfigDefaults(),
   cfgfiles: configFilesAdapter.getConfigDefaults(),
 
-  cors_accept_origin: '*',
   listen_addr: '127.0.0.1:33321',
   public_baseurl: '',
   wwwpub_path: pathInRepo('wwwpub'),
