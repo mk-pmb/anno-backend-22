@@ -7,11 +7,11 @@
   - if: always
     tendency:
         '*': deny
+        discover: allow
         read: allow
 
   - if: isLoggedIn
     tendency:
-        discover: allow
         create: allow
 
 
