@@ -3,8 +3,6 @@
 import pify from 'pify';
 import smartListen from 'net-smartlisten-pmb';
 
-import makeGenericCorsHandler from './hnd/util/genericCorsHandler.mjs';
-
 
 const EX = function installListenAddrPlumbing(srv) {
   const listenAddr = srv.popCfg('str | pos0 num', 'listen_addr');
@@ -18,7 +16,6 @@ const EX = function installListenAddrPlumbing(srv) {
   // ^-- Please don't reinvent guessOrigReqUrl from
   //     `hnd/util/miscPlumbing.mjs`!
 
-  const confirmCors = makeGenericCorsHandler();
   const webSrv = srv.getLowLevelWebServer();
 
 
@@ -48,7 +45,6 @@ const EX = function installListenAddrPlumbing(srv) {
 
   Object.assign(srv, {
     close,
-    confirmCors,
     listen,
     publicBaseUrlNoSlash: noSlashPubUrl,
   });

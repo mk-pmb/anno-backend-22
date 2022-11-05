@@ -21,7 +21,7 @@ const EX = async function makeAnnoRoute(srv) {
 Object.assign(EX, {
 
   async annoRoute(req, srv) {
-    srv.confirmCors(req);
+    req.confirmCors();
     if (req.method === 'OPTIONS') { return; }
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     const [dir1, ...subDirs] = urlSubDirs;

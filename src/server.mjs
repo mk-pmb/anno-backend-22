@@ -16,6 +16,7 @@ import installListenAddrPlumbing from './listenAddrPlumbing.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
 import logRequestCheckpoint from './logRequestCheckpoint.mjs';
 import lusrmgr from './cfg/lusrmgr/index.mjs';
+import makeGenericCorsHandler from './hnd/util/genericCorsHandler.mjs';
 import prepareAcl from './acl/prepareAcl.mjs';
 import servicesAdapter from './cfg/servicesAdapter.mjs';
 import timeoutFallbackResponse from './timeoutFallbackResponse.mjs';
@@ -86,7 +87,9 @@ const EX = async function createServer(customConfig) {
   srv.db = await dbAdapter.init({ popCfg });
   await installRootRoutes(srv);
 
+  const confirmCorsImpl = makeGenericCorsHandler();
   app.globalRequestExtras({
+    confirmCors() { return confirmCorsImpl(this); },
     getDb() { return srv.db; },
     getSrv() { return srv; },
     logCkp: logRequestCheckpoint,
