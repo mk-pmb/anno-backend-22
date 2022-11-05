@@ -9,6 +9,7 @@ const failNotImpl = httpErrors.notImpl.throwable;
 
 
 const EX = async function whoami(req) {
+  req.confirmCors();
   const who = await detectUserIdentity.andDetails(req);
   if (who) {
     const { details } = who;
