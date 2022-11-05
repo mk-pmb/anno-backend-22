@@ -1,11 +1,14 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-const msecPerMinute = 6e4;
+const secPerMinute = 60;
 
 
 const EX = function guestAccessOnly() {
   return EX.dummyDetectIdentityGuestAccessOnly;
 };
+
+
+function unixtime() { return Math.floor(Date.now() / 1e3); }
 
 
 Object.assign(EX, {
@@ -16,7 +19,7 @@ Object.assign(EX, {
 
   dummyGuestSession(report) {
     if (!report) { return false; }
-    const soon = Date.now() + (10 * msecPerMinute);
+    const soon = unixtime() + (10 * secPerMinute);
     return {
       userId: '',
       renewalAvailableBefore: soon,
