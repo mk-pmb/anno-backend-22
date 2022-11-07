@@ -13,7 +13,7 @@ const EX = async function whoami(req) {
   const who = await detectUserIdentity.andDetails(req);
   if (who) {
     const { details } = who;
-    who.author_identities = EX.reportAuthorIdentities(req, details);
+    who.authorIdentities = EX.reportAuthorIdentities(req, details);
     delete who.details;
   }
   return sendFinalTextResponse.json(req, who);
