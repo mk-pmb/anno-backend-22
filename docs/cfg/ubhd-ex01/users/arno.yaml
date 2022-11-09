@@ -27,8 +27,13 @@
 
             name: 'Arno Nym'
             type: Person
+            email: 'arno.nym@example.net'
             INHERITS:
                 - 'icon_wp_vector_anon'
+
+        minimal:
+            name: 'A. Nym'
+            type: Person
 
 
     acl_user_groups:
