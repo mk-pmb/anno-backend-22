@@ -29,6 +29,9 @@ const EX = function parseSubmittedAnno(origInput) {
   function targetLike(key) {
     let val = mustPopInput('obj | ary | nonEmpty str', key);
     val = [].concat(val).filter(Boolean);
+    if (!val.length) {
+      throw new RangeError('Annotation needs at least one ' + key);
+    }
     val = val.map(function maybeWrapId(rec) {
       if (typeof rec === 'string') { return { id: rec }; }
       return rec;

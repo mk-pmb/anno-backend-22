@@ -3,7 +3,6 @@
 import guessAndParseSubjectTargetUrl
   from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
 
-import pProps from 'p-props';
 import randomUuid from 'uuid-random';
 import sortedJson from 'safe-sortedjson';
 
@@ -24,31 +23,42 @@ const errDuplicateRandomUuid = httpErrors.fubar.explain(
   'ID assignment failed: Duplicate generated random UUID.').throwable;
 
 
-function findTargetOrBail(anno) {
-  try {
-    return guessAndParseSubjectTargetUrl(anno);
-    // ^-- Using parse because it includes safety checks.
-  } catch (errTgt) {
-    throw badRequest('Unable to determine annotation target(s).');
-  }
-}
-
-
-
 const EX = async function postNewAnno(srv, req) {
   const origInput = await parseRequestBody('json', req);
-  const subjTgt = findTargetOrBail(origInput);
-  // req.logCkp('postNewAnno input', { origInput, subjTgt });
 
-  await srv.acl.requirePerm(req, {
-    targetUrl: subjTgt.url,
-    privilegeName: 'create',
+  const nTargets = origInput.target.length;
+  const subjTgtUrls = [];
+  const replyTgtVersIds = [];
+  replyTgtVersIds.prefix = srv.publicBaseUrlNoSlash + '/anno/';
+
+  const anno = parseSubmittedAnno.fallible(req, origInput, badRequest);
+  anno.target.forEach(function categorize(tgt, idx) {
+    const tgtIdUrl = String(tgt.tgtIdUrl || '');
+    if (tgtIdUrl && tgtIdUrl.startsWith(replyTgtVersIds.prefix)) {
+      const versId = tgtIdUrl.slice(replyTgtVersIds.prefix.length);
+      // :TODO: Verify versId safety + syntax
+      return replyTgtVersIds.push(versId);
+    }
+    try {
+      const subjTgt = guessAndParseSubjectTargetUrl({ target: tgt });
+      // ^-- Using parse because it includes safety checks.
+      return subjTgtUrls.push(subjTgt.url);
+    } catch (err) {
+      const msg = ('Unable to categorize target #' + (idx + 1)
+        + '/' + nTargets);
+      throw badRequest(msg);
+    }
   });
+
+  req.logCkp('postNewAnno input', { origInput, subjTgtUrls, replyTgtVersIds });
+  await Promise.all(subjTgtUrls.map(url => srv.acl.requirePerm(req, {
+    targetUrl: url,
+    privilegeName: 'create',
+  })));
 
   const who = await detectUserIdentity.andDetails(req);
   // console.debug('postNewAnno who:', who);
 
-  const anno = parseSubmittedAnno.fallible(req, origInput, badRequest);
   const previewMode = (anno.id === 'about:preview');
   if ((!previewMode) && (anno.id !== undefined)) {
     const msg = ('Please omit the "id" field from your submission,'
@@ -62,7 +72,6 @@ const EX = async function postNewAnno(srv, req) {
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
 
-  const relations = { subject: subjTgt.url };
   const baseId = (anno.id || randomUuid());
   const versNum = 1;
   const idParts = { baseId, versNum };
@@ -89,10 +98,10 @@ const EX = async function postNewAnno(srv, req) {
 
   // Now that the idParts are successfully assigned, we can register
   // the anno's relations:
-  await pProps(relations, async function regRel(url, rel) {
-    const relRec = { ...recIdParts, rel, url };
+  await Promise.all(subjTgtUrls.map(async function regRel(url) {
+    const relRec = { ...recIdParts, rel: 'subject', url };
     await srv.db.postgresInsertOneRecord('anno_links', relRec);
-  });
+  }));
 
   ftrOpt.code = 201;
   req.res.header('Location', fullAnno.id);
