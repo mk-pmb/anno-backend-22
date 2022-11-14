@@ -22,11 +22,21 @@ const EX = function parseSubmittedAnno(origInput) {
   }
   verbatimCopyKeysMandatedByProtocol.forEach(k => copy(k, 'str | undef'));
   copy('id', 'undef | nonEmpty str');
-  copy('target', 'obj | ary');
   copy('title', 'nonEmpty str');
   copy('creator', 'obj | ary | nonEmpty str | undef');
-  copy('body', 'obj | ary');
   copy('rights', 'nonEmpty str | undef');
+
+  function targetLike(key) {
+    let val = mustPopInput('obj | ary | nonEmpty str', key);
+    val = [].concat(val).filter(Boolean);
+    val = val.map(function maybeWrapId(rec) {
+      if (typeof rec === 'string') { return { id: rec }; }
+      return rec;
+    });
+    anno[key] = val;
+  }
+  targetLike('target');
+  targetLike('body');
 
   mustPopInput.expectEmpty('Unsupported annotation field');
   return anno;
