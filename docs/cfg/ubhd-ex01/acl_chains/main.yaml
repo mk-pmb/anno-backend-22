@@ -47,7 +47,7 @@
         create: allow
         discover: allow
         read: allow
-    debugDump: meta
+    # debugDump: meta
 
 
   - param: 'serviceId'
