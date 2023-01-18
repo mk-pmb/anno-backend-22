@@ -1,8 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import guessAndParseSubjectTargetUrl
-  from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
-
+import pMap from 'p-map';
 import randomUuid from 'uuid-random';
 import sortedJson from 'safe-sortedjson';
 
@@ -11,6 +9,8 @@ import httpErrors from '../../../httpErrors.mjs';
 import parseRequestBody from '../../util/parseRequestBody.mjs';
 import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
+
+import categorizeTargets from '../categorizeTargets.mjs';
 
 import decideAuthorIdentity from './decideAuthorIdentity.mjs';
 import parseSubmittedAnno from './parseSubmittedAnno.mjs';
@@ -26,29 +26,12 @@ const errDuplicateRandomUuid = httpErrors.fubar.explain(
 const EX = async function postNewAnno(srv, req) {
   const origInput = await parseRequestBody('json', req);
 
-  const nTargets = origInput.target.length;
-  const subjTgtUrls = [];
-  const replyTgtVersIds = [];
-  replyTgtVersIds.prefix = srv.publicBaseUrlNoSlash + '/anno/';
-
   const anno = parseSubmittedAnno.fallible(req, origInput, badRequest);
-  anno.target.forEach(function categorize(tgt, idx) {
-    const tgtIdUrl = String(tgt.tgtIdUrl || '');
-    if (tgtIdUrl && tgtIdUrl.startsWith(replyTgtVersIds.prefix)) {
-      const versId = tgtIdUrl.slice(replyTgtVersIds.prefix.length);
-      // :TODO: Verify versId safety + syntax
-      return replyTgtVersIds.push(versId);
-    }
-    try {
-      const subjTgt = guessAndParseSubjectTargetUrl({ target: tgt });
-      // ^-- Using parse because it includes safety checks.
-      return subjTgtUrls.push(subjTgt.url);
-    } catch (err) {
-      const msg = ('Unable to categorize target #' + (idx + 1)
-        + '/' + nTargets);
-      throw badRequest(msg);
-    }
-  });
+  const tgtCateg = categorizeTargets(srv, anno);
+  const {
+    subjTgtUrls,
+    replyTgtVersIds,
+  } = tgtCateg;
 
   req.logCkp('postNewAnno input', { origInput, subjTgtUrls, replyTgtVersIds });
   await Promise.all(subjTgtUrls.map(url => srv.acl.requirePerm(req, {
@@ -98,10 +81,14 @@ const EX = async function postNewAnno(srv, req) {
 
   // Now that the idParts are successfully assigned, we can register
   // the anno's relations:
-  await Promise.all(subjTgtUrls.map(async function regRel(url) {
-    const relRec = { ...recIdParts, rel: 'subject', url };
-    await srv.db.postgresInsertOneRecord('anno_links', relRec);
-  }));
+  async function regRels(rel, urlsList) {
+    await pMap(urlsList, async function regOneRel(url) {
+      const relRec = { ...recIdParts, rel, url };
+      await srv.db.postgresInsertOneRecord('anno_links', relRec);
+    });
+  }
+  await regRels('subject', subjTgtUrls);
+  await regRels('inReplyTo', replyTgtVersIds);
 
   ftrOpt.code = 201;
   req.res.header('Location', fullAnno.id);

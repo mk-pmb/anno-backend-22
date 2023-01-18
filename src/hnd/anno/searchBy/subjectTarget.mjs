@@ -1,10 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import guessAndParseSubjectTargetUrl
-  from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
 import pMap from 'p-map';
 
 // import httpErrors from '../../../httpErrors.mjs';
+import categorizeTargets from '../categorizeTargets.mjs';
 import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 
@@ -44,11 +43,11 @@ const EX = async function bySubjectTargetPrefix(subjTgtSpec, req, srv) {
   const found = await srv.db.postgresSelect(searchQry, [urlArg]);
   // console.debug('bySubjTgt:', { found });
   const annos = await pMap(found, async function recombineAnno(rec) {
-    const subjTgt = guessAndParseSubjectTargetUrl(rec.details);
-    await srv.acl.requirePerm(req, {
-      targetUrl: subjTgt.url,
+    const { subjTgtUrls } = categorizeTargets(srv, rec.details);
+    await pMap(subjTgtUrls, stu => srv.acl.requirePerm(req, {
+      targetUrl: stu,
       privilegeName: 'read',
-    });
+    }));
     const idParts = {
       baseId: rec.base_id,
       versNum: rec.version_num,
