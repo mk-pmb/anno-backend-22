@@ -22,7 +22,7 @@ const EX = function parseSubmittedAnno(origInput) {
   }
   verbatimCopyKeysMandatedByProtocol.forEach(k => copy(k, 'str | undef'));
   copy('id', 'undef | nonEmpty str');
-  copy('title', 'nonEmpty str');
+  copy('dc:title', 'nonEmpty str');
   copy('creator', 'obj | ary | nonEmpty str | undef');
   copy('rights', 'nonEmpty str | undef');
 
