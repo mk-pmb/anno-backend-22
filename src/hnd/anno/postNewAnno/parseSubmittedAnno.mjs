@@ -41,6 +41,16 @@ const EX = function parseSubmittedAnno(origInput) {
   targetLike('target');
   targetLike('body');
 
+  function neStrList(key) {
+    let list = mustPopInput('ary | nonEmpty str | undef', key);
+    if (!list) { return; }
+    list = [].concat(list).filter(Boolean);
+    if (!list.length) { return; }
+    list.forEach((x, i) => mustBe.nest(key + '[' + i + ']', x));
+    anno[key] = list;
+  }
+  neStrList('motivation');
+
   mustPopInput.expectEmpty('Unsupported annotation field');
   return anno;
 };
