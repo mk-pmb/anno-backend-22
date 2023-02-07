@@ -27,7 +27,7 @@ const EX = function parseSubmittedAnno(origInput) {
   copy('rights', 'nonEmpty str | undef');
 
   function targetLike(key) {
-    let val = mustPopInput('obj | ary | nonEmpty str', key);
+    let val = mustPopInput('obj | ary | nonEmpty str | undef', key);
     val = [].concat(val).filter(Boolean);
     if (!val.length) {
       throw new RangeError('Annotation needs at least one ' + key);
