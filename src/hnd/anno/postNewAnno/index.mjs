@@ -12,6 +12,7 @@ import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
 import categorizeTargets from '../categorizeTargets.mjs';
 
+import checkVersionModifications from './checkVersionModifications.mjs';
 import decideAuthorIdentity from './decideAuthorIdentity.mjs';
 import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 
@@ -54,6 +55,10 @@ const EX = async function postNewAnno(srv, req) {
     // The "Slug" header. (Which we "may" just ignore.)
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
+
+  if (!previewMode) {
+    await checkVersionModifications(srv, anno);
+  }
 
   const baseId = (anno.id || randomUuid());
   const versNum = 1;

@@ -21,9 +21,11 @@ const EX = function parseSubmittedAnno(origInput) {
     if (val !== undefined) { anno[key] = val; }
   }
   verbatimCopyKeysMandatedByProtocol.forEach(k => copy(k, 'str | undef'));
-  copy('id', 'undef | nonEmpty str');
-  copy('dc:title', 'nonEmpty str');
+  copy('id', 'nonEmpty str | undef');
+
   copy('creator', 'obj | ary | nonEmpty str | undef');
+  copy('dc:isVersionOf', 'nonEmpty str | undef');
+  copy('dc:title', 'nonEmpty str');
   copy('rights', 'nonEmpty str | undef');
 
   function targetLike(key) {
