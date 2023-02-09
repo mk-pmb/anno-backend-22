@@ -40,6 +40,16 @@ const EX = async function postNewAnno(srv, req) {
     privilegeName: 'create',
   })));
 
+  if (replyTgtVersIds.length > 1) {
+    const msg = ('Cross-posting (reply to multiple annotations)'
+      + ' is not supported yet.');
+    // There's not really a strong reason. We'd just have to remove
+    // the uniqueness restraint from the database structure.
+    // A weak reason is that limiting the server capabilities to what
+    // our frontend can do will prevent some accidents.
+    throw badRequest(msg);
+  }
+
   const who = await detectUserIdentity.andDetails(req);
   // console.debug('postNewAnno who:', who);
 
