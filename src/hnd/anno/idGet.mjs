@@ -34,7 +34,7 @@ const queryTpl = {
 };
 
 
-async function getExactVersion(srv, req, idParts) {
+async function lookupExactVersion(srv, req, idParts) {
   const { baseId, versNum, versId } = idParts;
   const targetLookupDeniedReason = await srv.acl.whyDeny(req,
     { privilegeName: 'lookupAnnoTargets', versId });
@@ -65,6 +65,12 @@ async function getExactVersion(srv, req, idParts) {
     throw noSuchAnno();
   }
 
+  return annoDetails;
+}
+
+
+async function serveExactVersion(srv, req, idParts) {
+  const annoDetails = await lookupExactVersion(srv, req, idParts);
   const ftrOpt = { type: 'annoLD' };
   if (clientPrefersHtml(req)) {
     const [scope1] = makeDictList(annoDetails.target).getEachOwnProp('scope');
@@ -84,7 +90,7 @@ async function getExactVersion(srv, req, idParts) {
 }
 
 
-async function retrieveLatestVersion(srv, req, idParts) {
+async function lookupLatestVersionNum(srv, req, idParts) {
   const { baseId } = idParts;
   const { latest } = (await srv.db.postgresSelect(queryTpl.latestVersion,
     [baseId])).expectSingleRow();
@@ -95,7 +101,7 @@ async function retrieveLatestVersion(srv, req, idParts) {
 
 async function redirToLatestVersion(srv, req, idParts) {
   // :ATTN:ACL: Currently no ACL checks for this lookup.
-  const latest = await retrieveLatestVersion(srv, req, idParts);
+  const latest = await lookupLatestVersionNum(srv, req, idParts);
   return req.res.redirect(idParts.baseId + versionSep + latest);
 }
 
@@ -104,7 +110,7 @@ async function listVersions(srv, req, idParts) {
   // Example for an annotation with many versions:
   // https://anno.ub.uni-heidelberg.de/anno/anno/JhTAtRbrSOib9OJERGptUg
   const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
-  await retrieveLatestVersion(srv, req, idParts);
+  await lookupLatestVersionNum(srv, req, idParts);
   // :TODO: Consider ACL permissions
   const { baseId } = idParts;
   const allVers = await srv.db.postgresSelect(queryTpl.allVersions,
@@ -117,16 +123,24 @@ async function listVersions(srv, req, idParts) {
 }
 
 
-function idGet(srv, req, versId, subRoute) {
+const EX = function idGet(srv, req, versId, subRoute) {
   const idParts = parseVersId(versId);
   if (idParts.versNum) {
     if (subRoute) { return noSuchResource(req); }
-    return getExactVersion(srv, req, idParts);
+    return serveExactVersion(srv, req, idParts);
   }
   if (!subRoute) { return redirToLatestVersion(srv, req, idParts); }
   if (subRoute === 'versions') { return listVersions(srv, req, idParts); }
   return noSuchResource(req);
-}
+};
 
 
-export default idGet;
+Object.assign(EX, {
+
+  lookupExactVersion,
+  lookupLatestVersionNum,
+
+});
+
+
+export default EX;

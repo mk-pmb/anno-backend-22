@@ -13,6 +13,8 @@
   - if: isLoggedIn
     tendency:
         create: allow
+        reply:  allow
+        revise: allow
 
 
 

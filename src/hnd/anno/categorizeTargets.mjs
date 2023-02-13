@@ -4,6 +4,7 @@ import guessAndParseSubjectTargetUrl
   from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
 
 import httpErrors from '../../httpErrors.mjs';
+import parseVersId from './parseVersionIdentifier.mjs';
 
 
 const {
@@ -19,18 +20,13 @@ const EX = function categorizeTargets(srv, anno) {
     subjTgtUrls: [],
     replyTgtVersIds: [],
   };
-  const replyTgtBaseUrl = srv.publicBaseUrlNoSlash + '/anno/';
-
   const targetsList = [].concat(orf(anno).target);
   const nTargets = targetsList.length;
   targetsList.forEach(function categorize(tgt, idx) {
     if (!tgt) { return; }
     const tgtIdUrl = String(tgt.tgtIdUrl || '');
-    if (tgtIdUrl && tgtIdUrl.startsWith(replyTgtBaseUrl)) {
-      const versId = tgtIdUrl.slice(replyTgtBaseUrl.length);
-      // :TODO: Verify versId safety + syntax
-      return report.replyTgtVersIds.push(versId);
-    }
+    const { versId } = parseVersId.fromLocalUrl(srv, tgtIdUrl);
+    if (versId) { return report.replyTgtVersIds.push(versId); }
     try {
       const subjTgt = guessAndParseSubjectTargetUrl({ target: tgt });
       // ^-- Using parse because it includes safety checks.

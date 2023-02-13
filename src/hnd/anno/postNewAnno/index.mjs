@@ -34,10 +34,17 @@ const EX = async function postNewAnno(srv, req) {
     replyTgtVersIds,
   } = tgtCateg;
 
-  req.logCkp('postNewAnno input', { origInput, subjTgtUrls, replyTgtVersIds });
+  const postActionPrivName = (function decidePriv() {
+    if (anno['dc:isVersionOf']) { return 'revise'; }
+    if (replyTgtVersIds.length) { return 'reply'; }
+    return 'create';
+  }());
+
+  req.logCkp('postNewAnno input', { subjTgtUrls, replyTgtVersIds },
+    JSON.stringify(origInput, null, 2));
   await Promise.all(subjTgtUrls.map(url => srv.acl.requirePerm(req, {
     targetUrl: url,
-    privilegeName: 'create',
+    privilegeName: postActionPrivName,
   })));
 
   if (replyTgtVersIds.length > 1) {
@@ -66,16 +73,21 @@ const EX = async function postNewAnno(srv, req) {
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
 
-  if (!previewMode) {
-    await checkVersionModifications(srv, anno);
-  }
+  const ctx = {
+    anno,
+    postActionPrivName,
+    idParts: { baseId: '', versNum: 1 },
+    req,
+    srv,
+    who,
+  };
 
-  const baseId = (anno.id || randomUuid());
-  const versNum = 1;
-  const idParts = { baseId, versNum };
-  anno.creator = await decideAuthorIdentity({ srv, req, who, anno });
+  if (!previewMode) { await EX.intenseValidations(ctx); }
+
+  anno.creator = await decideAuthorIdentity(ctx);
   anno.created = (new Date()).toISOString();
-  const fullAnno = redundantGenericAnnoMeta.add(srv, idParts, anno);
+  if (!ctx.idParts.baseId) { ctx.idParts.baseId = randomUuid(); }
+  const fullAnno = redundantGenericAnnoMeta.add(srv, ctx.idParts, anno);
   const ftrOpt = {
     type: 'annoLD',
   };
@@ -83,7 +95,10 @@ const EX = async function postNewAnno(srv, req) {
     return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
   }
 
-  const recIdParts = { base_id: baseId, version_num: versNum };
+  const recIdParts = {
+    base_id: ctx.idParts.baseId,
+    version_num: ctx.idParts.versNum,
+  };
   const dbRec = {
     ...recIdParts,
     time_created: fullAnno.created,
@@ -109,6 +124,16 @@ const EX = async function postNewAnno(srv, req) {
   req.res.header('Location', fullAnno.id);
   return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
 };
+
+
+Object.assign(EX, {
+
+  async intenseValidations(ctx) {
+    await checkVersionModifications(ctx);
+  },
+
+});
+
 
 
 export default EX;

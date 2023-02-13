@@ -26,4 +26,17 @@ const EX = function parseVersId(versId) {
 };
 
 
+Object.assign(EX, {
+
+  fromLocalUrl(srv, url) {
+    if (!url) { return ''; }
+    const baseUrl = srv.publicBaseUrlNoSlash + '/anno/';
+    if (!url.startsWith(baseUrl)) { return ''; }
+    const versId = url.slice(baseUrl.length);
+    return EX(versId);
+  },
+
+});
+
+
 export default EX;
