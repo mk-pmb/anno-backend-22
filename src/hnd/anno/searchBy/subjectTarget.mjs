@@ -42,16 +42,15 @@ const EX = async function bySubjectTargetPrefix(subjTgtSpec, req, srv) {
   // console.debug(searchQry, { urlArg });
   const found = await srv.db.postgresSelect(searchQry, [urlArg]);
   // console.debug('bySubjTgt:', { found });
+
+  const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
+    rec.details).subjTgtUrls).flat();
+  await srv.acl.requirePermForAllTargetUrls(req,
+    allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.
+    { privilegeName: 'read' });
+
   const annos = await pMap(found, async function recombineAnno(rec) {
-    const { subjTgtUrls } = categorizeTargets(srv, rec.details);
-    await pMap(subjTgtUrls, stu => srv.acl.requirePerm(req, {
-      targetUrl: stu,
-      privilegeName: 'read',
-    }));
-    const idParts = {
-      baseId: rec.base_id,
-      versNum: rec.version_num,
-    };
+    const idParts = { baseId: rec.base_id, versNum: rec.version_num };
     const fullAnno = genericAnnoMeta.add(srv, idParts, rec.details);
     return fullAnno;
   });

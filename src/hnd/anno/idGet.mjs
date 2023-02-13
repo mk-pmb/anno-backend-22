@@ -1,13 +1,12 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import guessAndParseSubjectTargetUrl
-  from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
 import makeDictList from 'dictlist-util-pmb';
 
 import clientPrefersHtml from '../util/guessClientPrefersHtml.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
+import categorizeTargets from './categorizeTargets.mjs';
 import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
@@ -45,21 +44,20 @@ async function getExactVersion(srv, req, idParts) {
     [baseId, versNum])).expectSingleRow();
   const versionNotFound = (detailsReply === 0);
   const annoDetails = detailsReply.details;
-  let subjTgtUrlForAclCheckRead = 'about:unknowntarget';
+  let subjTgtUrlsForAclCheckRead; // <- `undefined` is valid for acl.rPFATU
   if (targetLookupAllowed) {
     if (versionNotFound) {
       // At this point, permission to disclose non-existence stems from the
       // permission to lookup the target.
       throw noSuchAnno();
     }
-    subjTgtUrlForAclCheckRead = guessAndParseSubjectTargetUrl(annoDetails).url;
-    // ^-- Using parse because it includes safety checks.
+
+    subjTgtUrlsForAclCheckRead = categorizeTargets(srv,
+      annoDetails).subjTgtUrls;
   }
 
-  await srv.acl.requirePerm(req, {
-    privilegeName: 'read',
-    targetUrl: subjTgtUrlForAclCheckRead,
-  });
+  await srv.acl.requirePermForAllTargetUrls(req, subjTgtUrlsForAclCheckRead,
+    { privilegeName: 'read' });
 
   if (versionNotFound) {
     // At this point, permission to disclose non-existence stems from the
