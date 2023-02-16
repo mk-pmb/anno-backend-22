@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
 
@@ -44,10 +45,9 @@ const EX = function parseSubmittedAnno(origInput) {
   targetLike('body');
 
   function neStrList(key) {
-    let list = mustPopInput('ary | nonEmpty str | undef', key);
+    const list = arrayOfTruths.ifAny(
+      mustPopInput('ary | nonEmpty str | undef', key));
     if (!list) { return; }
-    list = [].concat(list).filter(Boolean);
-    if (!list.length) { return; }
     list.forEach((x, i) => mustBe.nest(key + '[' + i + ']', x));
     anno[key] = list;
   }
