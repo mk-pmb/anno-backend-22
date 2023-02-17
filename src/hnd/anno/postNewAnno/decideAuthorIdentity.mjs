@@ -1,33 +1,41 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import isStr from 'is-string';
 
 import httpErrors from '../../../httpErrors.mjs';
 
 const {
   badRequest,
-  genericDeny,
   notImplemented,
 } = httpErrors.throwable;
 
 function isNonEmptyStr(x) { return x && isStr(x) && x; }
+function orf(x) { return x || false; }
+
 
 const EX = function decideAuthorIdentity(ctx) {
   const {
     srv,
-    // req,
     who,
     anno,
   } = ctx;
-
   if (!anno) { throw new Error('Cannot ' + EX.name + ' without anno.'); }
-  const firstOrigCreator = EX.findFirstOrigCreator(anno);
 
-  const accepted = (
-    EX.fromExplicitAuthorId(firstOrigCreator, who)
-    || EX.guessMissingAuthorId(srv, who)
-  );
-  if (accepted) { return accepted; }
+  if (anno.creator) {
+    const firstOrigCreator = EX.findFirstOrigCreator(anno);
+    const author = EX.fromExplicitAuthorId(firstOrigCreator, who);
+    return author;
+  }
+
+  const fallbackAgent = EX.guessMissingAuthorId(srv, who);
+  if (fallbackAgent) {
+    return {
+      agent: fallbackAgent,
+      authorized: true,
+      // isFallback: true // nope, rather check if anno.creator is truthy
+    };
+  }
 
   throw badRequest('Unable to detect or guess a valid author identity.');
 };
@@ -36,29 +44,26 @@ const EX = function decideAuthorIdentity(ctx) {
 Object.assign(EX, {
 
   findFirstOrigCreator(anno) {
-    const orig = [].concat(anno.creator).filter(Boolean);
+    const orig = arrayOfTruths(anno.creator);
     const nOrig = orig.length;
     if (nOrig > 1) {
       throw notImplemented('Multiple authors in "creator" not supported yet.');
     }
     const [crea1] = orig;
-    return (crea1 || false);
+    return orf(crea1);
   },
 
   fromExplicitAuthorId(crea1, who) {
-    if (!crea1) { return; }
-    const origAuthorId = crea1.id || crea1;
+    if (!crea1) { return false; }
+    if (isStr(crea1)) { return EX.fromExplicitAuthorId({ id: crea1 }, who); }
+    const origAuthorId = crea1.id;
     if (!isNonEmptyStr(origAuthorId)) {
-      const msg = 'When a creator field is given, it must carry an id.';
-      throw badRequest(msg);
+      throw badRequest('When a creator field is given, it must carry an id.');
     }
     const knownIdentities = who.details.authorIdentities;
-    const accepted = knownIdentities.byAgentId.get(origAuthorId);
     // console.debug('knownIdentities', knownIdentities);
-    if (accepted) { return accepted; }
-    const msg = ('The requested creator id was not found in'
-      + ' your configured identities.');
-    throw genericDeny(msg);
+    const accepted = knownIdentities.byAgentId.get(origAuthorId);
+    return { agent: orf(accepted || crea1), authorized: !!accepted };
   },
 
   guessMissingAuthorId(srv, who) {

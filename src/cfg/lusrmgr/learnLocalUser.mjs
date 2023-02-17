@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import makeExtendedOrderedMap from 'ordered-map-extended-pmb';
 import mustBe from 'typechecks-pmb/must-be';
 import pProps from 'p-props';
@@ -56,7 +57,7 @@ Object.assign(EX, {
     mgr.missingAuthorFallbackIdentityKeys = (function parse() {
       const cfgKey = 'missing_author_fallback_identity_keys';
       const origSpec = mustPopCfgMeta('ary | nul | undef', cfgKey);
-      const aiKeys = [].concat(origSpec).filter(Boolean);
+      const aiKeys = arrayOfTruths(origSpec);
       return aiKeys;
     }());
 

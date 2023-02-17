@@ -25,6 +25,8 @@ const simpleCanneds = {
 
   genericDeny: makeCanned(403, 'Forbidden'),
   aclDeny: makeCanned(403, 'Forbidden by ACL'),
+  authorIdentityNotConfigured: makeCanned(403,
+    'The requested creator id was not found in your configured identities.'),
 
 };
 

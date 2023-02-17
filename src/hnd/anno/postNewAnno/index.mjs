@@ -18,10 +18,14 @@ import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 
 const {
   badRequest,
+  authorIdentityNotConfigured,
 } = httpErrors.throwable;
 
 const errDuplicateRandomUuid = httpErrors.fubar.explain(
   'ID assignment failed: Duplicate generated random UUID.').throwable;
+
+
+function panic(msg) { throw new Error(msg); }
 
 
 const EX = async function postNewAnno(srv, req) {
@@ -34,18 +38,34 @@ const EX = async function postNewAnno(srv, req) {
     replyTgtVersIds,
   } = tgtCateg;
 
-  const postActionPrivName = (function decidePriv() {
-    if (anno['dc:isVersionOf']) { return 'revise'; }
+  const who = await detectUserIdentity.andDetails(req);
+  const ctx = {
+    anno,
+    idParts: { baseId: '', versNum: 1 },
+    req,
+    srv,
+    who,
+
+    async requirePermForAllSubjTgts(privilegeName) {
+      await Promise.all(subjTgtUrls.map(url => srv.acl.requirePerm(req,
+        { targetUrl: url, privilegeName })));
+    },
+
+  };
+  ctx.author = await decideAuthorIdentity(ctx);
+
+  ctx.postActionPrivName = (function decidePriv() {
+    if (anno['dc:isVersionOf']) {
+      if (ctx.author.authorized) { return 'revise_own'; }
+      return 'revise_global';
+    }
     if (replyTgtVersIds.length) { return 'reply'; }
     return 'create';
   }());
 
-  req.logCkp('postNewAnno input', { subjTgtUrls, replyTgtVersIds },
-    JSON.stringify(origInput, null, 2));
-  await Promise.all(subjTgtUrls.map(url => srv.acl.requirePerm(req, {
-    targetUrl: url,
-    privilegeName: postActionPrivName,
-  })));
+  req.logCkp('postNewAnno input', { subjTgtUrls, replyTgtVersIds });
+
+  await ctx.requirePermForAllSubjTgts(ctx.postActionPrivName);
 
   if (replyTgtVersIds.length > 1) {
     const msg = ('Cross-posting (reply to multiple annotations)'
@@ -56,9 +76,6 @@ const EX = async function postNewAnno(srv, req) {
     // our frontend can do will prevent some accidents.
     throw badRequest(msg);
   }
-
-  const who = await detectUserIdentity.andDetails(req);
-  // console.debug('postNewAnno who:', who);
 
   const previewMode = (anno.id === 'about:preview');
   if ((!previewMode) && (anno.id !== undefined)) {
@@ -73,18 +90,11 @@ const EX = async function postNewAnno(srv, req) {
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
 
-  const ctx = {
-    anno,
-    postActionPrivName,
-    idParts: { baseId: '', versNum: 1 },
-    req,
-    srv,
-    who,
-  };
-
   if (!previewMode) { await EX.intenseValidations(ctx); }
 
-  anno.creator = await decideAuthorIdentity(ctx);
+  if (!ctx.author.authorized) { throw authorIdentityNotConfigured(); }
+  anno.creator = (ctx.author.agent
+    || panic('Author lookup failed without refusal.'));
   anno.created = (new Date()).toISOString();
   if (!ctx.idParts.baseId) { ctx.idParts.baseId = randomUuid(); }
   const fullAnno = redundantGenericAnnoMeta.add(srv, ctx.idParts, anno);
@@ -131,6 +141,7 @@ Object.assign(EX, {
   async intenseValidations(ctx) {
     await checkVersionModifications(ctx);
   },
+
 
 });
 

@@ -12,6 +12,12 @@ const verbatimCopyKeysMandatedByProtocol = [
 ];
 
 
+function maybeWrapId(rec) {
+  if (typeof rec === 'string') { return { id: rec }; }
+  return rec;
+}
+
+
 const EX = function parseSubmittedAnno(origInput) {
   const mustPopInput = objPop(origInput, { mustBe }).mustBe;
   redundantGenericAnnoMeta.mustPopAllStatic(mustPopInput);
@@ -30,16 +36,12 @@ const EX = function parseSubmittedAnno(origInput) {
   copy('rights', 'nonEmpty str | undef');
 
   function targetLike(key) {
-    let val = mustPopInput('obj | ary | nonEmpty str | undef', key);
-    val = [].concat(val).filter(Boolean);
-    if (!val.length) {
+    const spec = mustPopInput('obj | ary | nonEmpty str | undef', key);
+    const list = arrayOfTruths(spec).map(maybeWrapId);
+    if (!list.length) {
       throw new RangeError('Annotation needs at least one ' + key);
     }
-    val = val.map(function maybeWrapId(rec) {
-      if (typeof rec === 'string') { return { id: rec }; }
-      return rec;
-    });
-    anno[key] = val;
+    anno[key] = list;
   }
   targetLike('target');
   targetLike('body');
