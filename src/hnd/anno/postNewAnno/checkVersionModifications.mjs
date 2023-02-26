@@ -92,7 +92,10 @@ Object.assign(EX, {
     await chkPerm('creator', opaque);
     await chkPerm('dc:title', opaque, 'body');
 
-    if (updKeys.has('target')) { await EX.validateTargetModifications(ctx); }
+    if (updKeys.has('target')) {
+      await EX.validateTargetModifications(ctx);
+      updKeys.delete('target');
+    }
 
     if (updKeys.size) {
       const msg = ('Cannot validate permission to modify these fields: '
@@ -102,10 +105,37 @@ Object.assign(EX, {
   },
 
 
+  guessSingleTargetUrl(tgt) {
+    return (tgt.scope
+      || tgt.id
+      || tgt.source
+      || tgt);
+  },
+
+
   async validateTargetModifications(ctx) {
     const diff = compareTargetLists(ctx.oldAnnoDetails, ctx.annoChanges);
-    const msg = 'Stub! Targets diff: ' + JSON.stringify(diff, null, 2);
-    throw badRequest(msg);
+    const permPrefix = ctx.postActionPrivName + '_';
+
+    function chkList(perm, list) {
+      return ctx.requirePermForAllTheseUrls(permPrefix + perm,
+        list.map(EX.guessSingleTargetUrl));
+    }
+
+    await chkList('target_del', diff.removed);
+    await chkList('target_add', diff.added);
+
+    /*  Re-ordering currently doesn't matter because we only allow one
+        subject target anyway. Once we decide to check it, we need to
+        allow users who lack explicit reorder permission, but have
+        permission to remove and add targets, to subsitute them instead
+        of the reorder permission.
+
+    if (!diff.commonSameOrder) {
+      // ^-- We use this negation to fail safely if the API changes.
+      await chkList('target_reorder', diff.commonInOld);
+    }
+    */
   },
 
 });

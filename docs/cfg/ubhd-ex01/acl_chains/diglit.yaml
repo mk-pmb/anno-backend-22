@@ -12,10 +12,16 @@
 
   - if: isLoggedIn
     tendency:
-        create: allow
-        reply:  allow
-        revise: allow
-
+        create:         allow
+        reply:          allow
+        revise_own:             allow
+        revise_own_body:        allow
+        revise_own_target_add:  allow
+        revise_own_target_del:  allow
+        revise_any:             allow
+        revise_any_body:        allow
+        revise_any_target_add:  allow
+        revise_any_target_del:  allow
 
 
 

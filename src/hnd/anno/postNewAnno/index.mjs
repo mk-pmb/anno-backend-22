@@ -46,9 +46,13 @@ const EX = async function postNewAnno(srv, req) {
     srv,
     who,
 
-    async requirePermForAllSubjTgts(privilegeName) {
-      await Promise.all(subjTgtUrls.map(url => srv.acl.requirePerm(req,
+    async requirePermForAllTheseUrls(privilegeName, urls) {
+      await Promise.all(urls.map(url => srv.acl.requirePerm(req,
         { targetUrl: url, privilegeName })));
+    },
+
+    async requirePermForAllSubjTgts(privilegeName) {
+      return this.requirePermForAllTheseUrls(privilegeName, subjTgtUrls);
     },
 
   };
@@ -57,7 +61,7 @@ const EX = async function postNewAnno(srv, req) {
   ctx.postActionPrivName = (function decidePriv() {
     if (anno['dc:isVersionOf']) {
       if (ctx.author.authorized) { return 'revise_own'; }
-      return 'revise_global';
+      return 'revise_any';
     }
     if (replyTgtVersIds.length) { return 'reply'; }
     return 'create';
