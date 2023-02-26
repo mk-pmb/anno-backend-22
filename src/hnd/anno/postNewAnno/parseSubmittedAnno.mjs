@@ -18,6 +18,9 @@ function maybeWrapId(rec) {
 }
 
 
+function orf(x) { return x || false; }
+
+
 const EX = function parseSubmittedAnno(origInput) {
   const mustPopInput = objPop(origInput, { mustBe }).mustBe;
   redundantGenericAnnoMeta.mustPopAllStatic(mustPopInput);
@@ -45,6 +48,7 @@ const EX = function parseSubmittedAnno(origInput) {
   }
   targetLike('target');
   targetLike('body');
+  anno.target.forEach(EX.sanifyCheckTarget);
 
   function neStrList(key) {
     const list = arrayOfTruths.ifAny(
@@ -61,6 +65,15 @@ const EX = function parseSubmittedAnno(origInput) {
 
 
 Object.assign(EX, {
+
+  sanifyCheckTarget(tgt) {
+    const sel = orf(tgt.selector);
+    if (sel.type === 'SvgSelector') {
+      if (!/\d/.test(sel.value)) {
+        throw new Error('Refusing SvgSelector that contains no numbers.');
+      }
+    }
+  },
 
   fallible(req, origInput, makeError) {
     try {
