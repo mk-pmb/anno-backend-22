@@ -27,14 +27,9 @@ const EX = async function checkVersionModifications(ctx) {
     req,
     srv,
   } = ctx;
-  const pluckProp = objPop.d(anno);
-  const dcReplaces = pluckProp('dc:replaces');
-  const versOf = pluckProp('dc:isVersionOf');
-  if ((!versOf) && (!dcReplaces)) { return; }
 
-  const { baseId } = parseVersId.fromLocalUrl(srv, versOf);
-  idParts.baseId = baseId;
-  idParts.versNum = await idGetHnd.lookupLatestVersionNum(srv, req, idParts);
+  await EX.validateAnnoIdParts(ctx);
+  if (!idParts.baseId) { return; }
   ctx.oldAnnoDetails = await idGetHnd.lookupExactVersion(srv, req, idParts);
   idParts.versNum += 1;
 
@@ -48,6 +43,66 @@ const EX = async function checkVersionModifications(ctx) {
 
 
 Object.assign(EX, {
+
+  async validateAnnoIdParts(ctx) {
+    const { req, srv, anno, idParts } = ctx;
+    const pluckProp = objPop.d(anno);
+    const dcReplaces = pluckProp('dc:replaces');
+    const versOf = pluckProp('dc:isVersionOf');
+    if (!versOf) {
+      if (!dcReplaces) { return; } // <- not a version request.
+      throw badRequest('Required field dc:isVersionOf is missing.');
+    }
+
+    const oldAnnoIdParts = parseVersId.fromLocalUrl(srv, versOf);
+    if (oldAnnoIdParts.versNum !== 0) {
+      /*
+        We can only accept the exact dc:isVersionOf URL that we will use
+        for delivery, because Anno Protocol forbids us from modifying
+        submitted fields.
+      */
+      const msg = ('Unacceptable version number '
+        + oldAnnoIdParts.versNum + ' in dc:isVersionOf');
+      throw badRequest(msg);
+    }
+    idParts.baseId = oldAnnoIdParts.baseId;
+    idParts.versNum = await idGetHnd.lookupLatestVersionNum(srv, req, idParts);
+    if (dcReplaces) { await EX.validateDcReplaces(dcReplaces, ctx); }
+  },
+
+
+  validateDcReplaces(dcReplaces, ctx) {
+    if (!dcReplaces) { return; }
+    const submissionIdParts = parseVersId.fromLocalUrl(ctx.srv, dcReplaces);
+    const latestReviIdParts = ctx.idParts;
+    if (submissionIdParts.baseId !== latestReviIdParts.baseId) {
+      throw badRequest('Fields dc:isVersionOf and dc:replaces do not match.');
+    }
+
+    /*
+      We have to restrict dc:replaces to the latest version because we use
+      a version number counting strategy and other parts of the server rely
+      on it to use calculation rather than database lookups.
+      Which makes sense because users will expect that the latest version
+      replaces all prior versions. Thus, when delivering the latest version,
+      it needs to express the fact that it replaces the previous version.
+      Anno Protocol forbids modifying fields that have been explicitly
+      submitted, so we must instead require the author to either omit the
+      dc:replaces field, or to at least include the currently-latest version.
+      However, when including the currently-latest version, it's redundant
+      to include any prior versions, because their replacement is already
+      stated in the chain, one step at a time.
+      In summary, the only dc:replaces value that is useful AND acceptable
+      AND efficient, is the URL of the currently-latest version.
+    */
+    if (submissionIdParts.versNum !== latestReviIdParts.versNum) {
+      const msg = ('Field dc:replaces must be omitted'
+        + ' or must point to the latest version'
+        + ', which currently is ' + latestReviIdParts.versNum + '.');
+      throw badRequest(msg);
+    }
+  },
+
 
   findAndPluckAllChanges(oldAnno, newAnno) {
     const updates = {};
@@ -139,6 +194,7 @@ Object.assign(EX, {
     }
     */
   },
+
 
 });
 
