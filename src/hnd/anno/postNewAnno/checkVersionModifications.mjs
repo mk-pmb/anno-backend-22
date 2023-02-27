@@ -40,6 +40,8 @@ const EX = async function checkVersionModifications(ctx) {
 
   ctx.annoChanges = EX.findAndPluckAllChanges(ctx.oldAnnoDetails, anno);
   req.logCkp('postNewAnno anno diff:', ctx.annoChanges);
+  const nUpdates = Object.keys(ctx.annoChanges).length;
+  if (nUpdates < 1) { throw badRequest('Found no modifications.'); }
   await EX.validateModificationPermissions(ctx);
   Object.assign(anno, ctx.oldAnnoDetails, ctx.annoChanges);
 };
