@@ -1,8 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import getOwn from 'getown';
-import sortedJson from 'safe-sortedjson';
 import compareTargetLists from 'webanno-compare-target-lists-pmb';
+import getOwn from 'getown';
+import objPop from 'objpop';
+import sortedJson from 'safe-sortedjson';
 
 import httpErrors from '../../../httpErrors.mjs';
 import idGetHnd from '../idGet.mjs';
@@ -16,8 +17,6 @@ const {
 
 // function jsonDeepCopy(x) { return JSON.parse(JSON.stringify(x)); }
 
-const versOfKey = 'dc:isVersionOf';
-
 function commaList(x) { return Array.from(x).sort().join(', '); }
 
 
@@ -28,9 +27,10 @@ const EX = async function checkVersionModifications(ctx) {
     req,
     srv,
   } = ctx;
-  const versOf = anno[versOfKey];
-  delete anno[versOfKey]; // Always delete. No later step should use this.
-  if (!versOf) { return; }
+  const pluckProp = objPop.d(anno);
+  const dcReplaces = pluckProp('dc:replaces');
+  const versOf = pluckProp('dc:isVersionOf');
+  if ((!versOf) && (!dcReplaces)) { return; }
 
   const { baseId } = parseVersId.fromLocalUrl(srv, versOf);
   idParts.baseId = baseId;

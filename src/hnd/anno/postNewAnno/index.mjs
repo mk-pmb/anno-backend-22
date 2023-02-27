@@ -59,7 +59,7 @@ const EX = async function postNewAnno(srv, req) {
   ctx.author = await decideAuthorIdentity(ctx);
 
   ctx.postActionPrivName = (function decidePriv() {
-    if (anno['dc:isVersionOf']) {
+    if (anno['dc:isVersionOf'] || anno['dc:replaces']) {
       if (ctx.author.authorized) { return 'revise_own'; }
       return 'revise_any';
     }
