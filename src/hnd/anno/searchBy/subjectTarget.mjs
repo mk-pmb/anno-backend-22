@@ -45,9 +45,11 @@ const EX = async function bySubjectTargetPrefix(subjTgtSpec, req, srv) {
 
   const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
     rec.details).subjTgtUrls).flat();
-  await srv.acl.requirePermForAllTargetUrls(req,
-    allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.
-    { privilegeName: 'read' });
+  if (allSubjTgtUrls.length) {
+    await srv.acl.requirePermForAllTargetUrls(req,
+      allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.
+      { privilegeName: 'read' });
+  }
 
   const annos = await pMap(found, async function recombineAnno(rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
