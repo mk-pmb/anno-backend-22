@@ -1,0 +1,13 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:  # <-- Chain name. `^` means to use the basename of the filename.
+
+  - if: always
+    aclSubChain: 'default_basics'
+
+  - if: always
+    aclSubChain: 'default_revise'
+
+...

@@ -54,7 +54,10 @@
     if:
         paramInList:
             - 'diglit'
-    aclSubChain: 'diglit'   # Apply the rules from `diglit.yaml` right now.
+            - 'journals'
+    aclSubChain: '📚_rules'
+        # ^-- Apply the rules from `📚_rules.yaml` right now, where 📚
+        #   is the placeholder for serviceId.
 
 
 
