@@ -60,7 +60,8 @@ Object.assign(EX, {
     if (!isNonEmptyStr(origAuthorId)) {
       throw badRequest('When a creator field is given, it must carry an id.');
     }
-    const knownIdentities = who.details.authorIdentities;
+    const knownIdentities = orf(who.details).authorIdentities;
+    if (!knownIdentities) { return false; }
     // console.debug('knownIdentities', knownIdentities);
     const accepted = knownIdentities.byAgentId.get(origAuthorId);
     return { agent: orf(accepted || crea1), authorized: !!accepted };
