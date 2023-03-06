@@ -1,0 +1,37 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+'': # <-- Empty group name = not a group but server-wide settings.
+
+    default_user_groups:
+        # Groups that will be created for all users.
+        # You can use '*' as a placeholder for the username.
+        # In future versions, we might add a way to exclude selected users
+        # from the wildcard match.
+
+        # Making a group that abstracts a user is an easy way to configure
+        # another user as temporary vacation replacement.
+        'acting_for_*':
+            usernames:
+                - '*'
+
+        'may_request_doi_for_*':
+            usernames:
+                - 'doi_bot'
+
+                # For default_user_groups, missing users are totally ignored
+                # without even a warning. Groups that would thus be empty,
+                # are not registered at all. Very contrived example:
+                - 'doi_custodian_for_*'
+
+
+
+
+
+
+
+
+
+
+...

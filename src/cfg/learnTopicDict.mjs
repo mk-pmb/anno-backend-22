@@ -15,7 +15,7 @@ const EX = async function learnTopicDict(origCtx, topic, learnImpl) {
   const descr = 'Learn config topic ' + topic;
   const cfgMeta = crObAss(EX.cfgMetaApi, cfgDict['']);
   delete cfgDict[''];
-  const ctx = { ...origCtx, cfgMeta };
+  const ctx = { ...origCtx, cfgMeta, cfgDict };
   if (learnImpl.learnMeta) {
     const mustPopCfgMeta = objPop(cfgMeta, { mustBe }).mustBe;
     await vTry.pr(learnImpl.learnMeta,
