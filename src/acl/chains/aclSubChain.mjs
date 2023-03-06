@@ -20,6 +20,12 @@ const EX = async function aclSubChain(chainCtx, chainName) {
 
   const acl = chainCtx.getAcl();
   const rules = acl.getChainByName(chainName);
+  if (!rules) {
+    const err = new Error('Found no ACL chain named '
+      + JSON.stringify(chainName));
+    Object.assign(err, { chainName });
+    throw err;
+  }
   await pEachSeries(rules, function oneRule(rule) {
     return vTry.pr(EX.oneRule, rule.traceDescr)(rule, subCtx);
   });
