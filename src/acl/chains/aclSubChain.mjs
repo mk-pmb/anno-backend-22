@@ -55,8 +55,11 @@ Object.assign(EX, {
     // console.debug('D: ACL rule apply!', { ...rule, condGroups: '[…]' });
     Object.assign(chainState.tendencies, rule.tendency);
 
-    const subChainName = rule.aclSubChain;
-    await (subChainName && EX(chainCtx, subChainName));
+    const decideSubChainName = rule.aclSubChain;
+    if (decideSubChainName) {
+      const subChainName = String(decideSubChainName(chainCtx));
+      await EX(chainCtx, subChainName);
+    }
   },
 
 

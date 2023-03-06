@@ -3,11 +3,11 @@
 import loGet from 'lodash.get';
 import mustBe from 'typechecks-pmb/must-be';
 
+import aclEmojiTemplate from '../emojiTemplate.mjs';
 import common from './common.mjs';
 
 
 function alwaysFalse() { return false; }
-function orf(x) { return x || false; }
 
 
 const EX = {
@@ -46,11 +46,16 @@ const EX = {
   },
 
   memberOfAclGroup(how) {
-    const groupName = mustBe.nest('group name', how.args);
+    const groupNameSpec = mustBe.nest('group name', how.args);
+    const decideGroupName = aclEmojiTemplate.compile(groupNameSpec);
+    const staticGroupName = (decideGroupName.isIdentityFunc && groupNameSpec);
     const ckf = function check(aclCtx) {
       const groups = common.findUserAclGroups(aclCtx);
-      const result = orf(groups && groups.has(groupName));
-      // console.debug('D: memberOfAclGroup?', { groupName, groups, result });
+      if (!groups) { return false; }
+      const gn = (staticGroupName || decideGroupName(aclCtx));
+      if (!gn) { return false; }
+      const result = groups.has(gn);
+      // console.debug('D: memberOfAclGroup?', { gn, groups, result });
       return result;
     };
     return ckf;

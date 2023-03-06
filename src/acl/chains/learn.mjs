@@ -10,6 +10,7 @@ import vTry from 'vtry';
 
 import decisionEnum from '../decisionEnum.mjs';
 import parseConditionGroup from './parseConditionGroup.mjs';
+import aclEmojiTemplate from './emojiTemplate.mjs';
 
 const traceApi = { toString() { return '[' + this.traceDescr + ']'; } };
 
@@ -67,6 +68,10 @@ Object.assign(EX, {
       throw new Error('Rule can use at most on of: ' + used.join(', '));
     });
 
+    const subChainSpec = popRuleProp('nonEmpty str | undef', 'aclSubChain');
+    const aclSubChain = (subChainSpec
+      && aclEmojiTemplate.compile(subChainSpec));
+
     const rule = {
       traceDescr,
       ...traceApi,
@@ -77,7 +82,7 @@ Object.assign(EX, {
         'tendency',
       ]),
       condGroups: {},
-      aclSubChain: popRuleProp('nonEmpty str | undef', 'aclSubChain'),
+      aclSubChain,
     };
 
     await pEachSeries(EX.supportedCondGroups, async function cg(spec) {
