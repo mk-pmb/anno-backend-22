@@ -45,7 +45,7 @@ Object.assign(EX, {
     mgr.authorAgentUuidBaseUrl = (function parse() {
       const cfgKey = 'author_agent_uuid5_baseurl';
       let bu = mustPopCfgMeta('str | undef', cfgKey);
-      bu = (bu || '/authors/by-uuid/');
+      bu = (bu || '/authors/uuidbase/');
       if (bu.startsWith('/')) {
         const serverBaseUrl = mustBe.tProp('Server property ', srv,
           'nonEmpty str', 'publicBaseUrlNoSlash');
