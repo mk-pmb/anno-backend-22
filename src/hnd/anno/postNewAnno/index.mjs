@@ -82,15 +82,12 @@ const EX = async function postNewAnno(srv, req) {
   }
 
   const previewMode = (anno.id === 'about:preview');
-  if ((!previewMode) && (anno.id !== undefined)) {
-    const msg = ('Please omit the "id" field from your submission,'
-      + ' as it will be assigned by the server.');
-    throw badRequest(msg);
-    // We consider an ID submission as bad request rather than a mere
-    // policy-based denial, because the anno-protocol doesn't even
-    // consider this way of conveying the IRI suggestion. Instead,
-    // it explicitly describes another mechanism for suggesting an IRI:
-    // The "Slug" header. (Which we "may" just ignore.)
+  if (!previewMode) {
+    // Web Annotation Protocol, ch. 5.1 "Create a New Annotation":
+    // "[…] the server […] MUST assign an IRI to the Annotation resource
+    // in the id property, even if it already has one provided."
+    // => Always act as if there was no "ID" field submitted.
+    delete anno.id;
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
 
