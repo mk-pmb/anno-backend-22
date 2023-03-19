@@ -18,6 +18,18 @@
     tendency:
         revise_any:             allow
         # revise_any_creator:     allow
+
+        # !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
+        #
+        # ATTN: Editing other authors' annotations may have license
+        # implications. Make sure you have permission and you deal with
+        # authorship declaration in a way that the annotation's license
+        # allows. Some licenses require that the author of the original
+        # work is preserved, but other licenses require that any
+        # derivative work does not claim to be from the original author.
+        #
+        # !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
+
         revise_any_body:        allow
         revise_any_target_add:  allow
         revise_any_target_del:  allow
