@@ -2,7 +2,6 @@
 
 import arrayOfTruths from 'array-of-truths';
 import mustBe from 'typechecks-pmb/must-be';
-import objPop from 'objpop';
 
 import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 
@@ -21,8 +20,7 @@ function maybeWrapId(rec) {
 function orf(x) { return x || false; }
 
 
-const EX = function parseSubmittedAnno(origInput) {
-  const mustPopInput = objPop(origInput, { mustBe }).mustBe;
+const EX = function parseSubmittedAnno(mustPopInput) {
   redundantGenericAnnoMeta.mustPopAllStatic(mustPopInput);
 
   const anno = {};
@@ -73,14 +71,6 @@ Object.assign(EX, {
       if (!/\d/.test(sel.value)) {
         throw new Error('Refusing SvgSelector that contains no numbers.');
       }
-    }
-  },
-
-  fallible(req, origInput, makeError) {
-    try {
-      return EX(origInput);
-    } catch (parseErr) {
-      throw makeError('Parse annotation: ' + String(parseErr));
     }
   },
 

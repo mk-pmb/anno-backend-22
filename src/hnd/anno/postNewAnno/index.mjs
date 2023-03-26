@@ -29,9 +29,8 @@ function panic(msg) { throw new Error(msg); }
 
 
 const EX = async function postNewAnno(srv, req) {
-  const origInput = await parseRequestBody('json', req);
-
-  const anno = parseSubmittedAnno.fallible(req, origInput, badRequest);
+  const anno = await parseRequestBody.fancy('json', req,
+  ).then(ctx => ctx.catchBadInput(parseSubmittedAnno));
   const tgtCateg = categorizeTargets(srv, anno);
   const {
     subjTgtUrls,
