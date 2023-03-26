@@ -37,6 +37,10 @@
 
 
     acl_user_groups:
+        - 'diglit_authors'
+        - 'diglit_moderators'
+        - 'journals_authors'
+
         # You can also declare group membership in a group config file.
         # Membership declarations merge cumulatively, so this is redundant:
         - 'diglit_proofreaders'
