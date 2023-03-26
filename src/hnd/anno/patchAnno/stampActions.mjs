@@ -23,7 +23,7 @@ const EX = {
     });
     stRec.st_by = (ctx.who.userId || '');
     stRec.st_at = (new Date()).toISOString();
-    return stRec;
+    return { stRec, anno: ctx.oldAnnoDetails };
   },
 
 };

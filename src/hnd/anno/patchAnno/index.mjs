@@ -4,6 +4,7 @@ import getOwn from 'getown';
 
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
+import idGetHnd from '../idGet.mjs';
 import parseRequestBody from '../../util/parseRequestBody.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
@@ -19,8 +20,12 @@ const actionHandlers = {
 };
 
 
-const EX = async function patchAnno(req) {
-  const ctx = await parseRequestBody.fancy('json', req);
+const EX = async function patchAnno(ctx) {
+  console.debug('patchAnno ctx:', { ...ctx, srv: 0, req: 0 });
+
+  const { req } = ctx;
+  ctx.oldAnnoDetails = await idGetHnd.lookupExactVersion(ctx);
+  Object.assign(ctx, await parseRequestBody.fancy('json', req));
   await ctx.catchBadInput(function parse(mustPopInput) {
     ctx.action = mustPopInput('nonEmpty str', 'action');
   });
