@@ -7,6 +7,7 @@ import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import idGet from './idGet.mjs';
+import parseVersId from './parseVersionIdentifier.mjs';
 import patchAnno from './patchAnno/index.mjs';
 import postNewAnno from './postNewAnno/index.mjs';
 import searchBy from './searchBy/index.mjs';
@@ -61,20 +62,28 @@ Object.assign(EX, {
 
 
   async annoIdRoute(srv, req, versId, subRoute) {
+    const ctx = {
+      srv,
+      req,
+      idParts: parseVersId(versId),
+      subRoute,
+    };
+
     const { method } = req;
     const fxKey = versId + (subRoute ? '_' + subRoute : '');
     const fxFunc = (getOwn(EX, method.toLowerCase() + '_' + fxKey)
       || getOwn(EX, 'other_' + fxKey));
     req.logCkp('annoIdRoute fx?', 'fxFunc =', conciseValuePreview(fxFunc));
-    if (fxFunc) { return fxFunc(srv, req, versId, subRoute); }
-    if (method === 'GET') { return idGet(srv, req, versId, subRoute); }
-    if (method === 'PATCH') { return patchAnno(req); }
+    if (fxFunc) { return fxFunc(ctx); }
+
+    if (method === 'GET') { return idGet(ctx); }
+    if (method === 'PATCH') { return patchAnno(ctx); }
     return httpErrors.badVerb(req);
   },
 
 
-  async post_acl(srv, req) {
-    return sendFinalTextResponse.json(req, { stub: true });
+  async post_acl(ctx) {
+    return sendFinalTextResponse.json(ctx.req, { stub: true });
   },
 
 

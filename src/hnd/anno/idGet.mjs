@@ -10,7 +10,6 @@ import categorizeTargets from './categorizeTargets.mjs';
 import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from './redundantGenericAnnoMeta.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
-import parseVersId from './parseVersionIdentifier.mjs';
 
 const {
   noSuchAnno,
@@ -34,7 +33,8 @@ const queryTpl = {
 };
 
 
-async function lookupExactVersion(srv, req, idParts) {
+async function lookupExactVersion(ctx) {
+  const { srv, req, idParts } = ctx;
   const { baseId, versNum, versId } = idParts;
   const targetLookupDeniedReason = await srv.acl.whyDeny(req,
     { privilegeName: 'lookupAnnoTargets', versId });
@@ -69,8 +69,9 @@ async function lookupExactVersion(srv, req, idParts) {
 }
 
 
-async function serveExactVersion(srv, req, idParts) {
-  const annoDetails = await lookupExactVersion(srv, req, idParts);
+async function serveExactVersion(ctx) {
+  const { srv, req, idParts } = ctx;
+  const annoDetails = await lookupExactVersion(ctx);
   const ftrOpt = { type: 'annoLD' };
   if (clientPrefersHtml(req)) {
     const [scope1] = makeDictList(annoDetails.target).getEachOwnProp('scope');
@@ -90,27 +91,28 @@ async function serveExactVersion(srv, req, idParts) {
 }
 
 
-async function lookupLatestVersionNum(srv, req, idParts) {
-  const { baseId } = idParts;
-  const { latest } = (await srv.db.postgresSelect(queryTpl.latestVersion,
+async function lookupLatestVersionNum(ctx) {
+  const { baseId } = ctx.idParts;
+  const { latest } = (await ctx.srv.db.postgresSelect(queryTpl.latestVersion,
     [baseId])).expectSingleRow();
   if (!latest) { throw noSuchAnno(); }
   return latest;
 }
 
 
-async function redirToLatestVersion(srv, req, idParts) {
+async function redirToLatestVersion(ctx) {
   // :ATTN:ACL: Currently no ACL checks for this lookup.
-  const latest = await lookupLatestVersionNum(srv, req, idParts);
-  return req.res.redirect(idParts.baseId + versionSep + latest);
+  const latest = await lookupLatestVersionNum(ctx);
+  return ctx.req.res.redirect(ctx.idParts.baseId + versionSep + latest);
 }
 
 
-async function listVersions(srv, req, idParts) {
+async function listVersions(ctx) {
+  const { srv, req, idParts } = ctx;
   // Example for an annotation with many versions:
   // https://anno.ub.uni-heidelberg.de/anno/anno/JhTAtRbrSOib9OJERGptUg
   const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
-  await lookupLatestVersionNum(srv, req, idParts);
+  await lookupLatestVersionNum(ctx);
   // :TODO: Consider ACL permissions
   const { baseId } = idParts;
   const allVers = await srv.db.postgresSelect(queryTpl.allVersions,
@@ -123,14 +125,14 @@ async function listVersions(srv, req, idParts) {
 }
 
 
-const EX = function idGet(srv, req, versId, subRoute) {
-  const idParts = parseVersId(versId);
-  if (idParts.versNum) {
+const EX = function idGet(ctx) {
+  const { req, subRoute } = ctx;
+  if (ctx.idParts.versNum) {
     if (subRoute) { return noSuchResource(req); }
-    return serveExactVersion(srv, req, idParts);
+    return serveExactVersion(ctx);
   }
-  if (!subRoute) { return redirToLatestVersion(srv, req, idParts); }
-  if (subRoute === 'versions') { return listVersions(srv, req, idParts); }
+  if (!subRoute) { return redirToLatestVersion(ctx); }
+  if (subRoute === 'versions') { return listVersions(ctx); }
   return noSuchResource(req);
 };
 

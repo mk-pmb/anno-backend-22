@@ -21,16 +21,10 @@ function commaList(x) { return Array.from(x).sort().join(', '); }
 
 
 const EX = async function checkVersionModifications(ctx) {
-  const {
-    anno,
-    idParts,
-    req,
-    srv,
-  } = ctx;
-
+  const { anno, idParts, req } = ctx;
   await EX.validateAnnoIdParts(ctx);
   if (!idParts.baseId) { return; }
-  ctx.oldAnnoDetails = await idGetHnd.lookupExactVersion(srv, req, idParts);
+  ctx.oldAnnoDetails = await idGetHnd.lookupExactVersion(ctx);
   idParts.versNum += 1;
 
   ctx.annoChanges = EX.findAndPluckAllChanges(ctx.oldAnnoDetails, anno);
@@ -45,7 +39,7 @@ const EX = async function checkVersionModifications(ctx) {
 Object.assign(EX, {
 
   async validateAnnoIdParts(ctx) {
-    const { req, srv, anno, idParts } = ctx;
+    const { srv, anno, idParts } = ctx;
     const pluckProp = objPop.d(anno);
     const dcReplaces = pluckProp('dc:replaces');
     const versOf = pluckProp('dc:isVersionOf');
@@ -66,7 +60,7 @@ Object.assign(EX, {
       throw badRequest(msg);
     }
     idParts.baseId = oldAnnoIdParts.baseId;
-    idParts.versNum = await idGetHnd.lookupLatestVersionNum(srv, req, idParts);
+    idParts.versNum = await idGetHnd.lookupLatestVersionNum(ctx);
     if (dcReplaces) { await EX.validateDcReplaces(dcReplaces, ctx); }
   },
 
