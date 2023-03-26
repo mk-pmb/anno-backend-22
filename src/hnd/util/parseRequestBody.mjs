@@ -2,12 +2,16 @@
 
 import bodyParser from 'body-parser';
 import getOwn from 'getown';
+import mustBe from 'typechecks-pmb/must-be';
+import objPop from 'objpop';
 import pify from 'pify';
 
 import httpErrors from '../../httpErrors.mjs';
 
-const failParseBody = httpErrors.badRequest.explain(
-  'Cannot parse request body').throwable;
+const {
+  badRequest,
+} = httpErrors.throwable;
+
 
 const promisifiedParsers = {
   json: pify(bodyParser.json({})),
@@ -16,7 +20,7 @@ const promisifiedParsers = {
 
 function explainBodyParseError(err) {
   if (err.statusCode !== 400) { throw err; }
-  throw failParseBody(err.message);
+  throw badRequest(['Cannot parse request body', err]);
 }
 
 
@@ -26,6 +30,33 @@ const EX = async function parseRequestBody(fmt, req) {
   await impl(req, req.res).catch(explainBodyParseError);
   return req.body;
 };
+
+
+async function catchBadInput(impl) {
+  try {
+    return await impl(this.mustPopInput, this);
+  } catch (e) {
+    throw badRequest(['Parse input', e]);
+  }
+}
+
+
+Object.assign(EX, {
+
+  async fancy(fmt, req) {
+    const origInput = await EX(fmt, req);
+    const mustPopInput = objPop(origInput,
+      { mustBe, leftoversMsg: 'Unsupported input field' }).mustBe;
+    const ctx = {
+      req,
+      origInput,
+      mustPopInput,
+      catchBadInput,
+    };
+    return ctx;
+  },
+
+});
 
 
 export default EX;

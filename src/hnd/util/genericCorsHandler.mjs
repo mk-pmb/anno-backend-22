@@ -31,6 +31,7 @@ const methodNamesGlued = [
   'GET',
   'HEAD',
   'OPTIONS',
+  'PATCH',
   'POST',
 ].join(listSep);
 

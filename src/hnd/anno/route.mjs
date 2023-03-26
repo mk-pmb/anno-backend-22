@@ -7,6 +7,7 @@ import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
 import idGet from './idGet.mjs';
+import patchAnno from './patchAnno/index.mjs';
 import postNewAnno from './postNewAnno/index.mjs';
 import searchBy from './searchBy/index.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
@@ -67,6 +68,7 @@ Object.assign(EX, {
     req.logCkp('annoIdRoute fx?', 'fxFunc =', conciseValuePreview(fxFunc));
     if (fxFunc) { return fxFunc(srv, req, versId, subRoute); }
     if (method === 'GET') { return idGet(srv, req, versId, subRoute); }
+    if (method === 'PATCH') { return patchAnno(req); }
     return httpErrors.badVerb(req);
   },
 
