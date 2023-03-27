@@ -22,11 +22,7 @@ const EX = function decideAuthorIdentity(ctx) {
   } = ctx;
   if (!anno) { throw new Error('Cannot ' + EX.name + ' without anno.'); }
 
-  if (anno.creator) {
-    const firstOrigCreator = EX.findFirstOrigCreator(anno);
-    const author = EX.fromExplicitAuthorId(firstOrigCreator, who);
-    return author;
-  }
+  if (anno.creator) { return EX.fromAnnoCreator(anno, who); }
 
   const fallbackAgent = EX.guessMissingAuthorId(srv, who);
   if (fallbackAgent) {
@@ -43,6 +39,14 @@ const EX = function decideAuthorIdentity(ctx) {
 
 Object.assign(EX, {
 
+
+  fromAnnoCreator(anno, who) {
+    const firstOrigCreator = EX.findFirstOrigCreator(anno);
+    const author = EX.fromExplicitAuthorId(firstOrigCreator, who);
+    return author;
+  },
+
+
   findFirstOrigCreator(anno) {
     const orig = arrayOfTruths(anno.creator);
     const nOrig = orig.length;
@@ -52,6 +56,7 @@ Object.assign(EX, {
     const [crea1] = orig;
     return orf(crea1);
   },
+
 
   fromExplicitAuthorId(crea1, who) {
     if (!crea1) { return false; }
@@ -67,6 +72,7 @@ Object.assign(EX, {
     return { agent: orf(accepted || crea1), authorized: !!accepted };
   },
 
+
   guessMissingAuthorId(srv, who) {
     const fallbackIds = srv.lusrmgr.missingAuthorFallbackIdentityKeys;
     if (!fallbackIds) { return; }
@@ -74,6 +80,7 @@ Object.assign(EX, {
     const found = fallbackIds.find(k => knownIdentities.has(k));
     return (found && knownIdentities.get(found));
   },
+
 
 });
 

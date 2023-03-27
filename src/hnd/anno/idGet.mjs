@@ -56,8 +56,11 @@ async function lookupExactVersion(ctx) {
       annoDetails).subjTgtUrls;
   }
 
-  await srv.acl.requirePermForAllTargetUrls(req, subjTgtUrlsForAclCheckRead,
-    { privilegeName: 'read' });
+  async function requireAdditionalReadPrivilege(privilegeName) {
+    await srv.acl.requirePermForAllTargetUrls(req,
+      subjTgtUrlsForAclCheckRead, { privilegeName });
+  }
+  requireAdditionalReadPrivilege('read');
 
   if (versionNotFound) {
     // At this point, permission to disclose non-existence stems from the
@@ -65,13 +68,19 @@ async function lookupExactVersion(ctx) {
     throw noSuchAnno();
   }
 
-  return annoDetails;
+  const lookup = {
+    annoDetails,
+    requireAdditionalReadPrivilege,
+    subjTgtUrlsForAclCheckRead,
+    targetLookupAllowed,
+  };
+  return lookup;
 }
 
 
 async function serveExactVersion(ctx) {
   const { srv, req, idParts } = ctx;
-  const annoDetails = await lookupExactVersion(ctx);
+  const { annoDetails } = await lookupExactVersion(ctx);
   const ftrOpt = { type: 'annoLD' };
   if (clientPrefersHtml(req)) {
     const [scope1] = makeDictList(annoDetails.target).getEachOwnProp('scope');

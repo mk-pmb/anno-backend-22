@@ -21,11 +21,11 @@ const actionHandlers = {
 
 
 const EX = async function patchAnno(ctx) {
-  console.debug('patchAnno ctx:', { ...ctx, srv: 0, req: 0 });
-
   const { req } = ctx;
-  ctx.oldAnnoDetails = await idGetHnd.lookupExactVersion(ctx);
-  Object.assign(ctx, await parseRequestBody.fancy('json', req));
+  Object.assign(ctx, ...(await Promise.all([
+    idGetHnd.lookupExactVersion(ctx),
+    parseRequestBody.fancy('json', req),
+  ])));
   await ctx.catchBadInput(function parse(mustPopInput) {
     ctx.action = mustPopInput('nonEmpty str', 'action');
   });

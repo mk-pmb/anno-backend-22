@@ -24,7 +24,8 @@ const EX = async function checkVersionModifications(ctx) {
   const { anno, idParts, req } = ctx;
   await EX.validateAnnoIdParts(ctx);
   if (!idParts.baseId) { return; }
-  ctx.oldAnnoDetails = await idGetHnd.lookupExactVersion(ctx);
+  const lookup = await idGetHnd.lookupExactVersion(ctx);
+  ctx.oldAnnoDetails = lookup.annoDetails;
   idParts.versNum += 1;
 
   ctx.annoChanges = EX.findAndPluckAllChanges(ctx.oldAnnoDetails, anno);

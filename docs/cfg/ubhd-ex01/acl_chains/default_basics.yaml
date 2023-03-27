@@ -15,8 +15,16 @@
         # Criterion `memberOfAclGroup` understands some emoji as placeholders.
         # 📚 is for serviceId.
     tendency:
+        stamp_own_add_dc_dateSubmitted:  allow
         create:         allow
         reply:          allow
+
+  - if:
+        memberOfAclGroup: '📚_moderators'
+    tendency:
+        stamp_any_add_dc_dateAccepted:  allow
+        stamp_any_add_as_deleted:       allow
+
 
 
 

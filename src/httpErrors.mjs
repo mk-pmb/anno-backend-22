@@ -15,6 +15,7 @@ const simpleCanneds = {
   badRequest: makeCanned(400, 'Bad Request'),
   badVerb: makeCanned(405, 'Method Not Allowed'),
   noSuchAnno: makeCanned(404, 'Annotation not found'),
+  stateConflict: makeCanned(409, 'Conflict'),
   notImpl: makeCanned(501, 'Not Implemented'),
 
   noSuchResource: makeCanned(405, 'Method Not Allowed',
