@@ -135,14 +135,14 @@ async function listVersions(ctx) {
 
 
 const EX = function idGet(ctx) {
-  const { req, subRoute } = ctx;
+  const { subRoute } = ctx;
   if (ctx.idParts.versNum) {
-    if (subRoute) { return noSuchResource(req); }
+    if (subRoute) { throw noSuchAnno(); }
     return serveExactVersion(ctx);
   }
   if (!subRoute) { return redirToLatestVersion(ctx); }
   if (subRoute === 'versions') { return listVersions(ctx); }
-  return noSuchResource(req);
+  throw noSuchResource();
 };
 
 
