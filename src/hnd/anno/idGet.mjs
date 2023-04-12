@@ -56,16 +56,31 @@ async function lookupExactVersion(ctx) {
       annoDetails).subjTgtUrls;
   }
 
-  async function requireAdditionalReadPrivilege(privilegeName) {
+  const nowTs = Date.now();
+  async function requireAdditionalReadPrivilege(privilegeName, opt) {
     await srv.acl.requirePermForAllTargetUrls(req,
-      subjTgtUrlsForAclCheckRead, { privilegeName });
+      subjTgtUrlsForAclCheckRead, { privilegeName, ...opt });
   }
-  requireAdditionalReadPrivilege('read');
+  const aclMetaSpy = {};
+  await requireAdditionalReadPrivilege('read', { aclMetaSpy });
 
   if (versionNotFound) {
     // At this point, permission to disclose non-existence stems from the
     // permission to read the entire annotation.
     throw noSuchAnno();
+  }
+
+  const apprStamp = aclMetaSpy.serviceApprovalStampType;
+  if (apprStamp) {
+    const val = annoDetails[apprStamp];
+    const ts = (val && (new Date(val)).getTime()) || 0;
+    const active = (ts && (ts <= nowTs));
+    console.debug({ apprStamp, val, ts, nowTs, active });
+    if (!active) {
+      throw noSuchAnno('Annotation is not yet approved');
+      /* NB: This is different from "Annotation is pending approval",
+         because here we don't care whether approval has been requested. */
+    }
   }
 
   const lookup = {

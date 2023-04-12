@@ -21,6 +21,7 @@ const searchQryTpl = `
     ) AS "sel"
   ON "da"."base_id" = "sel"."base_id"
     AND "da"."version_num" = "sel"."max_revi"
+  #approval_join
   ORDER BY "da"."time_created" ASC, "da"."base_id" ASC
   `;
 
@@ -30,18 +31,21 @@ const EX = async function bySubjectTargetPrefix(subjTgtSpec, req, srv) {
     targetUrl: subjTgtSpec,
     privilegeName: 'discover',
   });
+  const aclMetaSpy = {};
   await srv.acl.requirePerm(req, {
     targetUrl: subjTgtSpec,
     privilegeName: 'read',
+    aclMetaSpy,
   });
+  const {
+    serviceApprovalStampType,
+  } = aclMetaSpy;
 
-  const [urlCond, urlArg] = (subjTgtSpec.endsWith('/*')
-    ? ['starts_with("url", $1)', subjTgtSpec.slice(0, -1)]
-    : ['"url" = $1', subjTgtSpec]);
-  const searchQry = searchQryTpl.replace(/#url(?=\n)/, urlCond);
-  // console.debug(searchQry, { urlArg });
-  const found = await srv.db.postgresSelect(searchQry, [urlArg]);
-  // console.debug('bySubjTgt:', { found });
+  const [searchQry, ...searchArgs] = EX.buildSearchQry({
+    subjTgtSpec,
+    serviceApprovalStampType,
+  });
+  const found = await srv.db.postgresSelect(searchQry, searchArgs);
 
   const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
     rec.details).subjTgtUrls).flat();
@@ -60,5 +64,40 @@ const EX = async function bySubjectTargetPrefix(subjTgtSpec, req, srv) {
 };
 
 
-// Object.assign(EX, {});
+Object.assign(EX, {
+
+  buildSearchQry(how) {
+    let qry = searchQryTpl;
+    const args = [];
+
+    const { subjTgtSpec } = how;
+    const [urlCond, urlArg] = (subjTgtSpec.endsWith('/*')
+      ? ['starts_with("url", $1)', subjTgtSpec.slice(0, -1)]
+      : ['"url" = $1', subjTgtSpec]);
+    args.push(urlArg);
+    qry = qry.replace(/#url(?=\n)/, urlCond);
+
+    const apprStamp = how.serviceApprovalStampType;
+    if (apprStamp) {
+      const apprJoin = `
+        JOIN "anno_stamps" AS "appr"
+          ON "appr"."base_id" = "da"."base_id"
+          AND "appr"."version_num" = "da"."version_num"
+          AND "appr"."st_type" = $2
+          AND "appr"."st_at" <= NOW()
+        `;
+      qry = qry.replace(/#approval_join(?=\n)/, apprJoin);
+      args.push(apprStamp);
+    } else {
+      qry = qry.replace(/#approval_\w+(?=\n)/g, '');
+    }
+
+    return [qry, ...args];
+  },
+
+
+
+});
+
+
 export default EX;

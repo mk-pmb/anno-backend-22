@@ -13,9 +13,12 @@ import detectUserIdentity from './detectUserIdentity.mjs';
 
 const EX = async function whyDeny(req, actionMeta) {
   const acl = this;
+  const {
+    aclMetaSpy,
+    ...allMeta
+  } = actionMeta;
 
   const metaCache = getOrAddKey(req, 'aclMetaCache', '{}');
-  const allMeta = { ...actionMeta };
   const mustMeta = mustBe.tProp('ACL metadata property ', allMeta);
 
   const tgtUrl = (mustMeta('nonEmpty str | undef', 'targetUrl') || false);
@@ -34,6 +37,7 @@ const EX = async function whyDeny(req, actionMeta) {
     ...urlMeta,
   };
   Object.assign(allMeta, pubMeta);
+  if (aclMetaSpy) { Object.assign(aclMetaSpy, allMeta); }
 
   const chainCtx = {
     getAcl() { return acl; },

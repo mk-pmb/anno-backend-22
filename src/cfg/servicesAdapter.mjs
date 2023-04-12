@@ -50,11 +50,23 @@ const EX = {
         const msg = 'No service configured for target URL: ' + tgtUrl;
         throw httpErrors.aclDeny.throwable(msg);
       }
+      const { svcId } = svcFromPrefix;
+      const svcInfo = svcFromPrefix.svc;
+      if (!svcInfo) {
+        const msg = 'No data for service ID: ' + svcId;
+        throw httpErrors.aclDeny.throwable(msg);
+      }
       const meta = {
-        serviceId: svcFromPrefix.svcId,
+        serviceId: svcId,
       };
 
-      const tumCfg = (svcFromPrefix.svc || false).targetUrlMetadata;
+      (function checkApproval() {
+        const appr = svcInfo.approvalRequired;
+        if (!appr) { return; }
+        meta.serviceApprovalStampType = appr.stampType || 'dc:dateAccepted';
+      }());
+
+      const tumCfg = svcInfo.targetUrlMetadata;
       const subUrl = tgtUrl.slice(svcFromPrefix.pfx.length);
       (tumCfg.vSubDirs || []).reduce(function learn(remain, slot) {
         const rmnOrEmpty = (remain || '');
