@@ -50,6 +50,7 @@
     "express-final-text-response-pmb": "^0.1.7",
     "express-promise-router": "^4.1.1",
     "express-timeout-handler": "^2.2.2",
+    "getoraddkey-simple": "^0.1.6",
     "getown": "^1.0.0",
     "is-string": "^1.0.7",
     "lodash.get": "^4.4.2",
