@@ -1,7 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import httpErrors from '../../../httpErrors.mjs';
+import getOwn from 'getown';
+
 import decideAuthorIdentity from '../postNewAnno/decideAuthorIdentity.mjs';
+import httpErrors from '../../../httpErrors.mjs';
+import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 
 
 const {
@@ -9,6 +12,11 @@ const {
   stateConflict,
 } = httpErrors.throwable;
 
+
+function enforceHttpDateFormat(orig) {
+  if (!orig) { return null; }
+  return parseDatePropOrFubar(orig).jsDate.toGMTString();
+}
 
 
 const EX = {
@@ -39,6 +47,9 @@ const EX = {
     await ctx.requireAdditionalReadPrivilege(privName);
     stRec.st_by = (ctx.who.userId || '');
     stRec.st_at = (new Date()).toISOString();
+
+    const fixup = getOwn(EX.fixupStampValues, stRec.st_type);
+    if (fixup) { detail = await fixup(detail, stRec); }
     if (detail === undefined) { detail = null; }
     stRec.st_detail = JSON.stringify(detail);
 
@@ -47,6 +58,11 @@ const EX = {
     });
 
     return { st_at: stRec.st_at };
+  },
+
+
+  fixupStampValues: {
+    'as:deleted': enforceHttpDateFormat,
   },
 
 };
