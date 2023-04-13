@@ -15,6 +15,7 @@ const echoableHeaderNamesGlued = [
   'Link',
   'Location',
   'Prefer',
+  'Sunset',
   'Vary',
 ].join(listSep);
 

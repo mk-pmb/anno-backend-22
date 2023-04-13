@@ -9,6 +9,7 @@ import sendFinalTextResponse from '../../finalTextResponse.mjs';
 import categorizeTargets from './categorizeTargets.mjs';
 import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from './redundantGenericAnnoMeta.mjs';
+import stampValueOrDate from './stampValueOrDate.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
 const {
@@ -21,6 +22,10 @@ const versionSep = ubhdAnnoIdFmt.versionNumberSeparator;
 const queryTpl = {
   annoDetails: ('"details"'
     + ' FROM "anno_data" WHERE "base_id" = $1'
+    + ' AND "version_num" = $2 LIMIT 2'
+  ),
+  annoStamps: ('*'
+    + ' FROM "anno_stamps" WHERE "base_id" = $1'
     + ' AND "version_num" = $2 LIMIT 2'
   ),
   latestVersion: (
@@ -55,6 +60,12 @@ async function lookupExactVersion(ctx) {
     subjTgtUrlsForAclCheckRead = categorizeTargets(srv,
       annoDetails).subjTgtUrls;
   }
+
+  const stampsReply = (await srv.db.postgresSelect(queryTpl.annoStamps,
+    [baseId, versNum]));
+  stampsReply.forEach(function addStamp(row) {
+    annoDetails[row.st_type] = stampValueOrDate(row);
+  });
 
   const nowTs = Date.now();
   async function requireAdditionalReadPrivilege(privilegeName, opt) {
@@ -96,7 +107,15 @@ async function lookupExactVersion(ctx) {
 async function serveExactVersion(ctx) {
   const { srv, req, idParts } = ctx;
   const { annoDetails } = await lookupExactVersion(ctx);
-  const ftrOpt = { type: 'annoLD' };
+
+  const headers = {};
+  const ftrOpt = { type: 'annoLD', headers };
+  Object.entries(annoDetails).forEach(function sendIanaHeaders([k, v]) {
+    if (!k.startsWith('iana:')) { return; }
+    const h = k.slice(5).replace(/\b[a-z]/g, m => m.toUpperCase());
+    headers[h] = v;
+  });
+
   if (clientPrefersHtml(req)) {
     const [scope1] = makeDictList(annoDetails.target).getEachOwnProp('scope');
     if (scope1) {
