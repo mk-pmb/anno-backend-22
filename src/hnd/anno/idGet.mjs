@@ -4,6 +4,7 @@ import makeDictList from 'dictlist-util-pmb';
 
 import clientPrefersHtml from '../util/guessClientPrefersHtml.mjs';
 import httpErrors from '../../httpErrors.mjs';
+import parseDatePropOrFubar from '../util/parseDatePropOrFubar.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 import categorizeTargets from './categorizeTargets.mjs';
@@ -13,6 +14,7 @@ import stampValueOrDate from './stampValueOrDate.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
 const {
+  gone,
   noSuchAnno,
   noSuchResource,
 } = httpErrors.throwable;
@@ -68,6 +70,18 @@ async function lookupExactVersion(ctx) {
   });
 
   const nowTs = Date.now();
+  const sunset = parseDatePropOrFubar(annoDetails, 'as:deleted');
+  /* Sunset header for non-error is the responsibility of whatever function
+     uses our lookup result. The lookup function itself should not interact
+     with the response, because it's meant be usable also for internal
+     lookups whose results are not meant to be sent. */
+  if (sunset && (sunset.ts <= nowTs)) {
+    const err = gone('Annotation was unpublished, effective '
+      + sunset.jsDate.toISOString());
+    err.headers = { Sunset: sunset.jsDate.toGMTString() };
+    throw err;
+  }
+
   async function requireAdditionalReadPrivilege(privilegeName, opt) {
     await srv.acl.requirePermForAllTargetUrls(req,
       subjTgtUrlsForAclCheckRead, { privilegeName, ...opt });
