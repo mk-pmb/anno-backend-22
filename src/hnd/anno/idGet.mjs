@@ -47,8 +47,8 @@ async function lookupExactVersion(ctx) {
   let subjTgtUrlsForAclCheckRead; // <- `undefined` is valid for acl.rPFATU
   if (targetLookupAllowed) {
     if (versionNotFound) {
-      // At this point, permission to disclose non-existence stems from the
-      // permission to lookup the target.
+      /* At this point, permission to disclose non-existence stems from
+         the permission to lookup the target. */
       throw noSuchAnno();
     }
 
@@ -65,8 +65,8 @@ async function lookupExactVersion(ctx) {
   await requireAdditionalReadPrivilege('read', { aclMetaSpy });
 
   if (versionNotFound) {
-    // At this point, permission to disclose non-existence stems from the
-    // permission to read the entire annotation.
+    /* At this point, permission to disclose non-existence stems from
+       the permission to read the entire annotation. */
     throw noSuchAnno();
   }
 
@@ -133,8 +133,8 @@ async function redirToLatestVersion(ctx) {
 
 async function listVersions(ctx) {
   const { srv, req, idParts } = ctx;
-  // Example for an annotation with many versions:
-  // https://anno.ub.uni-heidelberg.de/anno/anno/JhTAtRbrSOib9OJERGptUg
+  /* Example for an annotation with many versions:
+     https://anno.ub.uni-heidelberg.de/anno/anno/JhTAtRbrSOib9OJERGptUg */
   const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
   await lookupLatestVersionNum(ctx);
   // :TODO: Consider ACL permissions
