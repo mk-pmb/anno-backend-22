@@ -2,10 +2,13 @@
 Install using dockerized npm
 ============================
 
-
-This script runs dockerized npm to install the package,
+This script runs dockerized npm and node.js to install the package,
 to free you from having to install node and npm on the host system.
 It will also fix permissions in case docker unexpectedly mangled them.
+
+
+How to use
+----------
 
 * The script takes no arguments or options.
 * The script tries to find the absolute path to the repository.
