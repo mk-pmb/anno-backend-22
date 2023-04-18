@@ -22,7 +22,7 @@ const EX = async function installRootRoutes(srv) {
   const serveFile = express.static(popCfg('nonEmpty str', 'wwwpub_path'));
   rt.use('/static/favicon.ico', eternal());
   rt.use('/static', serveFile);
-  rt.get('/', plumb.makeRedirector('/static/'));
+  rt.get('/', plumb.makeRedirector('static/'));
 
   rt.use('/session/*', await makeSessionRoute(srv));
   rt.use('/anno/*', await makeAnnoRoute(srv));
@@ -30,7 +30,7 @@ const EX = async function installRootRoutes(srv) {
 
   rt.use('/admin/shutdown*', shutdownHandler);
 
-  rt.get('/:filename', eternal(simpleFilenameRedirector('/static/:filename')));
+  rt.get('/:filename', eternal(simpleFilenameRedirector('static/:filename')));
 
 
   // If no previous route has matched, default to:
