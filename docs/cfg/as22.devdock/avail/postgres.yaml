@@ -1,0 +1,24 @@
+%YAML 1.1
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+version: '3'
+services:
+
+  ${dd_tpl_bn}'':
+    image: 'postgres:14-alpine'
+    volumes:
+      - ${dd_dir}'.containerdata/postgres.data/v14:/pgdata:rw'
+      - ${dd_dir}'secrets/postgres.pswd.txt:/run/secrets/postgres/initpswd:ro'
+      - ${dd_cfg annosrv_appdir}'/util/pg:/asu:ro'
+    restart: always
+    environment:
+      - 'PGDATA=/pgdata'
+      # - 'POSTGRES_USER=postgres'
+      # - ${dd_cfg}'POSTGRES_PASSWORD=postgres_pswd'
+      - 'POSTGRES_PASSWORD_FILE=/run/secrets/postgres/initpswd'
+    # ports:
+    #   - '127.0.0.1:5432:5432'
+
+
+...

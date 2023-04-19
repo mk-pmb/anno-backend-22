@@ -1,0 +1,26 @@
+%YAML 1.1
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+version: '3'
+services:
+
+  ${dd_tpl_bn}'':
+    image: 'node:16'
+    volumes:
+      - ${dd_cfg annosrv_appdir}':/app'
+      - ${dd_dir}'secrets/postgres.pswd.txt:/run/secrets/postgres.pswd.txt'
+    hostname: ${dd_cfg annosrv_hostname}''
+    working_dir: '/app'
+    command: '/app/run_server.sh'
+    restart: 'always'
+    environment:
+        - ${dd_cfg}'anno_public_baseurl='
+        - 'anno_listen_addr=0.0.0.0:8080'
+        - 'anno_db_pool_host=postgres'
+        - 'anno_db_pool_pswd=utf8file:/run/secrets/postgres.pswd.txt'
+    ports:
+      - ${dd_cfg annosrv_dkport}':8080'
+
+
+...

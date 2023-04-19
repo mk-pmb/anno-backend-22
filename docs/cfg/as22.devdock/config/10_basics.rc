@@ -1,0 +1,24 @@
+# -*- coding: utf-8, tab-width: 2 -*-
+
+CFG[annosrv_hostname]='dkas22'
+# Hostname of your anno server. This is relevant for selecting the
+# correct config and logs directories.
+
+CFG[annosrv_appdir]='/srv/annosrv/anno-server-22'
+# Absolute path to your local clone of the anno-server-22 repository,
+# as seen from the docker host system. No trailing slash.
+
+CFG[annosrv_bridge]='br-as22'
+# The docker network bridge name to use.
+# This is relevant for your firewall settings.
+
+CFG[annosrv_dkport]='127.0.0.1:33321'
+# On which interface and which port docker shall expose the anno server.
+# This is relevant for your mod_proxy config.
+
+CFG[anno_public_baseurl]="https://$(hostname --fqdn)/anno-test/"
+# The URL namespace forwarded by your mod_proxy.
+
+CFG[adminer_dkport]='127.0.0.1:5480'
+# On which interface and which port docker shall expose the pgAdminer server.
+# Only relevant if pgAdminer is enabled (see install guide).

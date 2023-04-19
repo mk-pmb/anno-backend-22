@@ -5,6 +5,8 @@
 function dinst_main () {
   local SELFFILE="$(readlink -m -- "$BASH_SOURCE")"
   local SELFPATH="$(dirname -- "$SELFFILE")"
+  source -- "$SELFPATH"/lib/kisi.sh --lib || return $?
+
   local REPOPATH="$(dirname -- "$SELFPATH")"
   case "$REPOPATH" in
     *[': ']* )
@@ -42,33 +44,6 @@ function dinst_dockerize () {
   rm -- package-lock.json 2>/dev/null
 
   echo; chapterize 'All done.'
-}
-
-
-function chapterize () {
-  local DESCR="$1"
-  case "$DESCR" in
-    dinst_* )
-      DESCR="$1"
-      DESCR="${DESCR//_/ }"
-      DESCR="${DESCR#* }"
-      DESCR="${DESCR^}"
-      ;;
-    '' ) shift; DESCR="$*";;
-    * ) shift;;
-  esac
-  echo "==== $DESCR ===="
-  [ "$#" == 0 ] && return 0
-  "$@"
-  local RV=$?
-  if [ "$RV" == 0 ]; then
-    echo "---- done: $DESCR ----"
-    echo
-  else
-    echo
-    [ "$RV" == 0 ] || echo "E: Failed (rv=$RV) to $DESCR" >&2
-  fi
-  return "$RV"
 }
 
 

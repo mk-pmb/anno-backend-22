@@ -1,0 +1,18 @@
+  <Location /anno-test/>
+    AuthType shibboleth
+    ShibRequestSetting requireSession 0
+    ShibUseHeaders On
+    Require valid-user
+    AllowMethods DELETE GET MKCOL OPTIONS PATCH POST PROPPATCH PUT
+
+    ProxyPass http://127.0.0.1:33321/ retry=0 connectiontimeout=5
+    # ^-- You can choose any port here. Later when you configure
+    #     the DevDock project, this will come up again as the
+    #     `annosrv_dkport` setting.
+
+    ProxyPreserveHost On
+  </Location>
+  <Location /anno-test/session/login>
+    # Enforce Shibboleth Login
+    ShibRequestSetting requireSession 1
+  </Location>

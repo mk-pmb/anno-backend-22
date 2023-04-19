@@ -11,6 +11,7 @@ UB-HD Web Anntation Server, 2022 Edition
 * 🇺🇸 [What is this project?](docs/about/whats_this.en.md)
   / 🇩🇪 [Worum geht es hier?](docs/about/whats_this.de.md)
 
+* [Install Guide](docs/install/)
 
 
 

@@ -1,0 +1,19 @@
+%YAML 1.1
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+version: '3'
+services:
+
+
+networks:
+    default:
+        driver: 'bridge'
+        driver_opts:
+            'com.docker.network.bridge.name': ${dd_cfg annosrv_bridge}''
+
+
+
+
+
+...
