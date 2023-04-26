@@ -8,7 +8,8 @@ Installing using Docker
     * git
     * Docker CE (Community Edition) &rarr; [Docker Ubuntu Install Guide](
       https://docs.docker.com/engine/install/ubuntu/)
-    * an apache webserver with `mod_proxy` and Shibboleth.
+    * an apache webserver with `mod_proxy`
+      * optionally, some sort of user login mechanism for Apache.
       * [How to configure your Apache](../../cfg/reverse_proxy/apache/)
 1.  Create an OS user `annosrv` as member of a group with the same name.
     We'll assume the home directory is `/srv/annosrv`.
