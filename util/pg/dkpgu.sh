@@ -32,8 +32,12 @@ function dkpgu_maybe_set_task_from_invocation () {
   esac
 
   if [ -L "$INV" -a "$INV" -ef "$SELFFILE" ]; then
-    # A symlink that points to this file
-    TASK="$INV"
+    # ^-- i.e., a symlink that points to this file.
+    case "$INV" in
+      c ) TASK='cmd';;
+      f ) TASK='file';;
+      * ) TASK="$INV";;
+    esac
     return 0
   fi
 }
