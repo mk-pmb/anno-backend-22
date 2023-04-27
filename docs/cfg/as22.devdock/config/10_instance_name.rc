@@ -1,0 +1,14 @@
+# -*- coding: utf-8, tab-width: 2 -*-
+
+#   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#   !!                                                                  !!
+#   !!  This is usually NOT your FQDN, nor docker daemon's hostname!    !!
+#   !!  A wrong instance name will prevent proper server startup.       !!
+#   !!                                                                  !!
+#   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+###:maybe_customize:
+CFG[annosrv_hostname]='dkas22'
+# The instance name will be the hostname of the anno server's docker
+# container. You've chosen this earlier in the install guide, when you
+# adjusted your instance config.

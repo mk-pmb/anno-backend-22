@@ -11,6 +11,11 @@ Installing using Docker
     * an apache webserver with `mod_proxy`
       * optionally, some sort of user login mechanism for Apache.
       * [How to configure your Apache](../../cfg/reverse_proxy/apache/)
+    * [DevDock
+      ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock)
+      (a templating system for docker-compose).
+      * Version 0.2.x should work. At time of writing (2023-04-27),
+        this is the latest.
 1.  Create an OS user `annosrv` as member of a group with the same name.
     We'll assume the home directory is `/srv/annosrv`.
 1.  `chown annosrv:annosrv -- /srv/annosrv`
@@ -23,6 +28,9 @@ Installing using Docker
         Docker daemon socket".
     1.  If that error message is missing, remove user `annosrv` from all
         docker-related OS user groups and reboot.
+1.  If you already have a `/srv/annosrv/anno-server-22` from a previous
+    install attempt, move it to some backup directory.
+    The next step (cloning) would fail if the directory already exists.
 1.  Usually, you'd now `git clone https://github.com/mk-pmb/anno-server-22`
     * … but this config example uses the staging branch,
       so to the `clone` command, add: `--single-branch --branch staging`
@@ -30,25 +38,47 @@ Installing using Docker
       Expect frequent history rewrites.
 1.  Verify the cloning: `ls anno-server-22/run_*.sh` — the expected good
     response is `anno-server-22/run_server.sh`.
-1.  You may now close the shell for user `annosrv`.
-1.  Start a root shell in `/srv/annosrv/anno-server-22`.
-1.  `./util/install_dockerized.sh`
-    (For what and why, see `util/install_dockerized.md` next to it.)
-1.  Install your instance config as a subdirectory named `cfg.@` + the
-    instance's hostname. You can choose any; in this example, we will assume
-    that hostname to be `dkas22`.
+1.  In another shell, as root, run:
+    `/srv/annosrv/anno-server-22/util/install_dockerized.sh`
+    * It will create a temporary node.js docker container, mount the
+      `anno-server-22` directory into it, and use npm inside the container
+      to arrange various things. (For details about what and why, see
+      `util/install_dockerized.md` next to the script.)
+1.  You may now close the root shell.
+    The next further configuration should happen as user `annosrv`.
+    (Or you can do them as anyone and later `chown` all files.)
+1.  One anno server installation can run several instances,
+    each with their own hostname that is used inside docker.
+    Choose a hostname for your first instance.
+    * It should start with a letter and may consist of letters,
+      numbers and hyphens. (No dots. This is not a FQDN.)
+    * In this example, we will assume that hostname to be `dkas22`.
+      ("dk" = Docker, "as22" = anno-server-22)
+    * __You will need this hostname again later.__
+1.  Create an anno server instance config.
+    That's a subdirectory in the `anno-server-22` directory named
+    `cfg.@` + the instance's hostname.
     * An example config directory can be found in
       [../../cfg/ubhd-ex01/](../../cfg/ubhd-ex01/).
       To use it: `cp -rnT -- docs/cfg/ubhd-ex01/ cfg.@dkas22`
-    * See the example config's `README.md` for how to adjust it.
-1.  Set up a DevDock project.
-    A good place to put it is inside your instance config directory.
-    * An example config directory can be found in
-      [../../cfg/as22.devdock/](../../cfg/as22.devdock/).
-      To use it: `cp -rnt cfg.@dkas22/ -- docs/cfg/as22.devdock`
-    * See the example project's `README.md` for how to adjust it.
-    * The part in front of `.devdock` is the DevDock project name,
-      which will be used as a prefix for your docker container names.
+    * Directory naming explained: "cfg." = config, "@" = host-specific.
+      In the future, there may be others like "cfg.site" and "cfg.vendor".
+1.  Customize your instance config.
+    See the example config's `README.md` for how.
+1.  Now you need to set up docker-compose.
+    To make that easier, we use the templating system "DevDock".
+    1.  The next steps will require basic knowledge of DevDock, at least
+        project/directory names and container control commands.
+        You can find them in [the DevDock Readme
+        ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock).
+    1.  A good place to put your DevDock project is inside your
+        instance config directory.
+    1.  An example config directory can be found in
+        [../../cfg/as22.devdock/](../../cfg/as22.devdock/).
+        To use it: `cp -rnt cfg.@dkas22/ -- docs/cfg/as22.devdock`
+1.  The anno server software itself is now installed.
+    For how to prepare the database and how to start the server,
+    please refer to the `README.md` of the example DevDock project.
 
 
 

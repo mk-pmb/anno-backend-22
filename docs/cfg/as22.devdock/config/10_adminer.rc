@@ -1,0 +1,15 @@
+# -*- coding: utf-8, tab-width: 2 -*-
+
+#   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#   !!                                                                  !!
+#   !!  If you do NOT want to use pgAdminer, keep the default values.   !!
+#   !!                                                                  !!
+#   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+#   When pgAdminer is disabled, valid settings will be ignored.
+#   However, invalid settings can still cause syntax errors that
+#   may prevent other containers from starting.
+
+###:maybe_customize:
+CFG[adminer_dkport]='127.0.0.1:5480'
+# On which interface and which port docker shall expose the pgAdminer server.
