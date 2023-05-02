@@ -26,7 +26,14 @@ const searchQryTpl = `
   `;
 
 
-const EX = async function bySubjectTargetPrefix(subjTgtSpec, req, srv) {
+const EX = async function bySubjectTargetPrefix(param) {
+  const {
+    subjTgtSpec,
+    untrustedOpt,
+    req,
+    srv,
+  } = param;
+  console.debug('bySubjectTargetPrefix: untrustedOpt:', untrustedOpt);
   await srv.acl.requirePerm(req, {
     targetUrl: subjTgtSpec,
     privilegeName: 'discover',

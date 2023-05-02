@@ -1,5 +1,9 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
+import qrystr from 'qrystr';
+import splitStringOnce from 'split-string-or-buffer-once-pmb';
+
 import httpErrors from '../../../httpErrors.mjs';
 
 import bySubjectTarget from './subjectTarget.mjs';
@@ -22,13 +26,28 @@ function apacheSlashes(sub) {
 
 
 const EX = async function searchBy(pathParts, req, srv) {
-  const [crit, ...sub] = pathParts;
-  if (crit === 'subject-target') {
-    return bySubjectTarget(apacheSlashes(sub), req, srv);
-  }
-  throw unsupportedCriterion();
+  const [critSpec, ...subPathParts] = pathParts;
+  const [criterion, query] = (splitStringOnce(';', critSpec) || [critSpec]);
+  const hnd = getOwn(EX.handlers, criterion);
+  if (!hnd) { throw unsupportedCriterion(); }
+  const untrustedOpt = (Boolean(query)
+    && qrystr.parse(query.replace(/;/g, '&')));
+  return hnd({ req, srv, untrustedOpt }, subPathParts);
 };
 
 
-// Object.assign(EX, {});
+Object.assign(EX, {
+
+  handlers: {
+
+    subject_target(ctx, spp) {
+      return bySubjectTarget({ subjTgtSpec: apacheSlashes(spp), ...ctx });
+    },
+
+  },
+
+
+});
+
+
 export default EX;
