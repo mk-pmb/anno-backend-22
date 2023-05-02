@@ -13,9 +13,10 @@ const {
 } = httpErrors.throwable;
 
 
-function enforceHttpDateFormat(orig) {
-  if (!orig) { return null; }
-  return parseDatePropOrFubar(orig).jsDate.toGMTString();
+function popEffTs(pop) {
+  let eff = pop('str | undef', 'when');
+  eff = (eff && parseDatePropOrFubar(eff).jsDate);
+  return (eff && { st_effts: eff });
 }
 
 
@@ -28,30 +29,27 @@ const EX = {
     const stRec = {
       base_id: ctx.idParts.baseId,
       version_num: ctx.idParts.versNum,
+      st_effts: null,
+      st_detail: null,
     };
-    let namespace;
-    let detail;
+    let uscType;
     await ctx.catchBadInput(function parse(mustPopInput) {
-      stRec.st_type = mustPopInput('nonEmpty str', 'st_type');
-      [namespace] = (/^\w+(?=:)/.exec(stRec.st_type) || false);
+      stRec.st_type = mustPopInput('nonEmpty str', 'type');
+      const namespace = (/^\w+(?=:)/.exec(stRec.st_type) || false)[0];
       if (!namespace) { throw notImpl('Unsupported stamp namespace'); }
-      detail = mustPopInput('obj | str | num | nul | undef', 'st_detail');
+      uscType = namespace + '_' + stRec.st_type.slice(namespace.length + 1);
+      const popMore = getOwn(EX.addStampParseDetails, uscType);
+      if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
       mustPopInput.expectEmpty();
     });
     const author = decideAuthorIdentity.fromAnnoCreator(ctx.annoDetails,
       ctx.who);
 
     const privName = ('stamp_' + (author.authorized ? 'own' : 'any')
-      + '_add_' + namespace + '_'
-      + stRec.st_type.slice(namespace.length + 1));
+      + '_add_' + uscType);
     await ctx.requireAdditionalReadPrivilege(privName);
     stRec.st_by = (ctx.who.userId || '');
     stRec.st_at = (new Date()).toISOString();
-
-    const fixup = getOwn(EX.fixupStampValues, stRec.st_type);
-    if (fixup) { detail = await fixup(detail, stRec); }
-    if (detail === undefined) { detail = null; }
-    stRec.st_detail = JSON.stringify(detail);
 
     await ctx.srv.db.postgresInsertOneRecord('anno_stamps', stRec, {
       customDupeError: EX.dupeStamp,
@@ -61,9 +59,10 @@ const EX = {
   },
 
 
-  fixupStampValues: {
-    'as:deleted': enforceHttpDateFormat,
+  addStampParseDetails: {
+    as_deleted: popEffTs,
   },
+
 
 };
 

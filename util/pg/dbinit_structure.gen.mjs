@@ -48,6 +48,7 @@ console.log(pgDumpWriter.fmtCreateSimpleTable('stamps', {
   ...annoAddrUniq,
   st_type: 'char* ¹addr',
   st_at: 'ts',
+  st_effts: 'ts ?',   // effective timestamp, if different from st_at
   st_by: 'char*',
   st_detail: 'json ?',
 }, {

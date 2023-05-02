@@ -12,13 +12,18 @@ function hasActualData(x) {
 const EX = function stampValueOrDate(stampRec) {
   const det = stampRec.st_detail;
   if (hasActualData(det)) { return det; }
-  const { st_type: type, st_at: at } = stampRec;
+  const {
+    st_type: type,
+    st_at: at,
+    st_effts: effts,
+  } = stampRec;
+  const ts = (effts || at);
   if (type.startsWith('iana:')) {
     // iana: dates should be HTTP compliant
-    return at.toGMTString();
+    return ts.toGMTString();
   }
   // For all other dates, we prefer ISO:
-  return at.toISOString();
+  return ts.toISOString();
 };
 
 
