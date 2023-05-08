@@ -58,13 +58,8 @@ const EX = {
       }
       const meta = {
         serviceId: svcId,
+        approvalRequired: Boolean(svcInfo.approvalRequired),
       };
-
-      (function checkApproval() {
-        const appr = svcInfo.approvalRequired;
-        if (!appr) { return; }
-        meta.serviceApprovalStampType = appr.stampType || 'dc:dateAccepted';
-      }());
 
       const tumCfg = svcInfo.targetUrlMetadata;
       const subUrl = tgtUrl.slice(svcFromPrefix.pfx.length);

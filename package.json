@@ -75,6 +75,8 @@
     "read-data-file": "^2.0.8",
     "regexp-flags-upfront": "^0.1.0",
     "safe-sortedjson": "^1.0.8",
+    "simple-placeholder-slot-numberizer-pmb": "^0.1.1",
+    "simple-recursive-string-slot-template-pmb": "^0.1.1",
     "split-string-or-buffer-once-pmb": "^1.0.0",
     "summarize-express-request-pmb": "^0.1.2",
     "typechecks-pmb": "^0.200620.6",

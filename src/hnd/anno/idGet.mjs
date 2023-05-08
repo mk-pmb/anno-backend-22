@@ -95,12 +95,11 @@ async function lookupExactVersion(ctx) {
     throw noSuchAnno();
   }
 
-  const apprStamp = aclMetaSpy.serviceApprovalStampType;
-  if (apprStamp) {
-    const val = annoDetails[apprStamp];
+  if (aclMetaSpy.approvalRequired) {
+    const val = annoDetails['dc:dateAccepted'];
     const ts = (val && (new Date(val)).getTime()) || 0;
     const active = (ts && (ts <= nowTs));
-    console.debug({ apprStamp, val, ts, nowTs, active });
+    // console.debug({ val, ts, nowTs, active });
     if (!active) {
       throw noSuchAnno('Annotation is not yet approved');
       /* NB: This is different from "Annotation is pending approval",
