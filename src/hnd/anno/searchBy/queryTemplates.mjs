@@ -2,8 +2,8 @@
 
 const qtpl = {
 
-  annoExactVerCond: (a, b, c) => `"${a}"."base_id" = "${b}"."base_id"
-    AND "${a}"."version_num" = "${b}"."${c || 'version_num'}"`,
+  annoExactVerCond: (a, b, c) => (`"${a}"."base_id" = "${b}"."base_id" `
+    + `AND "${a}"."version_num" = "${b}"."${c || 'version_num'}"`),
 
 };
 
@@ -12,17 +12,9 @@ const qtpl = {
 Object.assign(qtpl, {
 
   baseQuery: `
-      "da"."base_id", "da"."version_num",
-      "da"."time_created",
+      "da"."base_id", "da"."version_num", "da"."time_created",
       #stampFilterColumns
-      ARRAY(
-        SELECT jsonb_build_object(
-          'type', "st"."st_type",
-          'ts', "st"."st_effuts",
-          'detail', "st"."st_detail")
-        FROM "anno_stamps_effuts" AS "st"
-        WHERE ${qtpl.annoExactVerCond('st', 'da')}
-        ) AS "stamps",
+      #stampsArray
       "da"."details"
     FROM "anno_data" AS "da"
     JOIN ( #searchFilter ) AS "sel"
@@ -33,18 +25,24 @@ Object.assign(qtpl, {
     ORDER BY "da"."time_created" ASC, "da"."base_id" ASC
     `,
 
+  stampsArray: `ARRAY(
+    SELECT jsonb_build_object(
+      'type', "st"."st_type",
+      'ts', "st"."st_effuts",
+      'detail', "st"."st_detail")
+    FROM "anno_stamps_effuts" AS "st"
+    WHERE ${qtpl.annoExactVerCond('st', 'da')}
+    ) AS "stamps",`.replace(/\n\s+/g, ' '),
+
   extraWhereAnds: '',
 
   stampFilterJoins: '',
   stampFilterColumns: '',
   stampFilterWhereAnds: '',
 
-  searchByLink: `SELECT
-      "base_id", MAX("version_num"::smallint) AS "max_revi"
-    FROM "anno_links"
-    WHERE #searchByLinkWhere
-    GROUP BY "base_id"
-    `,
+  searchByLink: `SELECT "base_id", MAX("version_num"::smallint) AS "max_revi"
+        FROM "anno_links" WHERE #searchByLinkWhere
+        GROUP BY "base_id"`,
 
   approvalWhereAnd: '#approvalRequired',
   approvalRequired: 'AND "approval"."st_effuts" <= #nowUts ',
