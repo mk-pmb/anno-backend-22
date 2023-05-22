@@ -18,6 +18,9 @@ const EX = {
       dataSlots: {},
     };
     Object.assign(b, mapObjValues(EX.api, f => f.bind(null, b)));
+    b.joinStampEffUts0('approval', 'dc:dateAccepted');
+    b.joinStampEffUts0('sunset', 'as:deleted');
+
     return b;
   },
 
@@ -31,7 +34,11 @@ EX.api = {
 
 
   async selectAll(bsq, srv) {
-    let qry = slotTpl('#baseQuery', /#([A-Za-z]\w*)/g, bsq.templates);
+    const tpl = {
+      ...bsq.templates,
+      nowUts: Date.now() / 1e3,
+    };
+    let qry = slotTpl('#baseQuery', /#([A-Za-z]\w*)/g, tpl);
     const numb = makeNumberizer();
     qry = slotTpl(qry, /\$([A-Za-z]\w*)/g, mapObjValues(bsq.dataSlots, numb));
     const args = numb.values;
@@ -41,6 +48,16 @@ EX.api = {
   },
 
 
+  joinStampEffUts0(bsq, joinAs, stType) {
+    const tpl = bsq.templates;
+    tpl.stampFilterColumns += `
+      COALESCE(${joinAs}.st_effuts, 0) AS "${joinAs}Ts",`;
+    tpl.stampFilterJoins += `
+      LEFT JOIN "anno_stamps_effuts" AS "${joinAs}"
+        ON ${queryTemplates.annoExactVerCond(joinAs, 'da')}
+          AND "${joinAs}"."st_type" = '${stType}'`;
+    tpl.stampFilterWhereAnds += '\n      #' + joinAs + 'WhereAnd';
+  },
 
 
 };

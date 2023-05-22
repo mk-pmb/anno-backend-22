@@ -55,6 +55,23 @@ console.log(pgDumpWriter.fmtCreateSimpleTable('stamps', {
   ...dfOpt,
 }));
 
+console.log(`CREATE VIEW anno_stamps_effuts AS SELECT "st".*,
+  extract(epoch from COALESCE("st"."st_effts", "st"."st_at"))
+  AS st_effuts FROM "anno_stamps" AS "st";\n`);
+// ^- Adding COALESCE(…, 0) here would be useless for most JOINs
+//    because a non-existing stamp would still produce either NULL
+//    or row omission, never number 0.
+
+
+
+
+
+
+
+
+
+
+
 
 
 // eof

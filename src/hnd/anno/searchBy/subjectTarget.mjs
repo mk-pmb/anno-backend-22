@@ -16,7 +16,7 @@ const EX = async function bySubjectTargetPrefix(param) {
     srv,
   } = param;
   const {
-    approvalMode,
+    role: rqRole,
   } = (param.untrustedOpt || false);
 
   const search = buildSearchQuery.prepare();
@@ -46,16 +46,16 @@ const EX = async function bySubjectTargetPrefix(param) {
     approvalRequired,
   } = aclMetaSpy;
 
-  if (!approvalRequired) { search.tmpl({ approvalFilter: '' }); }
-  if (approvalMode) {
+  if (!approvalRequired) { search.tmpl({ approvalWhereAnd: '' }); }
+  if (rqRole === 'approver') {
     await srv.acl.requirePerm(req, {
       targetUrl: subjTgtSpec,
       privilegeName: 'stamp_any_add_dc_dateAccepted',
     });
-    search.tmpl({ approvalFilter: '#approvalFilterNever' });
+    search.tmpl({ approvalWhereAnd: '#approvalNotYet' });
   }
 
-  const found = await search.run(srv);
+  const found = await search.selectAll(srv);
   console.debug('subjectTarget: found =', found);
 
   const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
