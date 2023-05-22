@@ -5,6 +5,7 @@ import pMap from 'p-map';
 // import httpErrors from '../../../httpErrors.mjs';
 import buildSearchQuery from './buildSearchQuery.mjs';
 import categorizeTargets from '../categorizeTargets.mjs';
+import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 
@@ -55,8 +56,16 @@ const EX = async function bySubjectTargetPrefix(param) {
     search.tmpl({ approvalWhereAnd: '#approvalNotYet' });
   }
 
+  if (rqRole === 'author') {
+    const { userId } = await detectUserIdentity.andDetails(req);
+    console.debug({ userId });
+    const own = '"da"."author_local_userid" = $rqUserId';
+    search.tmpl({ rqAlwaysShowOwnAnnos: own });
+    search.data({ rqUserId: userId });
+  }
+
   const found = await search.selectAll(srv);
-  console.debug('subjectTarget: found =', found);
+  // console.debug('subjectTarget: found =', found);
 
   const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
     rec.details).subjTgtUrls).flat();

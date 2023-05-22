@@ -20,8 +20,8 @@ Object.assign(qtpl, {
     JOIN ( #searchFilter ) AS "sel"
       ON ${qtpl.annoExactVerCond('da', 'sel', 'max_revi')}
     #stampFilterJoins
-    WHERE True #stampFilterWhereAnds
-      #extraWhereAnds
+    WHERE #rqAlwaysShowOwnAnnos OR ( True #stampFilterWhereAnds
+      #extraWhereAnds )
     ORDER BY "da"."time_created" ASC, "da"."base_id" ASC
     `,
 
@@ -33,6 +33,8 @@ Object.assign(qtpl, {
     FROM "anno_stamps_effuts" AS "st"
     WHERE ${qtpl.annoExactVerCond('st', 'da')}
     ) AS "stamps",`.replace(/\n\s+/g, ' '),
+
+  rqAlwaysShowOwnAnnos: 'False',
 
   extraWhereAnds: '',
 
