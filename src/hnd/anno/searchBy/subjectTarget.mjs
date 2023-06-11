@@ -75,11 +75,16 @@ const EX = async function bySubjectTargetPrefix(param) {
       { privilegeName: 'read' });
   }
 
-  const annos = await pMap(found, async function recombineAnno(rec) {
+  async function fixupAnno(rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
-    const fullAnno = genericAnnoMeta.add(srv, idParts, rec.details);
+    const fullAnno = {
+      ...(approvalRequired && { 'dc:dateAccepted': false }),
+      ...genericAnnoMeta.add(srv, idParts, rec.details),
+    };
     return fullAnno;
-  });
+  }
+  const annos = await pMap(found, fixupAnno);
+
   fmtAnnoCollection.replyToRequest(srv, req, { annos });
 };
 
