@@ -12,13 +12,18 @@ const EX = {
 
   defaultTemplates: queryTemplates,
 
-  prepare() {
+  prepare(how) {
+    const {
+      approvalRequired,
+    } = (how || false);
     const b = {
       templates: { ...EX.defaultTemplates },
       dataSlots: {},
     };
     Object.assign(b, mapObjValues(EX.api, f => f.bind(null, b)));
-    b.joinStampEffUts0('approval', 'dc:dateAccepted');
+    if (approvalRequired) {
+      b.joinStampEffUts0('approval', 'dc:dateAccepted');
+    }
     b.joinStampEffUts0('sunset', 'as:deleted');
 
     return b;
@@ -42,7 +47,7 @@ EX.api = {
     const numb = makeNumberizer();
     qry = slotTpl(qry, /\$([A-Za-z]\w*)/g, mapObjValues(bsq.dataSlots, numb));
     const args = numb.values;
-    console.debug('built search query: >>' + qry + '<<', args);
+    // console.debug('built search query: >>' + qry + '<<', args);
     const found = await srv.db.postgresSelect(qry, args);
     return found;
   },

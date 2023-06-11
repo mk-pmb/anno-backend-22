@@ -22,18 +22,6 @@ const EX = async function bySubjectTargetPrefix(param) {
     role: rqRole,
   } = (param.untrustedOpt || false);
 
-  const search = buildSearchQuery.prepare();
-  const isPrefixSearch = subjTgtSpec.endsWith('/*');
-  search.tmpl({
-    searchFilter: '#searchByLink',
-    searchByLinkWhere: '"rel" = \'subject\' AND ' + (isPrefixSearch
-      ? 'starts_with("url", $subjTgtStr)'
-      : '"url" = $subjTgtStr'),
-  });
-  search.data({
-    subjTgtStr: (isPrefixSearch ? subjTgtSpec.slice(0, -1) : subjTgtSpec),
-  });
-
   await srv.acl.requirePerm(req, {
     targetUrl: subjTgtSpec,
     privilegeName: 'discover',
@@ -48,6 +36,18 @@ const EX = async function bySubjectTargetPrefix(param) {
   const {
     approvalRequired,
   } = aclMetaSpy;
+
+  const search = buildSearchQuery.prepare({ approvalRequired });
+  const isPrefixSearch = subjTgtSpec.endsWith('/*');
+  search.tmpl({
+    searchFilter: '#searchByLink',
+    searchByLinkWhere: '"rel" = \'subject\' AND ' + (isPrefixSearch
+      ? 'starts_with("url", $subjTgtStr)'
+      : '"url" = $subjTgtStr'),
+  });
+  search.data({
+    subjTgtStr: (isPrefixSearch ? subjTgtSpec.slice(0, -1) : subjTgtSpec),
+  });
 
   if (!approvalRequired) { search.tmpl({ approvalWhereAnd: '' }); }
   if (rqRole === 'approver') {
