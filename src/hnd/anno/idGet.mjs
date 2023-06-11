@@ -10,7 +10,7 @@ import sendFinalTextResponse from '../../finalTextResponse.mjs';
 import categorizeTargets from './categorizeTargets.mjs';
 import fmtAnnoCollection from './fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from './redundantGenericAnnoMeta.mjs';
-import stampValueOrDate from './stampValueOrDate.mjs';
+import parseStampRows from './parseStampRows.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
 const {
@@ -63,11 +63,9 @@ async function lookupExactVersion(ctx) {
       annoDetails).subjTgtUrls;
   }
 
-  const stampsReply = (await srv.db.postgresSelect(queryTpl.annoStamps,
+  const stampRows = (await srv.db.postgresSelect(queryTpl.annoStamps,
     [baseId, versNum]));
-  stampsReply.forEach(function addStamp(row) {
-    annoDetails[row.st_type] = stampValueOrDate(row);
-  });
+  parseStampRows.into(annoDetails, stampRows);
 
   const nowTs = Date.now();
   const sunset = parseDatePropOrFubar(annoDetails, 'as:deleted');
@@ -88,6 +86,7 @@ async function lookupExactVersion(ctx) {
   }
   const aclMetaSpy = {};
   await requireAdditionalReadPrivilege('read', { aclMetaSpy });
+  console.debug({ subjTgtUrlsForAclCheckRead, aclMetaSpy });
 
   if (versionNotFound) {
     /* At this point, permission to disclose non-existence stems from

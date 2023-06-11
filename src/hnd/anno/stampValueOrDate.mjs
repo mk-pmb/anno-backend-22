@@ -1,5 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import mustBe from 'typechecks-pmb/must-be';
+
+const validateStampType = mustBe('nonEmpty str', 'stamp type');
+
+
 function hasActualData(x) {
   if (x === null) { return false; }
   if (x === undefined) { return false; }
@@ -10,14 +15,15 @@ function hasActualData(x) {
 
 
 const EX = function stampValueOrDate(stampRec) {
-  const det = stampRec.st_detail;
+  let det = stampRec.st_detail;
   if (hasActualData(det)) { return det; }
-  const {
-    st_type: type,
-    st_at: at,
-    st_effts: effts,
-  } = stampRec;
-  const ts = (effts || at);
+  det = stampRec.detail;
+  if (hasActualData(det)) { return det; }
+
+  const type = validateStampType(stampRec.st_type || stampRec.type);
+  let ts = (stampRec.st_effts || stampRec.st_at || stampRec.ts);
+  if (Number.isFinite(ts)) { ts = new Date(ts * 1e3); }
+  // console.debug('stampRec:', stampRec, { ts });
   if (type.startsWith('iana:')) {
     // iana: dates should be HTTP compliant
     return ts.toGMTString();

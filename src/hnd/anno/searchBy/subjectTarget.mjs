@@ -3,11 +3,13 @@
 import pMap from 'p-map';
 
 // import httpErrors from '../../../httpErrors.mjs';
-import buildSearchQuery from './buildSearchQuery.mjs';
 import categorizeTargets from '../categorizeTargets.mjs';
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
+import parseStampRows from '../parseStampRows.mjs';
+
+import buildSearchQuery from './buildSearchQuery.mjs';
 
 
 const EX = async function bySubjectTargetPrefix(param) {
@@ -58,7 +60,7 @@ const EX = async function bySubjectTargetPrefix(param) {
 
   if (rqRole === 'author') {
     const { userId } = await detectUserIdentity.andDetails(req);
-    console.debug({ userId });
+    // console.debug({ userId });
     const own = '"da"."author_local_userid" = $rqUserId';
     search.tmpl({ rqAlwaysShowOwnAnnos: own });
     search.data({ rqUserId: userId });
@@ -77,9 +79,12 @@ const EX = async function bySubjectTargetPrefix(param) {
 
   async function fixupAnno(rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
+    const stamps = parseStampRows(rec.stamps);
+    // console.debug('rec:', rec, 'stamps:', stampInfos);
     const fullAnno = {
       ...(approvalRequired && { 'dc:dateAccepted': false }),
       ...genericAnnoMeta.add(srv, idParts, rec.details),
+      ...stamps,
     };
     return fullAnno;
   }
