@@ -22,6 +22,10 @@ const dfOpt = {
 };
 
 
+// We have to drop all views before we can drop their tables.
+console.log('DROP VIEW IF EXISTS anno_stamps_effuts;');
+
+
 console.log(pgDumpWriter.fmtCreateSimpleTable('data', {
   ...annoAddrUniq,
   time_created: 'ts',
