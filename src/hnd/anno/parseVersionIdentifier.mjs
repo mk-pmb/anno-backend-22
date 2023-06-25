@@ -10,8 +10,8 @@ const replySep = ubhdAnnoIdFmt.legacyReplySeparator;
 const versIdRgx = /^([A-Za-z0-9_\-]{10,36})((?:\.[\d\.]+)*)(?:\~(\d+)|)$/;
 
 
-const EX = function parseVersId(versId) {
-  if (!versId) { throw failNoSuchAnno('No anno ID given'); }
+const EX = function parseVersId(errInvalidAnno, versId) {
+  if (!versId) { throw errInvalidAnno('No anno ID given'); }
   const m = versIdRgx.exec(versId);
   if (!m) { throw failNoSuchAnno('Unsupported anno ID format'); }
   const parts = {
@@ -28,12 +28,16 @@ const EX = function parseVersId(versId) {
 
 Object.assign(EX, {
 
-  fromLocalUrl(srv, url) {
-    if (!url) { return ''; }
+  fromLocalUrl(srv, errInvalidAnno, url) {
+    let versId = url;
     const baseUrl = srv.publicBaseUrlNoSlash + '/anno/';
-    if (!url.startsWith(baseUrl)) { return ''; }
-    const versId = url.slice(baseUrl.length);
-    return EX(versId);
+    if (versId.startsWith(baseUrl)) { versId = url.slice(baseUrl.length); }
+    if (versId.includes(':') || versId.includes('/')) {
+      throw errInvalidAnno('Currently, only local anno IDs are supported.');
+    }
+    const p = EX(errInvalidAnno, versId);
+    p.url = baseUrl + p.versId;
+    return p;
   },
 
 });

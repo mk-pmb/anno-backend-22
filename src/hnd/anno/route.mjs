@@ -65,7 +65,7 @@ Object.assign(EX, {
     const ctx = {
       srv,
       req,
-      idParts: parseVersId(versId),
+      idParts: parseVersId(httpErrors.throwable.fubar, versId),
       subRoute,
     };
 

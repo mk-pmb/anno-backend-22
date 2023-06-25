@@ -12,6 +12,7 @@ import parseVersId from '../parseVersionIdentifier.mjs';
 
 const {
   badRequest,
+  fubar,
 } = httpErrors.throwable;
 
 
@@ -49,7 +50,7 @@ Object.assign(EX, {
       throw badRequest('Required field dc:isVersionOf is missing.');
     }
 
-    const oldAnnoIdParts = parseVersId.fromLocalUrl(srv, versOf);
+    const oldAnnoIdParts = parseVersId.fromLocalUrl(srv, fubar, versOf);
     if (oldAnnoIdParts.versNum !== 0) {
       /*
         We can only accept the exact dc:isVersionOf URL that we will use
@@ -68,7 +69,8 @@ Object.assign(EX, {
 
   validateDcReplaces(dcReplaces, ctx) {
     if (!dcReplaces) { return; }
-    const submissionIdParts = parseVersId.fromLocalUrl(ctx.srv, dcReplaces);
+    const submissionIdParts = parseVersId.fromLocalUrl(ctx.srv,
+      badRequest, dcReplaces);
     const latestReviIdParts = ctx.idParts;
     if (submissionIdParts.baseId !== latestReviIdParts.baseId) {
       throw badRequest('Fields dc:isVersionOf and dc:replaces do not match.');

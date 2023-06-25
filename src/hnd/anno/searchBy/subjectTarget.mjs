@@ -2,14 +2,17 @@
 
 import pMap from 'p-map';
 
-// import httpErrors from '../../../httpErrors.mjs';
 import categorizeTargets from '../categorizeTargets.mjs';
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
+import httpErrors from '../../../httpErrors.mjs';
 import parseStampRows from '../parseStampRows.mjs';
 
 import buildSearchQuery from './buildSearchQuery.mjs';
+
+const { fubar } = httpErrors.throwable;
+
 
 
 const EX = async function bySubjectTargetPrefix(param) {
@@ -70,7 +73,7 @@ const EX = async function bySubjectTargetPrefix(param) {
   // console.debug('subjectTarget: found =', found);
 
   const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
-    rec.details).subjTgtUrls).flat();
+    rec.details, { errInvalidAnno: fubar }).subjTgtUrls).flat();
   if (allSubjTgtUrls.length) {
     await srv.acl.requirePermForAllTargetUrls(req,
       allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.

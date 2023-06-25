@@ -14,6 +14,7 @@ import parseStampRows from './parseStampRows.mjs';
 import ubhdAnnoIdFmt from './ubhdAnnoIdFmt.mjs';
 
 const {
+  fubar,
   gone,
   noSuchAnno,
   noSuchResource,
@@ -59,8 +60,8 @@ async function lookupExactVersion(ctx) {
       throw noSuchAnno();
     }
 
-    subjTgtUrlsForAclCheckRead = categorizeTargets(srv,
-      annoDetails).subjTgtUrls;
+    subjTgtUrlsForAclCheckRead = categorizeTargets(srv, annoDetails,
+      { errInvalidAnno: fubar }).subjTgtUrls;
   }
 
   const stampRows = (await srv.db.postgresSelect(queryTpl.annoStamps,
@@ -86,7 +87,7 @@ async function lookupExactVersion(ctx) {
   }
   const aclMetaSpy = {};
   await requireAdditionalReadPrivilege('read', { aclMetaSpy });
-  console.debug({ subjTgtUrlsForAclCheckRead, aclMetaSpy });
+  // console.debug('idGet:', { subjTgtUrlsForAclCheckRead, aclMetaSpy });
 
   if (versionNotFound) {
     /* At this point, permission to disclose non-existence stems from

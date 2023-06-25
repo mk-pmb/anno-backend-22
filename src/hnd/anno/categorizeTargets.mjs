@@ -24,7 +24,7 @@ const EX = function categorizeTargets(srv, anno, opt) {
   const replyTgtVersIds = [];
   arrayOfTruths(anno[replyField]).forEach(function validate(t) {
     EX.validateReplyTgtNest(t);
-    const { versId, url } = parseVersId.fromLocalUrl(srv, t);
+    const { versId, url } = parseVersId.fromLocalUrl(srv, errInvalidAnno, t);
     replyTgtUrls.push(url);
     replyTgtVersIds.push(versId);
   });
