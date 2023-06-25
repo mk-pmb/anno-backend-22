@@ -52,9 +52,11 @@ const EX = function parseSubmittedAnno(mustPopInput) {
   function neStrList(key) {
     const list = arrayOfTruths.ifAny(
       mustPopInput('ary | nonEmpty str | undef', key));
-    if (!list) { return; }
+    if (!list) { return ''; }
+    // ^-- using empty string b/c it's false-y but still supports .includes().
     list.forEach((x, i) => mustBe.nest(key + '[' + i + ']', x));
     anno[key] = list;
+    return list;
   }
   neStrList('motivation');
 
