@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import pMap from 'p-map';
+import pEachSeries from 'p-each-series';
 import randomUuid from 'uuid-random';
 import sortedJson from 'safe-sortedjson';
 
@@ -14,7 +14,9 @@ import categorizeTargets from '../categorizeTargets.mjs';
 
 import checkVersionModifications from './checkVersionModifications.mjs';
 import decideAuthorIdentity from './decideAuthorIdentity.mjs';
+import fmtRelRecs from './fmtRelRecs.mjs';
 import parseSubmittedAnno from './parseSubmittedAnno.mjs';
+
 
 const {
   badRequest,
@@ -106,30 +108,26 @@ const EX = async function postNewAnno(srv, req) {
     return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
   }
 
-  const recIdParts = {
+  const dbRec = {
     base_id: ctx.idParts.baseId,
     version_num: ctx.idParts.versNum,
-  };
-  const dbRec = {
-    ...recIdParts,
     time_created: fullAnno.created,
     author_local_userid: (who.userId || ''),
     details: sortedJson(anno),
   };
+  // At this point we don't yet have confirmation that our base_id will
+  // be accepted. We optimistically pre-generate the relation records anyway,
+  // to catch potential errors therein before touching the database.
+  const relRecs = fmtRelRecs({ srv, anno, ...ctx.idParts, tgtCateg });
+
+  // Now that all data has been validated, we can actually write to the DB.
   await srv.db.postgresInsertOneRecord('anno_data', dbRec, {
     customDupeError: errDuplicateRandomUuid,
   });
-
-  // Now that the idParts are successfully assigned, we can register
-  // the anno's relations:
-  async function regRels(rel, urlsList) {
-    await pMap(urlsList, async function regOneRel(url) {
-      const relRec = { ...recIdParts, rel, url };
-      await srv.db.postgresInsertOneRecord('anno_links', relRec);
-    });
-  }
-  await regRels('subject', subjTgtUrls);
-  await regRels('inReplyTo', replyTgtVersIds);
+  // At this point, our idParts have been accepted, so we can insert the
+  // relation records as well.
+  await pEachSeries(relRecs,
+    rr => srv.db.postgresInsertOneRecord('anno_links', rr));
 
   ftrOpt.code = 201;
   req.res.header('Location', fullAnno.id);

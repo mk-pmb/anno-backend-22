@@ -68,6 +68,12 @@ Object.assign(EX, {
 
   validateReplyTgtNest: mustBe('nonEmpty str', replyField + ' URI'),
 
+  dbRelNames: [
+    { reportField: 'subjTgtUrls', dbRelName: 'subject' },
+    { reportField: 'replyTgtVersIds', dbRelName: 'inReplyTo' },
+  ],
+
+
 
 });
 
