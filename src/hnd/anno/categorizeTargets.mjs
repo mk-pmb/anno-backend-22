@@ -1,15 +1,14 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import arrayOfTruths from 'array-of-truths';
 import guessAndParseSubjectTargetUrl
   from 'webanno-guess-subject-target-url-pmb/extra/parse.mjs';
+
+import arrayOfTruths from 'array-of-truths';
 import mustBe from 'typechecks-pmb/must-be';
 
 import httpErrors from '../../httpErrors.mjs';
 import parseVersId from './parseVersionIdentifier.mjs';
 
-
-function orf(x) { return x || false; }
 
 const replyField = 'as:inReplyTo';
 
@@ -20,18 +19,18 @@ const EX = function categorizeTargets(srv, anno, opt) {
   } = { ...EX.dfOpt, ...opt };
   if (!anno) { throw errInvalidAnno('Annotation required'); }
 
-  const replyTgtUrls = arrayOfTruths(anno[replyField]);
   // console.debug(replyField, 'before:', anno[replyField]);
+  const replyTgtUrls = [];
   const replyTgtVersIds = [];
-  replyTgtUrls.forEach(mustBe('nonEmpty str', replyField + ' URL'));
-  replyTgtUrls.forEach(function vali(url) {
-    const { versId } = parseVersId.fromLocalUrl(srv, url);
-    if (versId) { return replyTgtVersIds.push(versId); }
-    throw errInvalidAnno('Currently, only local reply targets are supported.');
+  arrayOfTruths(anno[replyField]).forEach(function validate(t) {
+    EX.validateReplyTgtNest(t);
+    const { versId, url } = parseVersId.fromLocalUrl(srv, t);
+    replyTgtUrls.push(url);
+    replyTgtVersIds.push(versId);
   });
 
   const subjTgtUrls = [];
-  const targetsList = arrayOfTruths(orf(anno).target);
+  const targetsList = arrayOfTruths(anno.target);
   const nTargets = targetsList.length;
   targetsList.forEach(function categorize(tgt, idx) {
     if (replyTgtUrls.includes(tgt)) { return; }
@@ -66,6 +65,8 @@ Object.assign(EX, {
   dfOpt: {
     errInvalidAnno: httpErrors.throwable.fubar,
   },
+
+  validateReplyTgtNest: mustBe('nonEmpty str', replyField + ' URI'),
 
 
 });
