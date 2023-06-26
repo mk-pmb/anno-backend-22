@@ -69,7 +69,20 @@ const EX = function parseSubmittedAnno(mustPopInput, opt) {
     throw new Error('Field "type" must include "Annotation".');
   }
 
-  neStrList('motivation');
+  const motivations = neStrList('motivation');
+  const inReplyTo = neStrList('as:inReplyTo');
+
+  const motiReply = motivations.includes('replying');
+  if (motiReply && (!inReplyTo.length)) {
+    const msg = ('For annotation with motivation "replying"'
+      + ' we expect to also see "as:inReplyTo".');
+    throw new Error(msg);
+  }
+  if (inReplyTo.length && (!motiReply)) {
+    const msg = ('For annotation with "as:inReplyTo"'
+      + ' we expect to also see motivation "replying".');
+    throw new Error(msg);
+  }
 
   mustPopInput.expectEmpty('Unsupported annotation field');
   return anno;
