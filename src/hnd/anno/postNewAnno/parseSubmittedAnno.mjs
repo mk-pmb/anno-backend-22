@@ -58,6 +58,12 @@ const EX = function parseSubmittedAnno(mustPopInput) {
     anno[key] = list;
     return list;
   }
+
+  const typeDecl = neStrList('type');
+  if (!typeDecl.includes('Annotation')) {
+    throw new Error('Field "type" must include "Annotation".');
+  }
+
   neStrList('motivation');
 
   mustPopInput.expectEmpty('Unsupported annotation field');
