@@ -45,6 +45,10 @@ Object.assign(EX, {
 
   async fancy(fmt, req) {
     const origInput = await EX(fmt, req);
+    return EX.fancify(origInput, req);
+  },
+
+  fancify(origInput, req) {
     const mustPopInput = objPop(origInput,
       { mustBe, leftoversMsg: 'Unsupported input field' }).mustBe;
     const ctx = {
