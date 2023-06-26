@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import arrayOfTruths from 'array-of-truths';
+import loMapValues from 'lodash.mapvalues';
 import mustBe from 'typechecks-pmb/must-be';
 
 import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
@@ -20,7 +21,7 @@ function maybeWrapId(rec) {
 function orf(x) { return x || false; }
 
 
-const EX = function parseSubmittedAnno(mustPopInput) {
+const EX = function parseSubmittedAnno(mustPopInput, opt) {
   redundantGenericAnnoMeta.mustPopAllStatic(mustPopInput);
 
   const anno = {};
@@ -30,6 +31,10 @@ const EX = function parseSubmittedAnno(mustPopInput) {
   }
   verbatimCopyKeysMandatedByProtocol.forEach(k => copy(k, 'str | undef'));
   copy('id', 'nonEmpty str | undef');
+
+  if (opt && opt.extraCopyFields) {
+    loMapValues(opt.extraCopyFields, (rule, key) => copy(key, rule));
+  }
 
   copy('creator', 'obj | ary | nonEmpty str | undef');
   copy('dc:isVersionOf', 'nonEmpty str | undef');
