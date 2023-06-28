@@ -3,6 +3,9 @@
 
 
 function chapterize () {
+  local FLAGS=,
+  if [ "$1" == --cwd ]; then FLAGS+="$1,"; shift; fi
+
   local DESCR="$1"
   case "$DESCR" in
     dinst_* )
@@ -11,10 +14,14 @@ function chapterize () {
       DESCR="${DESCR#* }"
       DESCR="${DESCR^}"
       ;;
-    '' ) shift; DESCR="$*";;
+    '' ) shift;;
     * ) shift;;
   esac
-  echo "==== $DESCR ===="
+
+  [ -n "$DESCR" ] || DESCR="$*"
+  echo -n "==== $DESCR "
+  [[ "$FLAGS" == ,--cwd, ]] && echo -n "@ $PWD "
+  echo '===='
   [ "$#" == 0 ] && return 0
   "$@"
   local RV=$?

@@ -24,18 +24,25 @@ function dinst_dockerize () {
   cd -- "$REPOPATH" || return $?
   local DKSELF="/app${SELFFILE:${#REPOPATH}}"
 
-  echo 'Gonna install with dockerized npm:'
+  [ -n "$DK_TASK" ] || local DK_TASK='install'
+  echo "Gonna $DK_TASK with dockerized npm:"
   echo
+
+  local DK_VARS=()
+  readarray -t DK_VARS < <(
+    env | cut -d = -sf 1 | sed -nre 's~^(APP|DK)_~--env\n&~p' )
+
   local DK_CMD=(
     docker
     run
     --tty
     --interactive
     --volume "$REPOPATH:/app:rw"
+    "${DK_VARS[@]}"
     --workdir /app
     node:16
     "$DKSELF"
-    inside_docker
+    inside_docker_"$DK_TASK"
     )
   "${DK_CMD[@]}" || return $?
   echo 'Gonna fix permissions (usually, no files should be affected):'
@@ -47,14 +54,21 @@ function dinst_dockerize () {
 }
 
 
-function dinst_inside_docker () {
+function dinst_inside_docker_install () {
   chapterize dinst_configure_npm || return $?
 
-  cd -- "$REPOPATH" || return $?
-  chapterize '' npm install . || return $?
+  cd -- "$REPOPATH/$APP_SUBPATH" || return $?
+  chapterize --cwd '' npm install . || return $?
 
-  chapterize dinst_register_os_commands || return $?
-  chapterize 'Generate database initialization file' dinst_dbinit_gen || return $?
+  chapterize --cwd dinst_register_os_commands || return $?
+  chapterize --cwd 'Generate database initialization file' \
+    dinst_dbinit_gen || return $?
+}
+
+
+function dinst_inside_docker_eval () {
+  cd -- "$REPOPATH/$APP_SUBPATH" || return $?
+  eval "$DK_EVAL" || return $?
 }
 
 
