@@ -22,7 +22,8 @@ Object.assign(qtpl, {
     #stampFilterJoins
     WHERE #rqAlwaysShowOwnAnnos OR ( True #stampFilterWhereAnds
       #extraWhereAnds )
-    ORDER BY "da"."time_created" ASC, "da"."base_id" ASC
+    ORDER BY #globalOrderPre "da"."time_created" ASC, "da"."base_id" ASC
+    #globalLimit
     `,
 
   stampsArray: `ARRAY(
@@ -37,6 +38,8 @@ Object.assign(qtpl, {
   rqAlwaysShowOwnAnnos: 'False',
 
   extraWhereAnds: '',
+  globalOrderPre: '',
+  globalLimit: '',
 
   stampFilterJoins: '',
   stampFilterColumns: '',

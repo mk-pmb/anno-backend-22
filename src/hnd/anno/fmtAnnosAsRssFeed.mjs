@@ -15,22 +15,28 @@ const annoIdMustBeNest = mustBe('nonEmpty str', 'Annotation field "id"');
 
 const EX = function fmtAnnosAsRssFeed(how) {
   const {
-    req,
     annos,
-    linkTpl,
+    feedTitle,
+    linkTpl: origLinkTpl,
+    req,
+    srv,
     ...unexpected
   } = how;
   mustBe.keyless('Unexpected options', unexpected);
   mustBe.ary('Annotations list', annos);
 
+  let lnk = mustBe.nest('Link template', origLinkTpl);
+  if (lnk.startsWith('/')) { lnk = srv.publicBaseUrlNoSlash + lnk; }
+
+  const dateFieldName = (how.dateFieldName || 'created');
   const rss = [
     '<?xml version="1.0" encoding="utf-8"?>',
     '<rss version="2.0"><channel>',
-    '  <title>Annotations</title>',
+    xmlStrTag('title', feedTitle || 'Annotations'),
     ...annos.filter(Boolean).map(a => ('  <item>\n'
       + xmlStrTag('title', a['dc:title'] || a.title || '(untitled)')
-      + xmlStrTag('link', EX.fmtLinkTpl(linkTpl, a))
-      + xmlStrTag('pubDate', dateFmtRfc822(a.created))
+      + xmlStrTag('link', EX.fmtLinkTpl(lnk, a))
+      + xmlStrTag('pubDate', dateFmtRfc822(a[dateFieldName]))
       + '  </item>')),
     '</channel>',
     '</rss>',

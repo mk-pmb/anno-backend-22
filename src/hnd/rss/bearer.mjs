@@ -5,10 +5,11 @@
 
 
 import bcrypt from 'bcryptjs';
-import getOwn from 'getown';
+import mustLookupProp from 'must-lookup-prop-in-dict-pmb';
 
-import debugRequest from '../util/debugRequest.mjs';
 import httpErrors from '../../httpErrors.mjs';
+
+import approvalFeedHnd from './approvalFeed.mjs';
 
 
 const {
@@ -18,13 +19,6 @@ const {
 
 
 function orf(x) { return x || false; }
-
-
-const keyAlgos = {
-
-  async bcrypt(hash, key) { return bcrypt.compare(key, hash); },
-
-};
 
 
 const EX = async function makeBearerRssHandler(srv) {
@@ -37,10 +31,14 @@ const EX = async function makeBearerRssHandler(srv) {
 
     const feedCfg = srv.rssFeeds.byFeedId.get(feedId);
     if (!feedCfg) { throw noSuchResource(); }
+    const typeImpl = mustLookupProp(null, feedCfg, EX.feedTypes, 'type');
+    // ^- Check for config error before checking key: Allows for automated
+    //    health checks without having to provide the key.
+
     const keyGiven = orf(req.query).key;
     await EX.verifyFeedKey(feedCfg, keyGiven);
-
-    return debugRequest(req);
+    if (!req.query) { throw new Error('Survived verifyFeedKey w/o query?!'); }
+    return typeImpl({ ...feedCfg, srv, req });
   };
 
   return hnd;
@@ -51,18 +49,28 @@ const EX = async function makeBearerRssHandler(srv) {
 Object.assign(EX, {
 
   async verifyFeedKey(feedCfg, keyGiven) {
-    const { feedId, keyAlgo, keyHash } = feedCfg;
-    const algoImpl = getOwn(keyAlgos, keyAlgo);
-    if (!algoImpl) {
-      throw new Error('Unsupported keyAlgo for bearer RSS ' + feedId);
-    }
+    const { keyHash } = feedCfg;
+    const algoImpl = mustLookupProp(null, feedCfg, EX.keyAlgos, 'keyAlgo');
     if (!keyHash) { throw genericDeny('No hash configured.'); }
+    if (!keyGiven) { throw genericDeny('No key given.'); }
     const correct = await algoImpl(keyHash, keyGiven, feedCfg);
     if (!correct) { throw genericDeny('Wrong key.'); }
   },
 
 
 });
+
+
+EX.keyAlgos = {
+  async bcrypt(hash, key) { return bcrypt.compare(key, hash); },
+};
+
+
+EX.feedTypes = {
+  approval: approvalFeedHnd,
+};
+
+
 
 
 export default EX;

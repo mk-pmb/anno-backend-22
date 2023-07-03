@@ -4,6 +4,7 @@ import getOwn from 'getown';
 import qrystr from 'qrystr';
 import splitStringOnce from 'split-string-or-buffer-once-pmb';
 
+import libFmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 
 import bySubjectTarget from './subjectTarget.mjs';
@@ -36,12 +37,19 @@ const EX = async function searchBy(pathParts, req, srv) {
 };
 
 
+async function fmtColl({ srv, req }, annoListPr) {
+  const annos = await annoListPr;
+  libFmtAnnoCollection.replyToRequest(srv, req, { annos });
+}
+
+
 Object.assign(EX, {
 
   handlers: {
 
     subject_target(ctx, spp) {
-      return bySubjectTarget({ subjTgtSpec: apacheSlashes(spp), ...ctx });
+      return fmtColl(ctx, bySubjectTarget(
+        { subjTgtSpec: apacheSlashes(spp), ...ctx }));
     },
 
   },

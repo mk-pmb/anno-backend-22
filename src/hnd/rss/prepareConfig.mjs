@@ -22,7 +22,12 @@ EX.api = {
   register(feedId, details) {
     const { byFeedId } = this;
     if (byFeedId.has(feedId)) { throw errDupeRssId(feedId); }
-    const feedCfg = { ...EX.defaultFeedConfig, ...details };
+    const feedCfg = {
+      ...EX.defaultFeedConfig,
+      ...details,
+      ...EX.feedApi,
+      feedId,
+    };
     byFeedId.set(feedId, feedCfg);
     return feedCfg;
   },
@@ -32,6 +37,11 @@ EX.api = {
 
 EX.defaultFeedConfig = {
   keyAlgo: 'bcrypt',
+};
+
+
+EX.feedApi = {
+  toString() { return 'RSS feed ' + this.feedId; },
 };
 
 

@@ -4,7 +4,6 @@ import pMap from 'p-map';
 
 import categorizeTargets from '../categorizeTargets.mjs';
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
-import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import parseStampRows from '../parseStampRows.mjs';
@@ -17,25 +16,28 @@ const { fubar } = httpErrors.throwable;
 
 const EX = async function bySubjectTargetPrefix(param) {
   const {
-    subjTgtSpec,
     req,
+    rowsLimit,
     srv,
+    subjTgtSpec,
   } = param;
   const {
     role: rqRole,
   } = (param.untrustedOpt || false);
 
-  await srv.acl.requirePerm(req, {
+  const skipAcl = (srv.acl === 'skip!');
+
+  await (skipAcl || srv.acl.requirePerm(req, {
     targetUrl: subjTgtSpec,
     privilegeName: 'discover',
-  });
+  }));
 
   const aclMetaSpy = {};
-  await srv.acl.requirePerm(req, {
+  await (skipAcl || srv.acl.requirePerm(req, {
     targetUrl: subjTgtSpec,
     privilegeName: 'read',
     aclMetaSpy,
-  });
+  }));
   const {
     approvalRequired,
   } = aclMetaSpy;
@@ -51,13 +53,14 @@ const EX = async function bySubjectTargetPrefix(param) {
   search.data({
     subjTgtStr: (isPrefixSearch ? subjTgtSpec.slice(0, -1) : subjTgtSpec),
   });
+  if (rowsLimit >= 0) { search.tmpl({ globalLimit: 'LIMIT ' + rowsLimit }); }
 
   if (!approvalRequired) { search.tmpl({ approvalWhereAnd: '' }); }
   if (rqRole === 'approver') {
-    await srv.acl.requirePerm(req, {
+    await (skipAcl || srv.acl.requirePerm(req, {
       targetUrl: subjTgtSpec,
       privilegeName: 'stamp_any_add_dc_dateAccepted',
-    });
+    }));
     search.tmpl({ approvalWhereAnd: '#approvalNotYet' });
   }
 
@@ -72,13 +75,7 @@ const EX = async function bySubjectTargetPrefix(param) {
   const found = await search.selectAll(srv);
   // console.debug('subjectTarget: found =', found);
 
-  const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
-    rec.details, { errInvalidAnno: fubar }).subjTgtUrls).flat();
-  if (allSubjTgtUrls.length) {
-    await srv.acl.requirePermForAllTargetUrls(req,
-      allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.
-      { privilegeName: 'read' });
-  }
+  await (skipAcl || EX.checkSubjTgtAcl(srv, req, found));
 
   async function fixupAnno(rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
@@ -92,9 +89,24 @@ const EX = async function bySubjectTargetPrefix(param) {
     return fullAnno;
   }
   const annos = await pMap(found, fixupAnno);
-
-  fmtAnnoCollection.replyToRequest(srv, req, { annos });
+  return annos;
 };
+
+
+
+Object.assign(EX, {
+
+  async checkSubjTgtAcl(srv, req, found) {
+    const allSubjTgtUrls = found.map(rec => categorizeTargets(srv,
+      rec.details, { errInvalidAnno: fubar }).subjTgtUrls).flat();
+    if (!allSubjTgtUrls.length) { return; }
+    await srv.acl.requirePermForAllTargetUrls(req,
+      allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.
+      { privilegeName: 'read' });
+  },
+
+
+});
 
 
 
