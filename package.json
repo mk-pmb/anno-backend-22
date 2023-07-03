@@ -75,6 +75,7 @@
     "read-data-file": "^2.0.8",
     "read-relaxed-json-from-stdin-pmb": "^1.0.0",
     "regexp-flags-upfront": "^0.1.0",
+    "rfc822-date": "^0.0.3",
     "safe-sortedjson": "^1.0.8",
     "simple-placeholder-slot-numberizer-pmb": "^0.1.1",
     "simple-recursive-string-slot-template-pmb": "^0.1.1",
@@ -86,7 +87,8 @@
     "uuidv5": "^1.0.0",
     "vtry": "^1.0.9",
     "webanno-compare-target-lists-pmb": "^0.1.2",
-    "webanno-guess-subject-target-url-pmb": "^1.0.3"
+    "webanno-guess-subject-target-url-pmb": "^1.0.3",
+    "xmlunidefuse": "^0.1.4"
   },
   "devDependencies": {
     "eslint-config-nodejs-pmb": "^0.3.5",
