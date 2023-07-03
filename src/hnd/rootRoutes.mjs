@@ -7,6 +7,7 @@ import plumb from './util/miscPlumbing.mjs';
 import httpErrors from '../httpErrors.mjs';
 import logIncomingRequest from './util/logIncomingRequest.mjs';
 import makeAnnoRoute from './anno/route.mjs';
+import makeBearerRssHandler from './rss/bearer.mjs';
 import makeSessionRoute from './sess/route.mjs';
 import shutdownHandler from './shutdownHandler.mjs';
 import simpleFilenameRedirector from './simpleFilenameRedirector.mjs';
@@ -26,6 +27,7 @@ const EX = async function installRootRoutes(srv) {
 
   rt.use('/session/*', await makeSessionRoute(srv));
   rt.use('/anno/*', await makeAnnoRoute(srv));
+  rt.use('/rssb/', await makeBearerRssHandler(srv));
   siteLocalReservedRoutes.installRoutes(rt);
 
   rt.use('/admin/shutdown*', shutdownHandler);

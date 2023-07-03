@@ -18,6 +18,7 @@ import logRequestCheckpoint from './logRequestCheckpoint.mjs';
 import lusrmgr from './cfg/lusrmgr/index.mjs';
 import makeGenericCorsHandler from './hnd/util/genericCorsHandler.mjs';
 import prepareAcl from './acl/prepareAcl.mjs';
+import prepareRssFeedsConfig from './hnd/rss/prepareConfig.mjs';
 import servicesAdapter from './cfg/servicesAdapter.mjs';
 import timeoutFallbackResponse from './timeoutFallbackResponse.mjs';
 
@@ -81,6 +82,7 @@ const EX = async function createServer(customConfig) {
   await installListenAddrPlumbing(srv);
 
   srv.configFiles = await configFilesAdapter.make({ popCfg });
+  srv.rssFeeds = await prepareRssFeedsConfig(srv);
   srv.services = await servicesAdapter.make(srv);
   srv.lusrmgr = await lusrmgr.make(srv);
   srv.acl = await prepareAcl(srv);

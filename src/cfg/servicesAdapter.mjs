@@ -1,11 +1,16 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
+import loMapValues from 'lodash.mapvalues';
 import splitOnce from 'split-string-or-buffer-once-pmb';
 
 import httpErrors from '../httpErrors.mjs';
 
 
 const OrderedMap = Map; // to clarify where we do care.
+const isNum = Number.isFinite;
+
+function orf(x) { return x || false; }
 
 
 const EX = {
@@ -16,15 +21,27 @@ const EX = {
       idByPrefix: new OrderedMap(),
       ...EX.api,
     });
-    svcs.forEach(function learn(origDetails, svcId) {
-      const det = { ...origDetails, svcId };
+
+    function learnOneService(origDetails, svcId) {
+      const det = { ...origDetails, id: svcId };
       svcs.set(svcId, det);
       if (!det) { return; }
-      const tumCfg = det.targetUrlMetadata;
-      if (tumCfg) {
-        tumCfg.prefixes.forEach(pfx => svcs.idByPrefix.set(pfx, svcId));
+      const tumPrefixes = arrayOfTruths(orf(det.targetUrlMetadata).prefixes);
+      tumPrefixes.forEach(pfx => svcs.idByPrefix.set(pfx, svcId));
+
+      function learnOneRssFeed(origFeedCfg, origFeedId) {
+        const feedId = origFeedId.replace(/\^/g, svcId);
+        const fc = srv.rssFeeds.register(feedId, { ...origFeedCfg });
+        if (!fc.prefix) { fc.prefix = 1; }
+        if (isNum(fc.prefix)) { fc.prefix = tumPrefixes[fc.prefix - 1]; }
+        if (!fc.prefix) {
+          throw new Error('Empty URL prefix for RSS feed ' + feedId);
+        }
       }
-    });
+      loMapValues(orf(det.rssFeeds), learnOneRssFeed);
+    }
+    svcs.forEach(learnOneService);
+
     // console.debug('services:', svcs.toDict());
     return svcs;
   },
