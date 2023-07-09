@@ -20,6 +20,12 @@ function popEffTs(pop) {
 }
 
 
+const stampNamespaceRgx = /^\w+(?=:)/;
+// ^- This check is intentionally kept rather lenient, including accepting
+//    U+005F low line (_) at the start and end. There is no need to be
+//    strict here, because that responsibility lies with the ACL.
+
+
 const EX = {
 
   dupeStamp() { throw stateConflict('A stamp of this type already exists'); },
@@ -35,7 +41,7 @@ const EX = {
     let uscType;
     await ctx.catchBadInput(function parse(mustPopInput) {
       stRec.st_type = mustPopInput('nonEmpty str', 'type');
-      const namespace = (/^\w+(?=:)/.exec(stRec.st_type) || false)[0];
+      const namespace = (stampNamespaceRgx.exec(stRec.st_type) || false)[0];
       if (!namespace) { throw notImpl('Unsupported stamp namespace'); }
       uscType = namespace + '_' + stRec.st_type.slice(namespace.length + 1);
       const popMore = getOwn(EX.addStampParseDetails, uscType);
