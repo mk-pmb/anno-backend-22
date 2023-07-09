@@ -55,6 +55,8 @@ const EX = async function bySubjectTargetPrefix(param) {
   });
   if (rowsLimit >= 0) { search.tmpl({ globalLimit: 'LIMIT ' + rowsLimit }); }
 
+  const stampParserOpts = {};
+
   if (!approvalRequired) { search.tmpl({ approvalWhereAnd: '' }); }
   if (rqRole === 'approver') {
     await (skipAcl || srv.acl.requirePerm(req, {
@@ -66,10 +68,10 @@ const EX = async function bySubjectTargetPrefix(param) {
 
   if (rqRole === 'author') {
     const { userId } = await detectUserIdentity.andDetails(req);
-    // console.debug({ userId });
     const own = '"da"."author_local_userid" = $rqUserId';
     search.tmpl({ rqAlwaysShowOwnAnnos: own });
     search.data({ rqUserId: userId });
+    stampParserOpts.lowlineFields = true;
   }
 
   const found = await search.selectAll(srv);
@@ -79,7 +81,7 @@ const EX = async function bySubjectTargetPrefix(param) {
 
   async function fixupAnno(rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
-    const stamps = parseStampRows(rec.stamps);
+    const stamps = parseStampRows(rec.stamps, stampParserOpts);
     // console.debug('rec:', rec, 'stamps:', stampInfos);
     const fullAnno = {
       ...(approvalRequired && { 'dc:dateAccepted': false }),
