@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="UTF-8">
+  <title>Approval Redirect</title>
+</head><body>
+
+<h2>Approval Redirect&hellip;</h2>
+<script>
+location.href = ('http://localhost:33380/anno-frontend/'
+  + 'test/html/displayAnnotations.nm.html'
+  + '?approval=1&cmp1=' + location.search.slice(1));
+</script>
+
+</body></html>
