@@ -39,6 +39,7 @@
     acl_user_groups:
         - 'diglit_authors'
         - 'diglit_moderators'
+        - 'diglit_publishers'
         - 'journals_authors'
 
         # You can also declare group membership in a group config file.
