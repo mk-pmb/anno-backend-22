@@ -27,6 +27,10 @@ identity_sources:
         method: 'static_from_file'
         path: 'cfg://identity_providers/_whoami.yaml'
         # Prefix `cfg://` points to the server's config directory.
+        #
+        # The file should either not exist (to skip this identity provider)
+        # or sould contain a dictionary with a single key "userId" and a
+        # string value that is the username. See `_whoami.arno.example.yaml`.
 
 
 ...
