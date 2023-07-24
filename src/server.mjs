@@ -8,7 +8,7 @@ import nodeHttp from 'http';
 import objPop from 'objpop';
 import PrRouter from 'express-promise-router';
 
-import collectionsAdapter from './cfg/collectionsAdapter.mjs';
+import servicesAdapter from './cfg/servicesAdapter.mjs';
 import configFilesAdapter from './cfg/configFilesAdapter.mjs';
 import dbAdapter from './dbAdapter/pg/index.mjs';
 import httpErrors from './httpErrors.mjs';
@@ -75,7 +75,7 @@ const EX = async function createServer(customConfig) {
   };
 
   srv.configFiles = await configFilesAdapter.make({ popCfg });
-  srv.collections = await collectionsAdapter.make(srv);
+  srv.services = await servicesAdapter.make(srv);
   srv.db = await dbAdapter.init({ popCfg });
   await installListenAddrPlumbing(srv);
   await installRootRoutes(srv);

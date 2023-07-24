@@ -10,7 +10,7 @@ const EX = function makeAclProxy(srv, req, initMeta) {
   const allMeta = { ...initMeta };
   const mustMeta = mustBe.tProp('ACL metadata property ', allMeta);
   const tgtUrl = mustMeta('nonEmpty str', 'targetUrl');
-  const urlMeta = srv.collections.findMetadataByTargetUrl(tgtUrl);
+  const urlMeta = srv.services.findMetadataByTargetUrl(tgtUrl);
   Object.assign(allMeta, urlMeta);
   const acl = crObAss(EX.api, {
     allMeta,

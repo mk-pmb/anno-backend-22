@@ -20,7 +20,7 @@
   - ifMemberOfAclGroup: 'superadmin'
     decide: '*': allow
 
-  - ifParamInList: collectionId
+  - ifParamInList: serviceId
     list:
         - 'diglit'
     aclSubChain: 'diglit'   # Apply the rules from `diglit.yaml` right now.

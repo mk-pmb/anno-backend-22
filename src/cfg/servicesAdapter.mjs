@@ -11,52 +11,52 @@ const OrderedMap = Map; // just to clarify where we do care.
 const EX = {
 
   async make(srv) {
-    const origCfg = await srv.configFiles.read('collections');
-    const colls = new Map(Object.entries(origCfg));
-    Object.assign(colls, {
+    const origCfg = await srv.configFiles.read('services');
+    const svcs = new Map(Object.entries(origCfg));
+    Object.assign(svcs, {
       idByPrefix: new OrderedMap(),
       ...EX.api,
     });
-    Object.entries(origCfg).forEach(function learn([collId, origDetails]) {
-      const det = { ...origDetails, collId };
-      colls.set(collId, det);
+    Object.entries(origCfg).forEach(function learn([svcId, origDetails]) {
+      const det = { ...origDetails, svcId };
+      svcs.set(svcId, det);
       if (!det) { return; }
       const tumCfg = det.targetUrlMetadata;
       if (tumCfg) {
-        tumCfg.prefixes.forEach(pfx => colls.idByPrefix.set(pfx, collId));
+        tumCfg.prefixes.forEach(pfx => svcs.idByPrefix.set(pfx, svcId));
       }
     });
-    console.debug(colls);
-    return colls;
+    console.debug(svcs);
+    return svcs;
   },
 
 
   api: {
 
-    findCollectionByTargetUrl(tgtUrl) {
-      const colls = this;
+    findServiceByTargetUrl(tgtUrl) {
+      const svcs = this;
       let found = false;
-      colls.idByPrefix.forEach(function check(collId, pfx) {
+      svcs.idByPrefix.forEach(function check(svcId, pfx) {
         if (found) { return; }
         if (!tgtUrl.startsWith(pfx)) { return; }
-        found = { pfx, collId, coll: colls.get(collId) };
+        found = { pfx, svcId, svc: svcs.get(svcId) };
       });
       return found;
     },
 
     findMetadataByTargetUrl(tgtUrl) {
-      const colls = this;
-      const collFromPrefix = colls.findCollectionByTargetUrl(tgtUrl);
-      if (!collFromPrefix) {
-        const msg = 'No collection configured for target URL: ' + tgtUrl;
+      const svcs = this;
+      const svcFromPrefix = svcs.findServiceByTargetUrl(tgtUrl);
+      if (!svcFromPrefix) {
+        const msg = 'No service configured for target URL: ' + tgtUrl;
         throw httpErrors.aclDeny.explain(msg).throwable();
       }
       const meta = {
-        collectionId: collFromPrefix.collId,
+        serviceId: svcFromPrefix.svcId,
       };
 
-      const tumCfg = (collFromPrefix.coll || false).targetUrlMetadata;
-      const subUrl = tgtUrl.slice(collFromPrefix.pfx.length);
+      const tumCfg = (svcFromPrefix.svc || false).targetUrlMetadata;
+      const subUrl = tgtUrl.slice(svcFromPrefix.pfx.length);
       (tumCfg.vSubDirs || []).reduce(function learn(remain, slot) {
         const rmnOrEmpty = (remain || '');
         const [val, more] = (splitOnce('/', rmnOrEmpty) || [rmnOrEmpty]);

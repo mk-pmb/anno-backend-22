@@ -2,7 +2,7 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Collection name. `^` means to use the basename of the filename.
+^:  # <-- Service name. `^` means to use the basename of the filename.
 
     targetUrlMetadata:
         prefixes:
