@@ -9,7 +9,7 @@ identity_sources:
     # Thus, when a cookie by this name and with a non-empty value is
     # found, the cookie will win.
 
-    10_debug_cookie:
+    90_debug_cookie:
         method: 'cookie'
         cookie_name: 'user'
         # Set in your browser console: document.cookie = 'user=arno';
@@ -23,7 +23,7 @@ identity_sources:
     # I had the choice to either debug Firefox and/or my addons,
     # or add a more reliable fallback:
 
-    11_debug_file:
+    91_debug_file:
         method: 'static_from_file'
         path: 'cfg://identity_providers/_whoami.yaml'
         # Prefix `cfg://` points to the server's config directory.
