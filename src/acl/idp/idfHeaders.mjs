@@ -5,6 +5,14 @@ import loMapValues from 'lodash.mapvalues';
 
 function plainHeaderLookup(hdrName, req) { return req.header(hdrName); }
 
+function nonEmptyObj(mustPop, key) {
+  const o = mustPop('obj | nul | undef', key);
+  return (o && Object.keys(o).length ? o : false);
+}
+
+
+function unixTime() { return Math.floor(Date.now() / 1e3); }
+
 
 const EX = function headers(ctx) {
   const headerNamesLists = EX.learnHeaderNamesLists(ctx.popDetail);
@@ -14,10 +22,18 @@ const EX = function headers(ctx) {
     'headerLookupFunc', plainHeaderLookup);
     // ^-- Easy way to plug a stub for testing and debugging.
 
-  const det = function detectIdentityHeaders(req) {
+  const loginExtraHeaders = nonEmptyObj(ctx.popDetail, 'loginExtraHeaders');
+  EX.predictLoginExtraHeaderProblems(loginExtraHeaders);
+
+  const det = function detectIdentityHeaders(req, detectorOpts) {
     const report = loMapValues(headerNamesLists,
       hnl => EX.detectReportField(req, headerLookup, hnl));
     if (!report.userId) { return false; }
+    if (loginExtraHeaders) {
+      if (detectorOpts && (detectorOpts.occasion === 'session:login')) {
+        EX.sendLoginExtraHeaders(req, report, loginExtraHeaders, headerLookup);
+      }
+    }
     return report;
   };
   return det;
@@ -55,6 +71,32 @@ Object.assign(EX, {
       return found;
     });
     return found;
+  },
+
+
+  predictLoginExtraHeaderProblems(loginExtraHeaders) {
+    loMapValues(loginExtraHeaders, function oneHeader(origVal, headerName) {
+      const lcName = headerName.toLowerCase();
+      if (lcName.startsWith('x-')) {
+        const bug = ('loginExtraHeaders: Cannot use X-… headers because they '
+          + 'would be discarded by Express or Node.js.');
+        throw new Error(bug);
+      }
+    });
+  },
+
+
+  sendLoginExtraHeaders(req, report, loginExtraHeaders, headerLookup) {
+    loMapValues(loginExtraHeaders, function oneHeader(origVal, headerName) {
+      let val = String(origVal || '');
+      if (!val) { return; }
+      const received = headerLookup(headerName, req) || '';
+      val = val.replace(/\vu/g, report.userId);
+      val = val.replace(/\vt/g, unixTime);
+      val = val.replace(/\vh/g, received);
+      if (!val) { return; }
+      req.res.header(headerName, val);
+    });
   },
 
 

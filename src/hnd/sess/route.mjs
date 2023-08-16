@@ -1,30 +1,35 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
+
 import httpErrors from '../../httpErrors.mjs';
 // import requestDebugHandler from '../util/debugRequest.mjs';
 // import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 import plumb from '../util/miscPlumbing.mjs';
+import loginHandler from './login.mjs';
 import whoamiHandler from './whoami.mjs';
 
 
 const EX = async function makeSessionRoute() {
-
-  const redirectToWhoami = plumb.makeRedirector('whoami');
-
   function sessionHnd(req) {
     const subUrl = plumb.getFirstAsteriskUrlPart(req);
-    if (subUrl === 'login') {
-      // This route is meant to be protected by a mandatory login
-      // requirement in a reverse proxy.
-      return redirectToWhoami(req);
-    }
-    if (subUrl === 'whoami') { return whoamiHandler(req); }
-    return httpErrors.noSuchResource(req);
+    const hndFunc = getOwn(EX.subHnd, subUrl);
+    return (hndFunc || httpErrors.noSuchResource)(req);
   }
-
   return sessionHnd;
 };
+
+
+Object.assign(EX, {
+
+  subHnd: {
+    login: loginHandler,
+    whoami: whoamiHandler,
+  },
+
+
+});
 
 
 export default EX;

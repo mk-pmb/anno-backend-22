@@ -8,21 +8,22 @@ import vTry from 'vtry';
 const logCkpTopic = 'detectUserIdentity';
 
 
-const EX = async function detectUserIdentity(req) {
+const EX = async function detectUserIdentity(req, origDetectorOpts) {
+  const detOpt = (origDetectorOpts || false);
   let sess = false;
   let sDet = null;
   const { acl, lusrmgr } = req.getSrv();
   const debug = acl.debugFlags.sessionDetectors;
 
-  async function tryOneDetector(det) {
+  async function tryOneDetector(detFunc) {
     if (sess) { return; }
-    const found = await det(req);
+    const found = await detFunc(req, detOpt);
     if (debug) {
-      req.logCkp(logCkpTopic, 'detector:', det.name, 'found:', found);
+      req.logCkp(logCkpTopic, 'detector:', detFunc.name, 'found:', found);
     }
     if (!found) { return; }
     sess = found;
-    sDet = det.name;
+    sDet = detFunc.name;
   }
 
   await pEachSeries(acl.identityDetectors, tryOneDetector);
@@ -64,8 +65,8 @@ Object.assign(EX, {
   },
 
 
-  async andDetails(req) {
-    const who = await EX(req);
+  async andDetails(req, ...args) {
+    const who = await EX(req, ...args);
     if (!who) { return who; }
     const { userId } = who;
     const details = (req.getSrv().lusrmgr.users.get(userId) || false);

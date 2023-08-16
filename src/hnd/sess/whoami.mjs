@@ -8,19 +8,28 @@ import sendFinalTextResponse from '../../finalTextResponse.mjs';
 const failNotImpl = httpErrors.notImpl.throwable;
 
 
-const EX = async function whoami(req) {
-  req.confirmCors();
-  const who = await detectUserIdentity.andDetails(req);
-  if (who) {
-    const { details } = who;
-    who.authorIdentities = EX.reportAuthorIdentities(req, details);
-    delete who.details;
-  }
-  return sendFinalTextResponse.json(req, who);
-};
+const EX = function whoami(req) { return EX.hndImpl(req); };
 
 
 Object.assign(EX, {
+
+  async hndImpl(req, opt) {
+    req.confirmCors();
+    const who = await EX.reportSessionIdentity(req, opt);
+    return sendFinalTextResponse.json(req, who);
+  },
+
+
+  async reportSessionIdentity(req, origOpt) {
+    const opt = (origOpt || false);
+    const who = await detectUserIdentity.andDetails(req, opt.detectorOpts);
+    if (!who) { return false; }
+    const { details } = who;
+    delete who.details;
+    who.authorIdentities = EX.reportAuthorIdentities(req, details);
+    return who;
+  },
+
 
   reportAuthorIdentities(req, userDetails) {
     if (!userDetails) { return; }
