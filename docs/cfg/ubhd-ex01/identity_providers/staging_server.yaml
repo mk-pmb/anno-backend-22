@@ -20,6 +20,17 @@ identity_sources:
         sessionExpiryHardLimit:
             - 'shib-session-expires'
 
+        loginExtraHeaders:
+            # The handler for /session/login can, on successful login,
+            # send custom extra response headers. This can be used to
+            # feed Apache's mod_session. Some special fields:
+            #   \vu = userId
+            #   \vt = timestamp (unix epoch seconds)
+            #   \vh = value of the received header of the same name.
+            # Make sure to use YAML double quotes for the \v.
+            'Replace-Session': "\vh&anno_user=\vu"
+
+
 
 upstream_userid_transforms:
     # The upstream reverse proxy may have overly complicated user IDs
