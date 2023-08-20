@@ -16,6 +16,17 @@ Installing using Docker
       (a templating system for docker-compose).
       * Version 0.2.x should work. At time of writing (2023-04-27),
         this is the latest.
+1.  Make sure that the hostname is configured correctly for use as a
+    FQDN (fully-qualified domain name).
+    * You can verify this by running `hostname --fqdn` – it should print a
+      name that is registered in global DNS, or at least resolvable by all
+      computers intended to access the anno server.
+    * The FQDN should resolve to a public-facing IP address of the anno server.
+    * … even when resolving locally
+      (`gethostip --decimal "$(hostname --fqdn)"`)
+      or you may run into docker troubles when you try to use additional
+      tools like our DOI bot. It's possible to make it work for local
+      IP addresses, but we won't cover that here.
 1.  Create an OS user `annosrv` as member of a group with the same name.
     We'll assume the home directory is `/srv/annosrv`.
 1.  `chown annosrv:annosrv -- /srv/annosrv`
