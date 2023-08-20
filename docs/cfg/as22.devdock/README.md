@@ -54,6 +54,9 @@ How to install
     Verify this by rebooting your server
     (the "outer" one, that runs the docker daemon)
     and then checking if the anno server is accessible through Apache.
+1.  Your anno server should now be ready for use.
+    You can find suggestions for a test ride in
+    [Working with Annotations](../../working_with_annotations/).
 
 
 
