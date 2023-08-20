@@ -2,6 +2,9 @@
 Installing using Docker
 =======================
 
+If any step seems confusing or doesn't work right away, check its sub items.
+Some are for clarification or error handling.
+
 1.  Recommended OS is Ubuntu focal.
     Any later Ubuntu LTS should work as well.
 1.  Install:
@@ -27,10 +30,18 @@ Installing using Docker
       or you may run into docker troubles when you try to use additional
       tools like our DOI bot. It's possible to make it work for local
       IP addresses, but we won't cover that here.
-1.  Create an OS user `annosrv` as member of a group with the same name.
-    We'll assume the home directory is `/srv/annosrv`.
-1.  `chown annosrv:annosrv -- /srv/annosrv`
-1.  Start a shell as user `annosrv` in its home directory.
+1.  Open a shell session for user root.
+1.  Create an OS user as which the anno server shall run.
+    In this tutorial, we'll assume
+    * user name `annosrv`,
+    * member of a group with the same name,
+    * home directory is `/srv/annosrv`,
+    * login disabled &rArr; the only way to get a shell as that user is
+      `sudo -su annosrv` or similar.
+1.  `chown --recursive annosrv:annosrv -- /srv/annosrv`
+1.  Put the root shell aside, we'll need it again later.
+1.  Start a shell session as user `annosrv`.
+1.  … and `cd` to its home directory if you aren't there yet.
 1.  Ensure that user `annosrv` has no control over the docker daemon.
     (Earlier versions of this guide advised the opposite.)
     1.  Test access to the docker daemon: Run `docker version`
@@ -42,24 +53,28 @@ Installing using Docker
 1.  If you already have a `/srv/annosrv/anno-server-22` from a previous
     install attempt, move it to some backup directory.
     The next step (cloning) would fail if the directory already exists.
-1.  Usually, you'd now `git clone https://github.com/mk-pmb/anno-server-22`
+1.  If this were a stable release, you could now
+    `git clone https://github.com/mk-pmb/anno-server-22`
     * … but this config example uses the staging branch,
       so to the `clone` command, add: `--single-branch --branch staging`
     * The "staging" is almost as unstable as "experimental".
       Expect frequent history rewrites.
 1.  Verify the cloning: `ls anno-server-22/run_*.sh` — the expected good
     response is `anno-server-22/run_server.sh`.
-1.  In another shell, as root, run:
+1.  Put the `annosrv` shell aside for later. Switch back to your root shell.
+1.  In that root shell, run:
     `/srv/annosrv/anno-server-22/util/install_dockerized.sh`
     * It will create a temporary node.js docker container, mount the
       `anno-server-22` directory into it, and use npm inside the container
       to arrange various things. (For details about what and why, see
       `util/install_dockerized.md` next to the script.)
 1.  You may now close the root shell.
-    The next further configuration should happen as user `annosrv`.
+    The further configuration should happen as user `annosrv`.
     (Or you can do them as anyone and later `chown` all files.)
 1.  One anno server installation can run several instances,
-    each with their own hostname that is used inside docker.
+    each with their own docker-internal hostname.
+    (The docker project will make its own virtual network with locally
+    assigned hostnames, independent of DNS.)
     Choose a hostname for your first instance.
     * It should start with a letter and may consist of letters,
       numbers and hyphens. (No dots. This is not a FQDN.)

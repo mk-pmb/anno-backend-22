@@ -6,6 +6,9 @@ Example DevDock project
 How to install
 --------------
 
+If any step seems confusing or doesn't work right away, check its sub items.
+Some are for clarification or error handling.
+
 1.  We assume you already have the correct DevDock version installed.
     If you're unsure, refer to the main install instructions.
 1.  Open a shell for the anno server user in the DevDock project directory.
@@ -25,6 +28,8 @@ How to install
     `ln --symbolic --target-directory=enabled -- ../avail/pgadminer.yaml`
     * If your shell completion lacks support for `--target-directory=`,
       you may want to first omit `../`, complete the path, then insert `../`.
+1.  You may now close the shell session for the anno server user.
+1.  Open a shell session for root.
 1.  Start the DevDock project's container group. (See [the DevDock readme
     ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock)
     for how.)
