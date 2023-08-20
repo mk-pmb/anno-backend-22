@@ -36,6 +36,24 @@
             type: Person
 
 
+        doi_bot_test:
+            name: 'Josiah S. Carberry'
+            type: Person
+            email: 'jscarberry@example.net'
+            homepage:
+              - 'https://library.brown.edu/info/hay/carberry/'
+              - '@context': 'http://schema.org/'
+                '@type': 'Webpage'
+                url:  'https://ror.org/05gq02987'
+                name: 'Brown University'
+                description: 'Example for how to convey ROR affiliation to our DOI bot.'
+
+            # ORCID URL can be given either as `homepage` or `iana:alternate`:
+            'iana:alternate':
+              - 'https://orcid.org/0000-0002-1825-0097'
+
+
+
     acl_user_groups:
         - 'diglit_authors'
         - 'diglit_moderators'
