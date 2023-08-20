@@ -25,18 +25,27 @@ function dinst_dockerize () {
   local DKSELF="/app${SELFFILE:${#REPOPATH}}"
 
   [ -n "$DK_TASK" ] || local DK_TASK='install'
-  echo "Gonna $DK_TASK with dockerized npm:"
-  echo
 
   local DK_VARS=()
-  readarray -t DK_VARS < <(
-    env | cut -d = -sf 1 | sed -nre 's~^(APP|DK)_~--env\n&~p' )
+  readarray -t DK_VARS < <( env | cut -d = -sf 1 | sed -nrf <(echo '
+    s~^DK_ENV_~\n~
+    s~^(APP|DK)_~\n&~
+    s!^\n!--env&!p
+    ') )
 
   local DK_CMD=(
     docker
     run
-    --tty
-    --interactive
+    --interactive     # Some tasks need stdio even in batch mode.
+    )
+
+  if tty --silent; then
+    echo "Gonna $DK_TASK with dockerized node.js/npm:"
+    echo
+    DK_CMD+=( --tty )
+  fi
+
+  DK_CMD+=(
     --volume "$REPOPATH:/app:rw"
     "${DK_VARS[@]}"
     --workdir /app
@@ -69,6 +78,12 @@ function dinst_inside_docker_install () {
 function dinst_inside_docker_eval () {
   cd -- "$REPOPATH/$APP_SUBPATH" || return $?
   eval "$DK_EVAL" || return $?
+}
+
+
+function dinst_inside_docker_run_script () {
+  cd -- "$REPOPATH/$APP_SUBPATH" || return $?
+  ./node_modules/.bin/nodemjs $DK_EVAL || return $?
 }
 
 
