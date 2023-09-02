@@ -146,6 +146,11 @@ Object.assign(EX, {
     await chkPerm('creator', opaque);
     await chkPerm('dc:title', opaque, 'body');
 
+    // At this point of control flow we know the submitter has permission
+    // to modify dc:title AND body, so they should probably also be allowed
+    // to modify metadata about those.
+    updKeys.delete('dc:language');
+
     if (updKeys.has('target')) {
       await EX.validateTargetModifications(ctx);
       updKeys.delete('target');

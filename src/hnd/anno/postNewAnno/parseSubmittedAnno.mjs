@@ -38,6 +38,7 @@ const EX = function parseSubmittedAnno(mustPopInput, opt) {
 
   copy('creator', 'obj | ary | nonEmpty str | undef');
   copy('dc:isVersionOf', 'nonEmpty str | undef');
+  copy('dc:language', 'nonEmpty str | undef');
   copy('dc:replaces', 'nonEmpty str | undef');
   copy('dc:title', 'nonEmpty str');
   copy('rights', 'nonEmpty str | undef');
