@@ -4,7 +4,7 @@ import getOwn from 'getown';
 
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
-import idGetHnd from '../idGet.mjs';
+import idGetHnd from '../idGet/index.mjs';
 import parseRequestBody from '../../util/parseRequestBody.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 

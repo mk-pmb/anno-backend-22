@@ -6,7 +6,7 @@ import conciseValuePreview from 'concise-value-preview-pmb';
 import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 import httpErrors from '../../httpErrors.mjs';
-import idGet from './idGet.mjs';
+import idGet from './idGet/index.mjs';
 import parseVersId from './parseVersionIdentifier.mjs';
 import patchAnno from './patchAnno/index.mjs';
 import postNewAnno from './postNewAnno/index.mjs';

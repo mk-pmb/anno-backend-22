@@ -6,7 +6,7 @@ import objPop from 'objpop';
 import sortedJson from 'safe-sortedjson';
 
 import httpErrors from '../../../httpErrors.mjs';
-import idGetHnd from '../idGet.mjs';
+import idGetHnd from '../idGet/index.mjs';
 import parseVersId from '../parseVersionIdentifier.mjs';
 
 
