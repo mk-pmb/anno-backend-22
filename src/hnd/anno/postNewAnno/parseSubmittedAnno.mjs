@@ -11,6 +11,10 @@ const verbatimCopyKeysMandatedByProtocol = [
   'canonical',
 ];
 
+const alwaysDiscardFields = [
+  'iana:version-history',
+];
+
 
 function maybeWrapId(rec) {
   if (typeof rec === 'string') { return { id: rec }; }
@@ -23,6 +27,7 @@ function orf(x) { return x || false; }
 
 const EX = function parseSubmittedAnno(mustPopInput, opt) {
   redundantGenericAnnoMeta.mustPopAllStatic(mustPopInput);
+  alwaysDiscardFields.forEach(k => mustPopInput('any', k));
 
   const anno = {};
   function copy(key, rule) {
