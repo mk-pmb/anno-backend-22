@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import getOwn from 'getown';
+
 import categorizeTargets from '../categorizeTargets.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
@@ -13,6 +15,9 @@ const {
   gone,
   noSuchAnno,
 } = httpErrors.throwable;
+
+
+function orf(x) { return x || false; }
 
 
 const EX = async function lookupExactVersion(ctx) {
@@ -86,9 +91,31 @@ const EX = async function lookupExactVersion(ctx) {
     requireAdditionalReadPrivilege,
     subjTgtUrlsForAclCheckRead,
     targetLookupAllowed,
+    ...EX.lookupResultApi,
   };
   return lookup;
 };
+
+
+Object.assign(EX, {
+
+  lookupResultApi: {
+
+    primarySubjectTargetUrl() {
+      return orf(this.subjTgtUrlsForAclCheckRead)[0] || '';
+    },
+
+    primarySubjectUrlMeta(req) {
+      const cache = orf(req).aclMetaCache;
+      if (!cache) { throw new Error('No cache on req'); }
+      const url = this.primarySubjectTargetUrl();
+      return orf(url && getOwn(cache, 'tgtUrl:' + url));
+    },
+
+  },
+
+});
+
 
 
 export default EX;

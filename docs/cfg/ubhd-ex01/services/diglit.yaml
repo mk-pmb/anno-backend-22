@@ -13,6 +13,9 @@
           - 'pageNumStr'
 
 
+    annoBrowserRedirect: '%sc/%bi/image,info'
+        # ^-- For available slots, see `src/hnd/anno/browserRedirect.mjs`
+
     approvalRequired: yes
 
     rssFeeds:
