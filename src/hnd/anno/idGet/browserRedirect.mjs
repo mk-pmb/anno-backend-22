@@ -28,9 +28,10 @@ const EX = {
     url = url.replace(/%vn/g, ctx.idParts.versNum);
 
     const anno = orf(found.annoDetails);
+    const subjUrl = found.primarySubjectTargetUrl();
     const scopes = makeDictList(anno.target).getEachOwnProp('scope');
-    url = url.replace(/%sc/g, slot(scopes[0]));
-    url = url.replace(/%st/g, slot(found.primarySubjectTargetUrl));
+    url = url.replace(/%sc/g, slot(scopes[0] || subjUrl));
+    url = url.replace(/%st/g, slot(subjUrl));
 
     return url;
   },
