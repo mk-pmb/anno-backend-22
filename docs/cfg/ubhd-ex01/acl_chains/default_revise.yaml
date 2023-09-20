@@ -17,7 +17,7 @@
         memberOfAclGroup: '📚_moderators'
     tendency:
         revise_any:             allow
-        # revise_any_creator:     allow
+        revise_any_creator:     allow
 
         # !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
         #

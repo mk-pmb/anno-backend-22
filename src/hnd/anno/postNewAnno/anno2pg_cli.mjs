@@ -13,9 +13,10 @@ import sortedJson from 'safe-sortedjson';
 import vTry from 'vtry';
 
 import fmtRelRecs from './fmtRelRecs.mjs';
-import parseVersId from '../parseVersionIdentifier.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseRequestBody from '../../util/parseRequestBody.mjs';
 import parseSubmittedAnno from './parseSubmittedAnno.mjs';
+import parseVersId from '../parseVersionIdentifier.mjs';
 
 
 const EX = {
@@ -31,8 +32,7 @@ const EX = {
 
 
   simpleStampTypes: [
-    'dc:dateAccepted',
-    'as:deleted',
+    ...miscMetaFieldInfos.visibilityRelatedStampsNames,
   ],
 
 

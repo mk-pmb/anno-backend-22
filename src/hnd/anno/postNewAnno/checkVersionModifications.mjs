@@ -7,6 +7,7 @@ import sortedJson from 'safe-sortedjson';
 
 import httpErrors from '../../../httpErrors.mjs';
 import idGetHnd from '../idGet/index.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseVersId from '../parseVersionIdentifier.mjs';
 
 
@@ -119,7 +120,9 @@ Object.assign(EX, {
     if (Object.keys(newAnno).length !== 0) {
       throw new Error('Exotic fail: Some input managed to evade comparison.');
     }
-    omissions.delete('created');
+
+    miscMetaFieldInfos.nonInheritableFields.forEach(k => omissions.delete(k));
+
     if (omissions.size) {
       const msg = ('Omissions are not currently supported in versions.'
         + ' The missing fields are: ' + commaList(omissions.keys()));

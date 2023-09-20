@@ -11,6 +11,7 @@ import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
 import categorizeTargets from '../categorizeTargets.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 
 import checkVersionModifications from './checkVersionModifications.mjs';
 import decideAuthorIdentity from './decideAuthorIdentity.mjs';
@@ -92,6 +93,8 @@ const EX = async function postNewAnno(srv, req) {
     delete anno.id;
   }
   // req.logCkp('postNewAnno parsed:', { previewMode }, anno);
+
+  miscMetaFieldInfos.nonInheritableFields.forEach(k => delete anno[k]);
 
   if (!previewMode) { await EX.intenseValidations(ctx); }
 
