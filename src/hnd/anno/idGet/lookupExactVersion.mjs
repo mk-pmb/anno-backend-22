@@ -80,7 +80,9 @@ const EX = async function lookupExactVersion(ctx) {
     const active = (ts && (ts <= nowTs));
     // console.debug({ val, ts, nowTs, active });
     if (!active) {
-      throw noSuchAnno('Annotation is not yet approved');
+      const err = noSuchAnno('Annotation is not yet approved');
+      err.reasonCode = 'approvalRequired';
+      throw err;
       /* NB: This is different from "Annotation is pending approval",
          because here we don't care whether approval has been requested. */
     }
