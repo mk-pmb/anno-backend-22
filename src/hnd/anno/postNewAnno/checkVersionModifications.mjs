@@ -2,6 +2,7 @@
 
 import compareTargetLists from 'webanno-compare-target-lists-pmb';
 import getOwn from 'getown';
+import isStr from 'is-string';
 import objPop from 'objpop';
 import sortedJson from 'safe-sortedjson';
 
@@ -20,16 +21,21 @@ const {
 // function jsonDeepCopy(x) { return JSON.parse(JSON.stringify(x)); }
 
 function commaList(x) { return Array.from(x).sort().join(', '); }
+function repackIdStr(x) { return ((x && isStr(x) && { id: x }) || x || false); }
 
 
 const EX = async function checkVersionModifications(ctx) {
-  const { anno, idParts, req } = ctx;
   await EX.validateAnnoIdParts(ctx);
+  const { anno, idParts, req } = ctx;
   if (!idParts.baseId) { return; }
   const lookup = await idGetHnd.lookupExactVersion(ctx);
   ctx.oldAnnoDetails = lookup.annoDetails;
   idParts.versNum += 1;
 
+  // Snooping on the anno before we pluck some fields:
+  ctx.newAuthorId = (repackIdStr(anno.creator).id || '');
+
+  // Pluck changes.
   ctx.annoChanges = EX.findAndPluckAllChanges(ctx.oldAnnoDetails, anno);
   req.logCkp('postNewAnno anno diff:', ctx.annoChanges);
   const nUpdates = Object.keys(ctx.annoChanges).length;
@@ -148,7 +154,15 @@ Object.assign(EX, {
     }
     function opaque(key, perm) { return ctx.requirePermForAllSubjTgts(perm); }
 
-    await chkPerm('body', opaque);
+    await (async function checkAndReportAuthorModification() {
+      const oa = (repackIdStr(ctx.oldAnnoDetails.creator).id || '');
+      ctx.oldAuthorId = oa;
+      ctx.authorIdSameAsPrevious = ((oa === ctx.newAuthorId) ? oa : '');
+      if (!ctx.author.authorized) {
+        await chkPerm('set_arbitrary_author', opaque);
+      }
+    }());
+
     await chkPerm('creator', opaque);
     await chkPerm('dc:title', opaque, 'body');
 

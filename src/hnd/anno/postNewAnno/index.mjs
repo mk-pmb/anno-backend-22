@@ -20,8 +20,8 @@ import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 
 
 const {
-  badRequest,
   authorIdentityNotConfigured,
+  badRequest,
 } = httpErrors.throwable;
 
 const errDuplicateRandomUuid = httpErrors.fubar.explain(
@@ -61,8 +61,10 @@ const EX = async function postNewAnno(srv, req) {
   };
   ctx.author = await decideAuthorIdentity(ctx);
 
+  ctx.isRevisedVersion = Boolean(anno['dc:isVersionOf']
+    || anno['dc:replaces']);
   ctx.postActionPrivName = (function decidePriv() {
-    if (anno['dc:isVersionOf'] || anno['dc:replaces']) {
+    if (ctx.isRevisedVersion) {
       if (ctx.author.authorized) { return 'revise_own'; }
       return 'revise_any';
     }
@@ -98,7 +100,6 @@ const EX = async function postNewAnno(srv, req) {
 
   if (!previewMode) { await EX.intenseValidations(ctx); }
 
-  if (!ctx.author.authorized) { throw authorIdentityNotConfigured(); }
   anno.creator = (ctx.author.agent
     || panic('Author lookup failed without refusal.'));
   anno.created = (new Date()).toISOString();
@@ -142,6 +143,15 @@ Object.assign(EX, {
 
   async intenseValidations(ctx) {
     await checkVersionModifications(ctx);
+
+    (function verifyAuthorIdentityPermission() {
+      if (ctx.author.authorized) { return true; }
+      if (ctx.isRevisedVersion) {
+        // Submission survived the ACL checks in checkVersionModifications()
+        return true;
+      }
+      throw authorIdentityNotConfigured();
+    }());
   },
 
 
