@@ -152,7 +152,7 @@ Object.assign(EX, {
       await how(key, perm);
       updKeys.delete(key);
     }
-    function opaque(key, perm) { return ctx.requirePermForAllSubjTgts(perm); }
+    function opaque(key, perm) { return ctx.requirePermForSubjTgtUrls(perm); }
 
     await (async function checkAndReportAuthorModification() {
       const oa = (repackIdStr(ctx.oldAnnoDetails.creator).id || '');
@@ -197,8 +197,8 @@ Object.assign(EX, {
     const permPrefix = ctx.postActionPrivName + '_';
 
     function chkList(perm, list) {
-      return ctx.requirePermForAllTheseUrls(permPrefix + perm,
-        list.map(EX.guessSingleTargetUrl));
+      return ctx.requirePermForSubjTgtUrls(permPrefix + perm,
+        { customUrlsList: list.map(EX.guessSingleTargetUrl) });
     }
 
     await chkList('target_del', diff.removed);

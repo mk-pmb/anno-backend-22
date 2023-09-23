@@ -17,6 +17,7 @@
     tendency:
         stamp_own_add_dc_dateSubmitted:  allow
         create:         allow
+        create_across_services: allow
         reply:          allow
 
   - if:

@@ -49,13 +49,16 @@ const EX = async function postNewAnno(srv, req) {
     srv,
     who,
 
-    async requirePermForAllTheseUrls(privilegeName, urls) {
-      await Promise.all(urls.map(url => srv.acl.requirePerm(req,
-        { targetUrl: url, privilegeName })));
-    },
-
-    async requirePermForAllSubjTgts(privilegeName) {
-      return this.requirePermForAllTheseUrls(privilegeName, subjTgtUrls);
+    async requirePermForSubjTgtUrls(privilegeName, origOpt) {
+      const opt = (origOpt || false);
+      const urlsList = (opt.customUrlsList || subjTgtUrls);
+      const spy = opt.aclMetaSpyEach;
+      await pEachSeries(urlsList, async function checkUrl(url) {
+        const aclMetaSpy = spy && {};
+        await srv.acl.requirePerm(req,
+          { targetUrl: url, privilegeName, aclMetaSpy });
+        await (spy && spy(aclMetaSpy, url));
+      });
     },
 
   };
@@ -74,8 +77,6 @@ const EX = async function postNewAnno(srv, req) {
 
   req.logCkp('postNewAnno input', { subjTgtUrls, replyTgtVersIds });
 
-  await ctx.requirePermForAllSubjTgts(ctx.postActionPrivName);
-
   if (replyTgtVersIds.length > 1) {
     const msg = ('Cross-posting (reply to multiple annotations)'
       + ' is not supported yet.');
@@ -84,6 +85,14 @@ const EX = async function postNewAnno(srv, req) {
     // A weak reason is that limiting the server capabilities to what
     // our frontend can do will prevent some accidents.
     throw badRequest(msg);
+  }
+
+  const servicesInvolved = new Set();
+  await ctx.requirePermForSubjTgtUrls(ctx.postActionPrivName, {
+    aclMetaSpyEach(meta) { servicesInvolved.add(meta.serviceId); },
+  });
+  if (servicesInvolved.size > 1) {
+    await ctx.requirePermForSubjTgtUrls('create_across_services');
   }
 
   const previewMode = (anno.id === 'about:preview');
