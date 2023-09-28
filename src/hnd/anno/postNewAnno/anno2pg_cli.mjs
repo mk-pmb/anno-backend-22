@@ -132,7 +132,7 @@ const EX = {
       ...idParts,
       time_created: mustBe.nest('Anno creation time', anno.created),
       author_local_userid: annoUser,
-      details: sortedJson(anno),
+      details: sortedJson(anno, { space: 0 }),
     });
     const relRecs = fmtRelRecs({ srv, anno, baseId, versNum });
     dbr.links = dbr.links.concat(relRecs);
