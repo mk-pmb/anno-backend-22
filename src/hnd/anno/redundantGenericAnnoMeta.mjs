@@ -20,9 +20,19 @@ const EX = {
   },
 
   add(srv, idParts, annoDetails) {
-    const { versNum } = idParts;
+    const { baseId, versNum, versId } = idParts;
     const latestPubUrl = EX.constructLatestPubUrl(srv, idParts);
+    if (!latestPubUrl.endsWith('/' + baseId)) {
+      console.error('Inconsistent:', { latestPubUrl, baseId });
+      throw new Error("Latest ID URL doesn't end with base ID");
+    }
     const fullPubUrl = latestPubUrl + vnSep + versNum;
+    if (versId !== undefined) {
+      if (!fullPubUrl.endsWith('/' + versId)) {
+        console.error('Inconsistent:', { fullPubUrl, versId });
+        throw new Error("Current ID URL doesn't end with version ID");
+      }
+    }
     const addMeta = {
       id: fullPubUrl,
       'dc:isVersionOf': latestPubUrl,
