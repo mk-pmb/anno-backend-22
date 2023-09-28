@@ -31,9 +31,9 @@ console.log(pgDumpWriter.fmtCreateSimpleTable('data', {
   time_created: 'ts',
   author_local_userid: 'char* B',
   details: 'json',
-  debug_mongo_doc_id: 'char* ? B',
+  // debug_mongo_doc_id: 'char* ? B',
   debug_doi_verified: 'char* ?',
-  debug_replyto: 'char* ?',
+  // debug_replyto: 'char* ?',
 }, {
   ...dfOpt,
 }));
