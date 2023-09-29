@@ -12,11 +12,12 @@ import readRelaxedJsonFromStdin from 'read-relaxed-json-from-stdin-pmb';
 import sortedJson from 'safe-sortedjson';
 import vTry from 'vtry';
 
-import fmtRelRecs from './fmtRelRecs.mjs';
 import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseRequestBody from '../../util/parseRequestBody.mjs';
-import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 import parseVersId from '../parseVersionIdentifier.mjs';
+
+import fmtRelRecs from './fmtRelRecs.mjs';
+import parseSubmittedAnno from './parseSubmittedAnno.mjs';
 
 
 const EX = {
@@ -98,7 +99,7 @@ const EX = {
 
   async importOneAnno(origAnno) {
     let { annoUser } = EX.cfg;
-    const srv = { publicBaseUrlNoSlash: EX.cfg.baseUrl };
+    const minimumConfig = { publicBaseUrlNoSlash: EX.cfg.baseUrl };
     const stamps = [];
 
     async function validateInput(pop) {
@@ -113,6 +114,7 @@ const EX = {
         });
       });
       const parsed = parseSubmittedAnno(pop, {
+        ...minimumConfig,
         extraCopyFields: {
           created: 'nonEmpty str',
         },
@@ -122,7 +124,7 @@ const EX = {
 
     const anno = await parseRequestBody.fancify(origAnno)
       .catchBadInput(validateInput);
-    const { baseId, versNum } = parseVersId.fromLocalUrl(srv,
+    const { baseId, versNum } = parseVersId.fromLocalUrl(minimumConfig,
       Error, mustBe.nest('Anno ID URL', anno.id));
     if (!versNum) { throw new Error('Anno ID URL must include version!'); }
     const idParts = { base_id: baseId, version_num: versNum };
@@ -134,7 +136,7 @@ const EX = {
       author_local_userid: annoUser,
       details: sortedJson(anno, { space: 0 }),
     });
-    const relRecs = fmtRelRecs({ srv, anno, baseId, versNum });
+    const relRecs = fmtRelRecs({ srv: minimumConfig, anno, baseId, versNum });
     dbr.links = dbr.links.concat(relRecs);
     stamps.forEach(st => dbr.stamps.push({ ...idParts, ...st }));
   },

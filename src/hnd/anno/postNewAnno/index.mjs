@@ -32,8 +32,11 @@ function panic(msg) { throw new Error(msg); }
 
 
 const EX = async function postNewAnno(srv, req) {
+  const parseCfg = {
+    publicBaseUrlNoSlash: srv.publicBaseUrlNoSlash,
+  };
   const anno = await parseRequestBody.fancy('json', req,
-  ).then(ctx => ctx.catchBadInput(parseSubmittedAnno));
+  ).then(ctx => ctx.catchBadInput(parseSubmittedAnno, parseCfg));
   const tgtCateg = categorizeTargets(srv, anno,
     { errInvalidAnno: badRequest });
   const {

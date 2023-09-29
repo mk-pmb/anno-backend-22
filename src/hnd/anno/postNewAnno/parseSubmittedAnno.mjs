@@ -6,6 +6,8 @@ import mustBe from 'typechecks-pmb/must-be';
 
 import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 
+import fixLocalUrlFieldsInplace from './fixLocalUrlFieldsInplace.mjs';
+
 
 const verbatimCopyKeysMandatedByProtocol = [
   'canonical',
@@ -25,7 +27,7 @@ function maybeWrapId(rec) {
 function orf(x) { return x || false; }
 
 
-const EX = function parseSubmittedAnno(mustPopInput, opt) {
+const EX = function parseSubmittedAnno(mustPopInput, cfg) {
   redundantGenericAnnoMeta.mustPopAllStatic(mustPopInput);
   alwaysDiscardFields.forEach(k => mustPopInput('any', k));
 
@@ -37,8 +39,8 @@ const EX = function parseSubmittedAnno(mustPopInput, opt) {
   verbatimCopyKeysMandatedByProtocol.forEach(k => copy(k, 'str | undef'));
   copy('id', 'nonEmpty str | undef');
 
-  if (opt && opt.extraCopyFields) {
-    loMapValues(opt.extraCopyFields, (rule, key) => copy(key, rule));
+  if (cfg.extraCopyFields) {
+    loMapValues(cfg.extraCopyFields, (rule, key) => copy(key, rule));
   }
 
   copy('creator', 'obj | ary | nonEmpty str | undef');
@@ -48,7 +50,7 @@ const EX = function parseSubmittedAnno(mustPopInput, opt) {
   copy('dc:title', 'nonEmpty str');
   copy('rights', 'nonEmpty str | undef');
 
-  function targetLike(key) {
+  function parseResource(key) {
     const spec = mustPopInput('obj | ary | nonEmpty str | undef', key);
     const list = arrayOfTruths(spec).map(maybeWrapId);
     if (!list.length) {
@@ -56,8 +58,8 @@ const EX = function parseSubmittedAnno(mustPopInput, opt) {
     }
     anno[key] = list;
   }
-  targetLike('target');
-  targetLike('body');
+  parseResource('target');
+  parseResource('body');
   anno.target.forEach(EX.sanifyCheckTarget);
 
   function neStrList(key) {
@@ -91,6 +93,7 @@ const EX = function parseSubmittedAnno(mustPopInput, opt) {
   }
 
   mustPopInput.expectEmpty('Unsupported annotation field');
+  fixLocalUrlFieldsInplace(cfg, anno);
   return anno;
 };
 

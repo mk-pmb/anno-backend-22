@@ -32,9 +32,10 @@ const EX = async function parseRequestBody(fmt, req) {
 };
 
 
-async function catchBadInput(impl) {
+async function catchBadInput(impl, ...args) {
+  const ctx = this;
   try {
-    return await impl(this.mustPopInput, this);
+    return await impl(ctx.mustPopInput, ...args, ctx);
   } catch (e) {
     throw badRequest(['Parse input', e]);
   }
