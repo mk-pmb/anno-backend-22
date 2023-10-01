@@ -19,6 +19,15 @@ const EX = {
     );
   },
 
+  constructVersionNumberPubUrl(srv, idParts) {
+    return (srv.publicBaseUrlNoSlash
+      + '/anno/'
+      + idParts.baseId
+      + vnSep
+      + idParts.versNum
+    );
+  },
+
   add(srv, idParts, annoDetails) {
     const { baseId, versNum, versId } = idParts;
     const latestPubUrl = EX.constructLatestPubUrl(srv, idParts);

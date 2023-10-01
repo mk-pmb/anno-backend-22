@@ -6,6 +6,7 @@ import isStr from 'is-string';
 import objPop from 'objpop';
 import sortedJson from 'safe-sortedjson';
 
+import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import idGetHnd from '../idGet/index.mjs';
 import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
@@ -78,7 +79,7 @@ Object.assign(EX, {
 
 
   validateDcReplaces(dcReplaces, ctx) {
-    if (!dcReplaces) { return; }
+    if (!dcReplaces) { throw new Error('Missing dcReplaces argument.'); }
     const submissionIdParts = parseVersId.fromLocalUrl(ctx.srv,
       badRequest, dcReplaces);
     const latestReviIdParts = ctx.idParts;
@@ -106,7 +107,11 @@ Object.assign(EX, {
       const msg = ('Field dc:replaces must be omitted'
         + ' or must point to the latest version'
         + ', which currently is ' + latestReviIdParts.versNum + '.');
-      throw badRequest(msg);
+      const err = badRequest(msg);
+      const url = genericAnnoMeta.constructVersionNumberPubUrl(ctx.srv,
+        latestReviIdParts);
+      err.headers = { 'Working-Copy': url };
+      throw err;
     }
   },
 
