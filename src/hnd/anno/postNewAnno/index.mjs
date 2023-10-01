@@ -67,6 +67,11 @@ const EX = async function postNewAnno(srv, req) {
   };
   ctx.author = await decideAuthorIdentity(ctx);
 
+  if (anno['dc:isVersionOf'] && (!anno['dc:replaces'])) {
+    const msg = ('On this server, '
+      + 'revision requests must include a full "dc:replaces" URL.');
+    throw badRequest(msg);
+  }
   ctx.isRevisedVersion = Boolean(anno['dc:isVersionOf']
     || anno['dc:replaces']);
   ctx.postActionPrivName = (function decidePriv() {
