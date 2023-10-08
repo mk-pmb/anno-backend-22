@@ -32,9 +32,12 @@ const EX = {
   },
 
 
-  simpleStampTypes: [
+  simpleDateStampTypes: [
     ...miscMetaFieldInfos.visibilityRelatedStampsNames,
   ],
+
+
+  doiField: 'dc:identifier',
 
 
   dbRecords: {
@@ -104,7 +107,7 @@ const EX = {
 
     async function validateInput(pop) {
       annoUser = (pop('undef | nonEmpty str', 'ubhd:anno-user') || annoUser);
-      EX.simpleStampTypes.forEach(function convertStamp(stampType) {
+      EX.simpleDateStampTypes.forEach(function convertStamp(stampType) {
         const val = pop('undef | nonEmpty str', stampType);
         if (!val) { return; }
         stamps.push({
@@ -117,8 +120,10 @@ const EX = {
         ...minimumConfig,
         extraCopyFields: {
           created: 'nonEmpty str',
+          [EX.doiField]: 'undef | nonEmpty str',
         },
       });
+      // const createdTimeJs = new Date(parsed.created)).getTime();
       return parsed;
     }
 
