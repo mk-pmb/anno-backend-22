@@ -73,9 +73,10 @@ const EX = function fixLocalUrlFieldsInplace(cfg, anno) {
   function fixStringList(key) {
     const orig = anno[key];
     if (orig === undefined) { return; }
+    // console.debug('fixStringList: key:', key, 'orig:', orig);
     const better = arrayOfTruths(orig).map(
       (val, idx) => fixUrl(val, '', key + '#' + (idx + 1)));
-    // console.debug('better:', better);
+    // console.debug('fixStringList: better:', better);
     anno[key] = better; // eslint-disable-line no-param-reassign
   }
   topLevelStringLists.forEach(fixStringList);

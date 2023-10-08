@@ -33,14 +33,15 @@ const EX = function categorizeTargets(srv, anno, opt) {
   const targetsList = arrayOfTruths(anno.target);
   const nTargets = targetsList.length;
   targetsList.forEach(function categorize(tgt, idx) {
-    if (replyTgtUrls.includes(tgt)) { return; }
     try {
       const subjTgt = guessAndParseSubjectTargetUrl({ target: tgt });
       // ^-- Using parse because it includes safety checks.
-      if (!subjTgtUrls.includes(subjTgt.url)) {
+      const { url } = subjTgt;
+      if (replyTgtUrls.includes(url)) { return; }
+      if (!subjTgtUrls.includes(url)) {
         // ^- Duplicates may occurr when the SVG selector's scope is also
         //    given as the "id": of another target entry.
-        subjTgtUrls.push(subjTgt.url);
+        subjTgtUrls.push(url);
       }
       return;
     } catch (err) {
