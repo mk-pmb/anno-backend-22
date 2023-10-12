@@ -15,16 +15,20 @@ Object.assign(qtpl, {
       "da"."base_id", "da"."version_num", "da"."time_created",
       #stampFilterColumns
       #stampsArray
-      "da"."details"
+      #detailsColumnExpr
     FROM "anno_data" AS "da"
     JOIN ( #searchFilter ) AS "sel"
       ON ${qtpl.annoExactVerCond('da', 'sel', 'max_revi')}
     #stampFilterJoins
     WHERE #rqAlwaysShowOwnAnnos OR ( True #stampFilterWhereAnds
       #extraWhereAnds )
-    ORDER BY #globalOrderPre "da"."time_created" ASC, "da"."base_id" ASC
+    ORDER BY #globalOrderPre "da"."time_created" #orderByTimeDirection ,
+      "da"."base_id" #orderByTimeDirection
     #globalLimit
     `,
+
+  orderByTimeDirection: 'ASC',
+  detailsColumnExpr: '"da"."details"',
 
   stampsArray: `ARRAY(
     SELECT jsonb_build_object(
