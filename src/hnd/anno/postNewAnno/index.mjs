@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import mapMergeDefaults from 'map-merge-defaults-pmb';
 import pEachSeries from 'p-each-series';
 import randomUuid from 'uuid-random';
 import sortedJson from 'safe-sortedjson';
@@ -55,12 +56,12 @@ const EX = async function postNewAnno(srv, req) {
     async requirePermForSubjTgtUrls(privilegeName, origOpt) {
       const opt = (origOpt || false);
       const urlsList = (opt.customUrlsList || subjTgtUrls);
-      const spy = opt.aclMetaSpyEach;
+      const { aclMetaSpyEach } = opt;
+      const aclMetaSpy = (opt.aclMetaSpy || (aclMetaSpyEach && {}) || false);
       await pEachSeries(urlsList, async function checkUrl(url) {
-        const aclMetaSpy = spy && {};
         await srv.acl.requirePerm(req,
           { targetUrl: url, privilegeName, aclMetaSpy });
-        await (spy && spy(aclMetaSpy, url));
+        await (aclMetaSpyEach && aclMetaSpyEach(aclMetaSpy, url));
       });
     },
 
@@ -95,13 +96,7 @@ const EX = async function postNewAnno(srv, req) {
     throw badRequest(msg);
   }
 
-  const servicesInvolved = new Set();
-  await ctx.requirePermForSubjTgtUrls(ctx.postActionPrivName, {
-    aclMetaSpyEach(meta) { servicesInvolved.add(meta.serviceId); },
-  });
-  if (servicesInvolved.size > 1) {
-    await ctx.requirePermForSubjTgtUrls('create_across_services');
-  }
+  await EX.checkServiceConfigStuff(ctx);
 
   const previewMode = (anno.id === 'about:preview');
   if (!previewMode) {
@@ -129,26 +124,43 @@ const EX = async function postNewAnno(srv, req) {
     return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
   }
 
-  const dbRec = {
+  const dbAddr = {
     base_id: ctx.idParts.baseId,
     version_num: ctx.idParts.versNum,
+  };
+  const annoUserId = (who.userId || '');
+  const dataRec = {
+    ...dbAddr,
     time_created: fullAnno.created,
-    author_local_userid: (who.userId || ''),
+    author_local_userid: annoUserId,
     details: sortedJson(anno),
   };
   // At this point we don't yet have confirmation that our base_id will
-  // be accepted. We optimistically pre-generate the relation records anyway,
-  // to catch potential errors therein before touching the database.
+  // be accepted. We optimistically pre-generate the stamp and relation
+  // records anyway, to catch potential errors therein before touching
+  // the database.
+  const bareStamps = [];
+  if (ctx.approvalRequired) { bareStamps.push('_ubhd:unapproved'); }
+
   const relRecs = fmtRelRecs({ srv, anno, ...ctx.idParts, tgtCateg });
+  const stampRecs = mapMergeDefaults({
+    ...dbAddr,
+    st_at: fullAnno.created,
+    st_by: annoUserId,
+    st_effts: null,
+    st_detail: null,
+  }, 'st_type', bareStamps);
 
   // Now that all data has been validated, we can actually write to the DB.
-  await srv.db.postgresInsertOneRecord('anno_data', dbRec, {
+  await srv.db.postgresInsertOneRecord('anno_data', dataRec, {
     customDupeError: errDuplicateRandomUuid,
   });
   // At this point, our idParts have been accepted, so we can insert the
-  // relation records as well.
+  // stamp and relation records as well.
+  await pEachSeries(stampRecs,
+    rec => srv.db.postgresInsertOneRecord('anno_stamps', rec));
   await pEachSeries(relRecs,
-    rr => srv.db.postgresInsertOneRecord('anno_links', rr));
+    rec => srv.db.postgresInsertOneRecord('anno_links', rec));
 
   ftrOpt.code = 201;
   req.res.header('Location', fullAnno.id);
@@ -169,6 +181,19 @@ Object.assign(EX, {
       }
       throw authorIdentityNotConfigured();
     }());
+  },
+
+  async checkServiceConfigStuff(ctx) {
+    const servicesInvolved = new Set();
+    const aclMetaSpy = {};
+    await ctx.requirePermForSubjTgtUrls(ctx.postActionPrivName, {
+      aclMetaSpy,
+      aclMetaSpyEach(meta) { servicesInvolved.add(meta.serviceId); },
+    });
+    if (servicesInvolved.size > 1) {
+      await ctx.requirePermForSubjTgtUrls('create_across_services');
+    }
+    ctx.approvalRequired = !!aclMetaSpy['nServicesWith:approvalRequired'];
   },
 
 
