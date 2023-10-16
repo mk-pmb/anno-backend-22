@@ -71,7 +71,7 @@ const EX = async function bySubjectTargetPrefix(param) {
     const own = '"da"."author_local_userid" = $rqUserId';
     search.tmpl({ rqAlwaysShowOwnAnnos: own });
     search.data({ rqUserId: userId });
-    stampParserOpts.lowlineFields = true;
+    stampParserOpts.lowlineStamps = {};
   }
 
   const found = await search.selectAll(srv);
@@ -87,6 +87,7 @@ const EX = async function bySubjectTargetPrefix(param) {
       ...(approvalRequired && { 'dc:dateAccepted': false }),
       ...genericAnnoMeta.add(srv, idParts, rec.details),
       ...stamps,
+      ...stampParserOpts.lowlineStamps,
     };
     return fullAnno;
   }

@@ -3,6 +3,7 @@
 const EX = {
 
   visibilityRelatedStampsNames: [
+    '_ubhd:unapproved',
     'dc:dateAccepted',
     'as:deleted',
   ],

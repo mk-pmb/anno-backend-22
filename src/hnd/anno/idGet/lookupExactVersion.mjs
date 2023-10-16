@@ -3,6 +3,7 @@
 import getOwn from 'getown';
 
 import categorizeTargets from '../categorizeTargets.mjs';
+import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 import parseStampRows from '../parseStampRows.mjs';
@@ -45,7 +46,14 @@ const EX = async function lookupExactVersion(ctx) {
 
   const stampRows = (await srv.db.postgresSelect(queryTpl.annoStamps,
     [baseId, versNum]));
-  parseStampRows.into(annoDetails, stampRows);
+  const lowlineStamps = {};
+  parseStampRows.into(annoDetails, stampRows, { lowlineStamps });
+
+  const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
+  const defaultErrorHeaders = {
+    'Latest-Version': latestPubUrl,
+    'Version-History': latestPubUrl + '/versions',
+  };
 
   const nowTs = Date.now();
   const sunset = parseDatePropOrFubar(annoDetails, 'as:deleted');
@@ -54,9 +62,10 @@ const EX = async function lookupExactVersion(ctx) {
      with the response, because it's meant be usable also for internal
      lookups whose results are not meant to be sent. */
   if (sunset && (sunset.ts <= nowTs)) {
-    const err = gone('Annotation was unpublished, effective '
-      + sunset.jsDate.toISOString());
-    err.headers = { Sunset: sunset.jsDate.toGMTString() };
+    const iso = sunset.jsDate.toISOString();
+    const gmt = sunset.jsDate.toGMTString();
+    const err = gone('Annotation was unpublished, effective ' + iso);
+    err.headers = { ...defaultErrorHeaders, Sunset: gmt };
     throw err;
   }
 
@@ -64,9 +73,7 @@ const EX = async function lookupExactVersion(ctx) {
     await srv.acl.requirePermForAllTargetUrls(req,
       subjTgtUrlsForAclCheckRead, { privilegeName, ...opt });
   }
-  const aclMetaSpy = {};
-  await requireAdditionalReadPrivilege('read', { aclMetaSpy });
-  // console.debug('idGet:', { subjTgtUrlsForAclCheckRead, aclMetaSpy });
+  await requireAdditionalReadPrivilege('read');
 
   if (versionNotFound) {
     /* At this point, permission to disclose non-existence stems from
@@ -74,21 +81,17 @@ const EX = async function lookupExactVersion(ctx) {
     throw noSuchAnno();
   }
 
-  if (aclMetaSpy.approvalRequired) {
-    const val = annoDetails['dc:dateAccepted'];
-    const ts = (val && (new Date(val)).getTime()) || 0;
-    const active = (ts && (ts <= nowTs));
-    // console.debug({ val, ts, nowTs, active });
-    if (!active) {
-      const err = noSuchAnno('Annotation is not yet approved');
-      err.reasonCode = 'approvalRequired';
-      throw err;
-      /* NB: This is different from "Annotation is pending approval",
-         because here we don't care whether approval has been requested. */
-    }
+  if (lowlineStamps['_ubhd:unapproved']) {
+    const err = noSuchAnno('Annotation is not yet approved');
+    /* NB: This is different from "Annotation is pending approval",
+       because here we don't care whether approval has been requested. */
+    err.reasonCode = 'approvalRequired';
+    err.headers = defaultErrorHeaders;
+    throw err;
   }
 
   const lookup = {
+    defaultErrorHeaders,
     annoDetails,
     requireAdditionalReadPrivilege,
     subjTgtUrlsForAclCheckRead,
