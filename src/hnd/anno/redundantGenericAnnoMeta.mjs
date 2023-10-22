@@ -45,6 +45,7 @@ const EX = {
     const addMeta = {
       id: fullPubUrl,
       'dc:isVersionOf': latestPubUrl,
+      'iana:latest-version': latestPubUrl,
       'iana:version-history': latestPubUrl + '/versions',
     };
     if (versNum >= 2) {
