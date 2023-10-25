@@ -101,10 +101,12 @@ const EX = {
 
 
   async importOneAnno(origAnno) {
+    const rawInputAnno = { ...origAnno };
     const isoDateNow = (new Date()).toISOString();
     let { annoUser } = EX.cfg;
     const minimumConfig = { publicBaseUrlNoSlash: EX.cfg.baseUrl };
     const stamps = [];
+    EX.maybeStampUnapproved(rawInputAnno, stamps);
 
     async function validateInput(pop) {
       annoUser = (pop('undef | nonEmpty str', 'ubhd:anno-user') || annoUser);
@@ -125,7 +127,7 @@ const EX = {
       return parsed;
     }
 
-    const anno = await parseRequestBody.fancify(origAnno)
+    const anno = await parseRequestBody.fancify(rawInputAnno)
       .catchBadInput(validateInput);
     const { baseId, versNum } = parseVersId.fromLocalUrl(minimumConfig,
       Error, mustBe.nest('Anno ID URL', anno.id));
@@ -148,6 +150,14 @@ const EX = {
     const relRecs = fmtRelRecs({ srv: minimumConfig, anno, baseId, versNum });
     dbr.links = dbr.links.concat(relRecs);
     stamps.forEach(st => dbr.stamps.push({ ...stampDefaults, ...st }));
+  },
+
+
+  maybeStampUnapproved(anno, stamps) {
+    const apiFieldName = 'dc:dateAccepted';
+    if (anno[apiFieldName] !== false) { return; }
+    delete anno[apiFieldName]; // eslint-disable-line no-param-reassign
+    stamps.push({ st_type: '_ubhd:unapproved' });
   },
 
 
