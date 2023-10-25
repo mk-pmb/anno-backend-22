@@ -101,6 +101,7 @@ const EX = {
 
 
   async importOneAnno(origAnno) {
+    const isoDateNow = (new Date()).toISOString();
     let { annoUser } = EX.cfg;
     const minimumConfig = { publicBaseUrlNoSlash: EX.cfg.baseUrl };
     const stamps = [];
@@ -110,11 +111,8 @@ const EX = {
       EX.simpleDateStampTypes.forEach(function convertStamp(stampType) {
         const val = pop('undef | nonEmpty str', stampType);
         if (!val) { return; }
-        stamps.push({
-          st_type: stampType,
-          st_at: (new Date(val)).toISOString(),
-          st_by: annoUser,
-        });
+        const isoDateVal = (new Date(val)).toISOString();
+        stamps.push({ st_type: stampType, st_at: isoDateVal });
       });
       const parsed = parseSubmittedAnno(pop, {
         ...minimumConfig,
@@ -133,17 +131,23 @@ const EX = {
       Error, mustBe.nest('Anno ID URL', anno.id));
     if (!versNum) { throw new Error('Anno ID URL must include version!'); }
     const idParts = { base_id: baseId, version_num: versNum };
-    const dbr = EX.dbRecords;
+    const annoCreatedTime = mustBe.nest('Anno creation time', anno.created);
+    const stampDefaults = {
+      ...idParts,
+      st_at: annoCreatedTime || isoDateNow,
+      st_by: annoUser || '',
+    };
 
+    const dbr = EX.dbRecords;
     dbr.data.push({
       ...idParts,
-      time_created: mustBe.nest('Anno creation time', anno.created),
+      time_created: annoCreatedTime,
       author_local_userid: annoUser,
       details: sortedJson(anno, { space: 0 }),
     });
     const relRecs = fmtRelRecs({ srv: minimumConfig, anno, baseId, versNum });
     dbr.links = dbr.links.concat(relRecs);
-    stamps.forEach(st => dbr.stamps.push({ ...idParts, ...st }));
+    stamps.forEach(st => dbr.stamps.push({ ...stampDefaults, ...st }));
   },
 
 
