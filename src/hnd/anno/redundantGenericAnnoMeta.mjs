@@ -14,18 +14,15 @@ const EX = {
 
   constructLatestPubUrl(srv, idParts) {
     return (srv.publicBaseUrlNoSlash
+      + (idParts.injectedBaseUrlExtension || '')
       + '/anno/'
       + idParts.baseId
     );
   },
 
   constructVersionNumberPubUrl(srv, idParts) {
-    return (srv.publicBaseUrlNoSlash
-      + '/anno/'
-      + idParts.baseId
-      + vnSep
-      + idParts.versNum
-    );
+    const latest = EX.constructLatestPubUrl(srv, idParts);
+    return latest + vnSep + idParts.versNum;
   },
 
   add(srv, idParts, annoDetails) {

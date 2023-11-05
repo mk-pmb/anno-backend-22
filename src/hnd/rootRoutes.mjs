@@ -26,7 +26,9 @@ const EX = async function installRootRoutes(srv) {
   rt.get('/', plumb.makeRedirector('static/'));
 
   rt.use('/session/*', await makeSessionRoute(srv));
-  rt.use('/anno/*', await makeAnnoRoute(srv));
+  const annoRoute = await makeAnnoRoute(srv);
+  rt.use('/anno/*', annoRoute);
+  rt.use('/as/:asRoleName/anno/*', annoRoute);
   rt.use('/rssb/', await makeBearerRssHandler(srv));
   siteLocalReservedRoutes.installRoutes(rt);
 

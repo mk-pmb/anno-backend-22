@@ -13,6 +13,10 @@ import postNewAnno from './postNewAnno/index.mjs';
 import searchBy from './searchBy/index.mjs';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
+function errNotImpl(why) { throw httpErrors.notImpl.explain(why).throwable(); }
+function orf(x) { return x || false; }
+
+
 
 const EX = async function makeAnnoRoute(srv) {
   function rt(req) { return EX.annoRoute(req, srv); }
@@ -20,11 +24,19 @@ const EX = async function makeAnnoRoute(srv) {
 };
 
 
+
 Object.assign(EX, {
 
   async annoRoute(req, srv) {
     req.confirmCors();
     if (req.method === 'OPTIONS') { return; }
+
+    const asRoleName = (orf(req.params).asRoleName || '');
+    if (/\W/.test(asRoleName)) { errNotImpl('Invalid role name'); }
+    req.asRoleName = asRoleName; // eslint-disable-line no-param-reassign
+    // ^- No roleName ACL checks here: We cannot validate role permissions
+    //    until we know which subject URLs are meant to be affected.
+
     const urlSubDirs = plumb.getFirstAsteriskDirs(req);
     const [dir1, ...subDirs] = urlSubDirs;
     if (dir1 === 'by') { return searchBy(subDirs, req, srv); }
@@ -39,14 +51,14 @@ Object.assign(EX, {
   decideSubRoute(urlSubDirs) {
     const nSub = urlSubDirs.length;
     const [versId, sub1] = urlSubDirs;
-    const deci = { versId, subRoute: (sub1 || false) };
+    const deci = { versId, subRoute: orf(sub1) };
     if (nSub === 1) { return deci; }
     if (versId && (nSub === 2)) {
       if (sub1 === 'versions') { return deci; }
     }
     if (nSub >= 2) {
       const msg = 'Anno subresource not implemented: ' + sub1;
-      throw httpErrors.notImpl.explain(msg).throwable();
+      errNotImpl(msg);
     }
     throw new Error('Bad route declaration');
   },
@@ -68,6 +80,9 @@ Object.assign(EX, {
       idParts: parseVersId(httpErrors.throwable.fubar, versId),
       subRoute,
     };
+    if (req.asRoleName) {
+      ctx.idParts.injectedBaseUrlExtension = '/as/' + req.asRoleName;
+    }
 
     const { method } = req;
     const fxKey = versId + (subRoute ? '_' + subRoute : '');

@@ -9,7 +9,9 @@ const archiveBotKeywordsLowercase = [
 function lcHdr(req, h) { return String(req.header(h) || '').toLowerCase(); }
 
 const EX = function guessClientPrefersHtml(req) {
+  if (req.asRoleName) { return false; }
   const userAgent = lcHdr(req, 'user-agent');
+  if (!userAgent) { return false; }
   const foundArchiveBotKeyword = archiveBotKeywordsLowercase.find(
     kw => userAgent.includes(kw));
   if (foundArchiveBotKeyword) {

@@ -18,6 +18,9 @@ const {
 } = httpErrors.throwable;
 
 
+const lackOfApprovalStampName = '_ubhd:unapproved';
+
+
 function orf(x) { return x || false; }
 
 
@@ -81,13 +84,22 @@ const EX = async function lookupExactVersion(ctx) {
     throw noSuchAnno();
   }
 
-  if (lowlineStamps['_ubhd:unapproved']) {
-    const err = noSuchAnno('Annotation is not yet approved');
-    /* NB: This is different from "Annotation is pending approval",
-       because here we don't care whether approval has been requested. */
-    err.reasonCode = 'approvalRequired';
-    err.headers = defaultErrorHeaders;
-    throw err;
+  if (lowlineStamps[lackOfApprovalStampName]) {
+    if (req.asRoleName === 'approver') {
+      await requireAdditionalReadPrivilege('stamp_any_add_dc_dateAccepted');
+      annoDetails['dc:dateAccepted'] = false;
+    } else {
+      const err = noSuchAnno('Annotation requires approval');
+      /* NB: "Lacking" approval is different from "pending" approval.
+        The error message "Annotation is pending approval" would imply a
+        future plan for a decision to be made, which may or may not be
+        stipulated in site policy. In order to keep this implementation
+        independent of site policy, we just stick to the actual facts
+        without any prediction. */
+      err.reasonCode = 'approvalRequired';
+      err.headers = defaultErrorHeaders;
+      throw err;
+    }
   }
 
   const lookup = {
