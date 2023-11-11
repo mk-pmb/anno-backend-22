@@ -22,8 +22,47 @@ const dfOpt = {
 };
 
 
+const views = { // in order of creation – will be dropped in reverse order.
+
+  anno_disclosed: `
+    SELECT "base_id", "version_num" FROM "anno_data"
+    EXCEPT
+    SELECT "base_id", "version_num" FROM "anno_stamps"
+      WHERE "st_type" = '_ubhd:unapproved'
+    `,
+
+  anno_unapproved: `
+    SELECT "base_id", "version_num" FROM "anno_stamps"
+      WHERE "st_type" = '_ubhd:unapproved'
+    EXCEPT
+    SELECT "base_id", "version_num" FROM "anno_stamps"
+      WHERE "st_type" = 'as:deleted'
+    `,
+
+  anno_stamps_effuts: `
+    SELECT *, extract(epoch from COALESCE("st_effts", "st_at")) AS st_effuts
+    -- Appending 0 to the arguments list of COALESCE here would be useless
+    -- for most JOINs because a non-existing stamp would still produce either
+    -- NULL or row omission, never number 0.
+    FROM "anno_stamps"
+    `,
+
+  anno_stamps_as_json: `
+    SELECT "base_id", "version_num", json_agg(
+      jsonb_build_object(
+        'type', "st_type",
+        'ts', COALESCE(extract(epoch from COALESCE("st_effts", "st_at")), 0),
+        'detail', "st_detail")
+      ORDER BY "st_type" ASC
+      ) AS "stamps"
+    FROM "anno_stamps" GROUP BY "base_id", "version_num"
+    `,
+
+};
+
 // We have to drop all views before we can drop their tables.
-console.log('DROP VIEW IF EXISTS anno_stamps_effuts;');
+Object.keys(views).reverse().forEach(
+  name => console.log('DROP VIEW IF EXISTS "' + name + '";'));
 
 
 console.log(pgDumpWriter.fmtCreateSimpleTable('data', {
@@ -59,12 +98,12 @@ console.log(pgDumpWriter.fmtCreateSimpleTable('stamps', {
   ...dfOpt,
 }));
 
-console.log(`CREATE VIEW anno_stamps_effuts AS SELECT "st".*,
-  extract(epoch from COALESCE("st"."st_effts", "st"."st_at"))
-  AS st_effuts FROM "anno_stamps" AS "st";\n`);
-// ^- Adding COALESCE(…, 0) here would be useless for most JOINs
-//    because a non-existing stamp would still produce either NULL
-//    or row omission, never number 0.
+
+
+
+loMapValues(views, function createView(recipe, name) {
+  console.log('CREATE VIEW "' + name + '" AS ' + recipe.trimEnd() + ';\n');
+});
 
 
 
