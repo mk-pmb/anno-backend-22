@@ -22,20 +22,29 @@ const responseRowsApi = {
 
 
 function unpackRows(r) {
-  return Object.assign([...r.rows], responseRowsApi,
-    { getFullResponse() { return r; } });
+  const { rowCount } = r;
+  return Object.assign([...r.rows], responseRowsApi, {
+    getFullResponse() { return r; },
+    rowCount,
+  });
 }
 
 
-async function postgresSelect(tpl, slots) {
+async function postgresQueryRows(tpl, slots) {
   const pool = this.getPool();
-  const resp = await pool.query('SELECT ' + maybeJoin(tpl, '\n'), slots);
+  const resp = await pool.query(maybeJoin(tpl, '\n'), slots);
   return unpackRows(resp);
+}
+
+
+function postgresSelect(tpl, slots) {
+  return postgresQueryRows.call(this, 'SELECT ' + tpl, slots);
 }
 
 
 export default {
   api: {
+    postgresQueryRows,
     postgresSelect,
   },
 };

@@ -38,6 +38,7 @@ async function postgresInsertOneRecord(table, rec, origOpt) {
 
     if (codeStr === '23505') {
       const dupe = callIfTruthy(safeOpt.customDupeError, origErr);
+      if (dupe === 'ignore') { return false; }
       if (dupe) { throw dupe; }
     }
 

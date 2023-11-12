@@ -62,13 +62,17 @@ const EX = {
     await ctx.requireAdditionalReadPrivilege(privName);
     stRec.st_by = (ctx.who.userId || '');
     stRec.st_at = (new Date()).toISOString();
+    ctx.mainStampRec = stRec;
 
     const stampFx = orf(getOwn(EX.stampFx, stRec.st_type));
     await (stampFx.prepareAdd || doNothing)(ctx);
 
     ctx.hadDupeError = false;
     await ctx.srv.db.postgresInsertOneRecord('anno_stamps', stRec, {
-      customDupeError(err) { ctx.hadDupeError = err; },
+      customDupeError(err) {
+        ctx.hadDupeError = err;
+        return 'ignore';
+      },
     });
 
     await (stampFx.cleanupAfterAdd || doNothing)(ctx);
@@ -85,7 +89,6 @@ const EX = {
 
   stampFx: {
     'dc:dateAccepted': approvalDecisionSideEffects,
-    'as:deleted': approvalDecisionSideEffects,
   },
 
 
