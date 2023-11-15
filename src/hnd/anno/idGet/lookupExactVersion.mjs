@@ -3,7 +3,6 @@
 import getOwn from 'getown';
 
 import categorizeTargets from '../categorizeTargets.mjs';
-import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 import parseStampRows from '../parseStampRows.mjs';
@@ -52,10 +51,13 @@ const EX = async function lookupExactVersion(ctx) {
   const lowlineStamps = {};
   parseStampRows.into(annoDetails, stampRows, { lowlineStamps });
 
-  const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
+  const latestPubUrlRelative = baseId;
   const defaultErrorHeaders = {
-    'Latest-Version': latestPubUrl,
-    'Version-History': latestPubUrl + '/versions',
+    Link: [
+      // Version control header examples: RFC 5829 page 11
+      '<' + latestPubUrlRelative + '>; rel=latest-version',
+      '<' + latestPubUrlRelative + '/versions>; rel=version-history',
+    ],
   };
 
   const nowTs = Date.now();

@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import clientPrefersHtml from '../../util/guessClientPrefersHtml.mjs';
+import fmtIanaHeaders from '../fmtIanaHeaders.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
@@ -11,13 +12,8 @@ import lookupExactVersion from './lookupExactVersion.mjs';
 const EX = async function serveExactVersion(ctx) {
   const found = await lookupExactVersion(ctx);
   const { srv, req, idParts } = ctx;
-  const headers = {};
+  const headers = fmtIanaHeaders.onlyPrefixed(found.annoDetails);
   const ftrOpt = { type: 'annoLD', headers };
-  Object.entries(found.annoDetails).forEach(function sendIanaHeaders([k, v]) {
-    if (!k.startsWith('iana:')) { return; }
-    const h = k.slice(5).replace(/\b[a-z]/g, m => m.toUpperCase());
-    headers[h] = v;
-  });
 
   if (clientPrefersHtml(req)) {
     const redirUrl = browserRedirect.fmtUrl(found, ctx);
