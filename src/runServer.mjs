@@ -22,7 +22,8 @@ const exitSoonSignalNames = [
   process.chdir('/');
 
   const { allCliOpt } = parseCliArgs(); // see import above!
-  console.debug('Server CLI options:', allCliOpt);
+  console.debug('Server CLI options:', allCliOpt,
+    'node.js version:', process.version);
 
   const srv = await makeServer({
     testfx_exit_soon_sec: 0,
