@@ -49,6 +49,11 @@ const EX = async function createServer(customConfig) {
 
   const webSrv = nodeHttp.createServer();
   const app = express();
+  app.set('x-powered-by', false);
+  app.set('case sensitive routing', true);
+  app.set('etag', false);
+  app.set('strict routing', true);
+
   app.once('close', function cleanup(...args) {
     console.debug('cleanup:', args);
   });
