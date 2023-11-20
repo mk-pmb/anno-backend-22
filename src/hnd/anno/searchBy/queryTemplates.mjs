@@ -1,10 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import miscSql from '../miscSql.mjs';
+
 const qtpl = {
-
-  annoExactVerCond: (a, b, c) => (`"${a}"."base_id" = "${b}"."base_id" `
-    + `AND "${a}"."version_num" = "${b}"."${c || 'version_num'}"`),
-
 };
 
 
@@ -18,7 +16,7 @@ Object.assign(qtpl, {
       #detailsColumnExpr
     FROM "anno_data" AS "da"
     JOIN ( #searchFilter ) AS "sel"
-      ON ${qtpl.annoExactVerCond('da', 'sel', 'max_revi')}
+      ON ${miscSql.annoExactVerCond('da', 'sel', 'max_revi')}
     #stampFilterJoins
     WHERE #rqAlwaysShowOwnAnnos OR ( True #stampFilterWhereAnds
       #extraWhereAnds )
@@ -36,7 +34,7 @@ Object.assign(qtpl, {
       'ts', "st"."st_effuts",
       'detail', "st"."st_detail")
     FROM "anno_stamps_effuts" AS "st"
-    WHERE ${qtpl.annoExactVerCond('st', 'da')}
+    WHERE ${miscSql.annoExactVerCond('st', 'da')}
     ) AS "stamps",`.replace(/\n\s+/g, ' '),
 
   rqAlwaysShowOwnAnnos: 'False',
