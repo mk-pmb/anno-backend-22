@@ -5,6 +5,7 @@ import mapObjValues from 'lodash.mapvalues';
 import makeNumberizer from 'simple-placeholder-slot-numberizer-pmb';
 import slotTpl from 'simple-recursive-string-slot-template-pmb';
 
+import miscSql from '../miscSql.mjs';
 import queryTemplates from './queryTemplates.mjs';
 
 
@@ -54,13 +55,10 @@ EX.api = {
 
 
   joinStampEffUts0(bsq, joinAs, stType) {
+    const { colLn, join } = miscSql.joinStampEffUts0(joinAs, stType);
     const tpl = bsq.templates;
-    tpl.stampFilterColumns += `
-      COALESCE(${joinAs}.st_effuts, 0) AS "${joinAs}Ts",`;
-    tpl.stampFilterJoins += `
-      LEFT JOIN "anno_stamps_effuts" AS "${joinAs}"
-        ON ${queryTemplates.annoExactVerCond(joinAs, 'da')}
-          AND "${joinAs}"."st_type" = '${stType}'`;
+    tpl.stampFilterColumns += colLn;
+    tpl.stampFilterJoins += join;
     tpl.stampFilterWhereAnds += '\n      #' + joinAs + 'WhereAnd';
   },
 
