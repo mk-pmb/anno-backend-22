@@ -39,17 +39,26 @@ EX.api = {
   data(b, d) { return Object.assign(b.dataSlots, d) && b; },
 
 
-  async selectAll(bsq, srv) {
+  buildSql(bsq) {
     const tpl = {
       ...bsq.templates,
       nowUts: Date.now() / 1e3,
     };
-    let qry = slotTpl('#baseQuery', /#([A-Za-z]\w*)/g, tpl);
+    let query = slotTpl('#baseQuery', /#([A-Za-z]\w*)/g, tpl);
+    query = query.replace(/\s+\r/g, '');
+    query = query.replace(/\s+\n/g, '\n').trim();
     const numb = makeNumberizer();
-    qry = slotTpl(qry, /\$([A-Za-z]\w*)/g, mapObjValues(bsq.dataSlots, numb));
+    query = slotTpl(query, /\$([A-Za-z]\w*)/g,
+      mapObjValues(bsq.dataSlots, numb));
     const args = numb.values;
-    // console.debug('built search query: >>' + qry + '<<', args);
-    const found = await srv.db.postgresSelect(qry, args);
+    // console.debug('built search query: >>' + query + '<<', args);
+    return { query, args };
+  },
+
+
+  async selectAll(bsq, srv) {
+    const { query, args } = bsq.buildSql();
+    const found = await srv.db.postgresSelect(query, args);
     return found;
   },
 
