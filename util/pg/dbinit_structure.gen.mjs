@@ -47,7 +47,7 @@ const views = { // in order of creation – will be dropped in reverse order.
     FROM "anno_stamps"
     `,
 
-  anno_stamps_as_json: `
+  anno_stamps_json: `
     SELECT "base_id", "version_num", json_agg(
       jsonb_build_object(
         'type', "st_type",
@@ -56,6 +56,12 @@ const views = { // in order of creation – will be dropped in reverse order.
       ORDER BY "st_type" ASC
       ) AS "stamps"
     FROM "anno_stamps" GROUP BY "base_id", "version_num"
+    `,
+
+  anno_subjtargets_json: `
+    SELECT "base_id", "version_num",
+      json_agg(DISTINCT "url") AS "subject_target_rel_urls"
+    FROM "anno_links" WHERE "rel" = 'subject' GROUP BY "base_id", "version_num"
     `,
 
 };
