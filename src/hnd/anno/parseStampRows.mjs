@@ -4,6 +4,7 @@ import stampValueOrDate from './stampValueOrDate.mjs';
 
 
 const EX = function parseStampRows(rows, origHow) {
+  if (!rows) { return false; }
   const how = (origHow || false);
   const lls = how.lowlineStamps;
   const stampsDict = {};

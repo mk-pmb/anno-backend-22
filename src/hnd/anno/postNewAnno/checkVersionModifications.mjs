@@ -6,9 +6,10 @@ import isStr from 'is-string';
 import objPop from 'objpop';
 import sortedJson from 'safe-sortedjson';
 
+import findLatest from '../idGet/findLatestVersionNumsForBaseId.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
-import idGetHnd from '../idGet/index.mjs';
+import lookupExactVersion from '../idGet/lookupExactVersion.mjs';
 import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseVersId from '../parseVersionIdentifier.mjs';
 
@@ -29,7 +30,7 @@ const EX = async function checkVersionModifications(ctx) {
   await EX.validateAnnoIdParts(ctx);
   const { anno, idParts, req } = ctx;
   if (!idParts.baseId) { return; }
-  const lookup = await idGetHnd.lookupExactVersion(ctx);
+  const lookup = await lookupExactVersion(ctx);
   ctx.oldAnnoDetails = lookup.annoDetails;
   idParts.versNum += 1;
 
@@ -72,8 +73,23 @@ Object.assign(EX, {
         + oldAnnoIdParts.versNum + ' in dc:isVersionOf');
       throw badRequest(msg);
     }
-    idParts.baseId = oldAnnoIdParts.baseId;
-    idParts.versNum = await idGetHnd.lookupLatestVersionNum(ctx);
+
+    const { baseId } = oldAnnoIdParts;
+    // console.debug(EX.name, 'idParts:', idParts, '=?= old:', oldAnnoIdParts);
+
+    /* Lookup latest version based on same author: Nope: We can only replace
+        the absolute latest version. Authorship doesn't matter for that.
+      const { userId } = (ctx.who || false);
+      const allLatest = await findLatest.core(srv, baseId, { owner: userId });
+      const ourLatest = (allLatest.own || allLatest.dis);
+      console.debug(EX.name, 'allLatest:', allLatest, { ourLatest, userId });
+    */
+    const ourLatest = (await findLatest.core(srv, baseId, false)).max;
+    if (!ourLatest) { throw new Error('No latest version for ' + baseId); }
+    idParts.baseId = baseId;
+    idParts.versNum = ourLatest;
+    // console.debug(EX.name, 'expected idParts:', idParts);
+
     if (dcReplaces) { await EX.validateDcReplaces(dcReplaces, ctx); }
   },
 

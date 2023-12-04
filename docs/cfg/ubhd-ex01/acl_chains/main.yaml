@@ -17,6 +17,10 @@
         lookupAnnoTargets: allow
         # ^- Required pre-condition for "read" privilege.
 
+        discover: allow
+        # ^- Required to read version history
+
+
   - if:
         memberOfAclGroup: 'suspended'
     decide:
@@ -46,7 +50,6 @@
     decide:
         create: allow
         create_across_services: allow
-        discover: allow
         read: allow
     # debugDump: meta
 

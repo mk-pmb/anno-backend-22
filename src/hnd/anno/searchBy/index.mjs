@@ -7,7 +7,7 @@ import splitStringOnce from 'split-string-or-buffer-once-pmb';
 import libFmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 
-import bySubjectTarget from './subjectTarget.mjs';
+import multiSearch from './multiSearch.mjs';
 
 
 const unsupportedCriterion = httpErrors.notImpl.explain(
@@ -38,20 +38,32 @@ const EX = async function searchBy(pathParts, req, srv) {
 
 
 async function fmtColl({ srv, req }, annoListPr) {
-  const annos = await annoListPr;
+  let annos = await annoListPr;
+  if (annos.toFullAnnos) { annos = annos.toFullAnnos(); }
   libFmtAnnoCollection.replyToRequest(srv, req, { annos });
+}
+
+
+function makeSubPathUrlSearch(pathKey, customOpt) {
+  const opt = {
+    latestOnly: true,
+    readContent: 'full',
+    ...customOpt,
+  };
+  const f = function subPathUrlSearch(ctx, subPathParts) {
+    const sub = apacheSlashes(subPathParts);
+    return fmtColl(ctx, multiSearch({ ...ctx, ...opt, [pathKey]: sub }));
+  };
+  Object.assign(f, { pathKey });
+  return f;
 }
 
 
 Object.assign(EX, {
 
+
   handlers: {
-
-    subject_target(ctx, spp) {
-      return fmtColl(ctx, bySubjectTarget(
-        { subjTgtSpec: apacheSlashes(spp), ...ctx }));
-    },
-
+    subject_target: makeSubPathUrlSearch('subjTgtSpec'),
   },
 
 

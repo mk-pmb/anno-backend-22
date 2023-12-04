@@ -2,10 +2,10 @@
 
 import httpErrors from '../../../httpErrors.mjs';
 
+import findLatest from './findLatestVersionNumsForBaseId.mjs';
 import listVersions from './listVersions.mjs';
-import lookupExactVersion from './lookupExactVersion.mjs';
-import minis from './minis.mjs';
 import serveExactVersion from './serveExactVersion.mjs';
+
 
 const {
   noSuchAnno,
@@ -19,18 +19,14 @@ const EX = function idGet(ctx) {
     if (subRoute) { throw noSuchAnno(); }
     return serveExactVersion(ctx);
   }
-  if (!subRoute) { return minis.redirToLatestVersion(ctx); }
+  if (!subRoute) { return findLatest.redirToLatestVersion(ctx); }
   if (subRoute === 'versions') { return listVersions(ctx); }
   throw noSuchResource();
 };
 
 
-Object.assign(EX, {
-
-  lookupExactVersion,
-  lookupLatestVersionNum: minis.lookupLatestVersionNum,
-
-});
+// Object.assign(EX, {
+// });
 
 
 export default EX;

@@ -3,10 +3,15 @@
 import clientPrefersHtml from '../../util/guessClientPrefersHtml.mjs';
 import fmtIanaHeaders from '../fmtIanaHeaders.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
+import httpErrors from '../../../httpErrors.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
 import browserRedirect from './browserRedirect.mjs';
 import lookupExactVersion from './lookupExactVersion.mjs';
+
+const {
+  methodNotAllowed,
+} = httpErrors.throwable;
 
 
 const EX = async function serveExactVersion(ctx) {
@@ -26,6 +31,8 @@ const EX = async function serveExactVersion(ctx) {
       support manual approval of redirects.
     */
   }
+  if (req.method === 'HEAD') { return sendFinalTextResponse(req, '', ftrOpt); }
+  if (req.method !== 'GET') { throw methodNotAllowed(); }
   const fullAnno = genericAnnoMeta.add(srv, idParts, found.annoDetails);
   return sendFinalTextResponse.json(req, fullAnno, ftrOpt);
 };

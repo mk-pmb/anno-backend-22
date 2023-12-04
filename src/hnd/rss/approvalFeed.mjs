@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import searchBySubjectTarget from '../anno/searchBy/subjectTarget.mjs';
+import multiSearch from '../anno/searchBy/multiSearch.mjs';
 import fmtAnnosAsRssFeed from '../anno/fmtAnnosAsRssFeed.mjs';
 
 
@@ -12,13 +12,17 @@ const EX = async function approvalFeed(how) {
     req,
     srv,
   } = how;
-  const annos = await searchBySubjectTarget({
+  req.asRoleName = 'approver';
+  const found = await multiSearch({
+    srv,
     req,
     rowsLimit: (+how.rowsLimit || 100),
-    srv,
     subjTgtSpec: prefix + (req.query.subj || '*'),
-    untrustedOpt: { role: 'approver' },
+    overrideSearchTmpl: { visibilityWhere: '#visibilityUndecided' },
+    latestOnly: true,
+    readContent: 'justTitles',
   });
+  const annos = found.toFullAnnos();
   return fmtAnnosAsRssFeed({
     annos,
     feedTitle,

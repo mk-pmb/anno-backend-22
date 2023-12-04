@@ -92,6 +92,7 @@ Object.assign(EX, {
     if (fxFunc) { return fxFunc(ctx); }
 
     if (method === 'GET') { return idGet(ctx); }
+    if (method === 'HEAD') { return idGet(ctx); }
     if (method === 'PATCH') { return patchAnno(ctx); }
     return httpErrors.badVerb(req);
   },

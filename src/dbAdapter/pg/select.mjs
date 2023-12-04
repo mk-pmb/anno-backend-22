@@ -38,7 +38,9 @@ async function postgresQueryRows(tpl, slots) {
 
 
 function postgresSelect(tpl, slots) {
-  return postgresQueryRows.call(this, 'SELECT ' + tpl, slots);
+  let pre = 'SELECT ';
+  if (/^\s*(with)\b/i.test(tpl)) { pre = ''; }
+  return postgresQueryRows.call(this, pre + tpl, slots);
 }
 
 
