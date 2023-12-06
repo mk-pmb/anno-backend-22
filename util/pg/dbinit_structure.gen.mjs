@@ -22,22 +22,29 @@ const dfOpt = {
 };
 
 
+const visibilityViews = (function compile() {
+  const colsGlued = '"base_id", "version_num"';
+  const selCols = 'SELECT ' + colsGlued + ' FROM ';
+  const wrapOrder = [].join.bind(['SELECT * FROM (\n',
+    '\n) AS "in" ORDER BY "base_id" ASC, "version_num" ASC']);
+  const stampType = selCols + '"anno_stamps" WHERE "st_type" ';
+  const unappSt = stampType + "= '_ubhd:unapproved'";
+  return {
+    views: {
+      anno_unapproved: wrapOrder(unappSt),
+      anno_disclosed: wrapOrder(selCols + '"anno_data" EXCEPT ' + unappSt),
+      anno_undecided: wrapOrder(unappSt
+        + ` EXCEPT ${stampType} = 'as:deleted'`),
+    },
+    wrapOrder,
+    colsGlued,
+  };
+}());
+
+
 const views = { // in order of creation – will be dropped in reverse order.
 
-  anno_disclosed: `
-    SELECT "base_id", "version_num" FROM "anno_data"
-    EXCEPT
-    SELECT "base_id", "version_num" FROM "anno_stamps"
-      WHERE "st_type" = '_ubhd:unapproved'
-    `,
-
-  anno_unapproved: `
-    SELECT "base_id", "version_num" FROM "anno_stamps"
-      WHERE "st_type" = '_ubhd:unapproved'
-    EXCEPT
-    SELECT "base_id", "version_num" FROM "anno_stamps"
-      WHERE "st_type" = 'as:deleted'
-    `,
+  ...visibilityViews.views,
 
   anno_stamps_effuts: `
     SELECT *, extract(epoch from COALESCE("st_effts", "st_at")) AS st_effuts
@@ -47,16 +54,17 @@ const views = { // in order of creation – will be dropped in reverse order.
     FROM "anno_stamps"
     `,
 
-  anno_stamps_json: `
-    SELECT "base_id", "version_num", json_agg(
+  anno_stamps_json: visibilityViews.wrapOrder(`
+    SELECT ${visibilityViews.colsGlued}, json_agg(
       jsonb_build_object(
         'type', "st_type",
         'ts', COALESCE(extract(epoch from COALESCE("st_effts", "st_at")), 0),
         'detail', "st_detail")
       ORDER BY "st_type" ASC
       ) AS "stamps"
-    FROM "anno_stamps" GROUP BY "base_id", "version_num"
-    `,
+    FROM "anno_stamps"
+    GROUP BY "base_id", "version_num"
+    `),
 
   anno_subjtargets_json: `
     SELECT "base_id", "version_num",
