@@ -4,11 +4,26 @@
   <title>Approval Redirect</title>
 </head><body>
 
-<h2>Approval Redirect&hellip;</h2>
+<h2><a>Approval Redirect&hellip;</a></h2>
 <script>
-location.href = ('http://localhost:33380/anno-frontend/'
-  + 'test/html/displayAnnotations.nm.html'
-  + '?approval=1&cmp1=' + location.search.slice(1));
+/*jslint indent: 2, maxlen: 80, browser: true */
+(function redirect() {
+  'use strict';
+  var host = location.hostname, port = (+location.port || 0),
+    protoHost = location.protocol + '//' + host, frontendBaseUrl,
+    isStagingServer = [0, 80, 443].includes(port),
+    redir, link = document.getElementsByTagName('a')[0];
+  frontendBaseUrl = (protoHost
+    + (isStagingServer ? '' : ':33380')
+    + '/anno-frontend/'
+    + (isStagingServer ? 'experimental/' : '')
+    );
+  redir = (frontendBaseUrl
+    + 'test/html/displayAnnotations.nm.html'
+    + '?approval=1&cmp1=' + location.search.slice(1));
+  if (link) { link.href = redir; }
+  location.href = redir;
+}());
 </script>
 
 </body></html>
