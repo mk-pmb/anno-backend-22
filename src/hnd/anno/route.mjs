@@ -1,7 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import getOwn from 'getown';
-import conciseValuePreview from 'concise-value-preview-pmb';
+// import conciseValuePreview from 'concise-value-preview-pmb';
 
 import emptyIdGet from './emptyIdGet.mjs';
 import plumb from '../util/miscPlumbing.mjs';
@@ -88,7 +88,7 @@ Object.assign(EX, {
     const fxKey = versId + (subRoute ? '_' + subRoute : '');
     const fxFunc = (getOwn(EX, method.toLowerCase() + '_' + fxKey)
       || getOwn(EX, 'other_' + fxKey));
-    req.logCkp('annoIdRoute fx?', 'fxFunc =', conciseValuePreview(fxFunc));
+    // req.logCkp('annoIdRoute fx?', 'fxFunc =', conciseValuePreview(fxFunc));
     if (fxFunc) { return fxFunc(ctx); }
 
     if (method === 'GET') { return idGet(ctx); }
