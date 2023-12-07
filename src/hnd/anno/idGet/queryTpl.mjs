@@ -1,7 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 const EX = {
-  annoDetails: ('"details"'
+  annoDetails: ('"details", "author_local_userid"'
     + ' FROM "anno_data" WHERE "base_id" = $1'
     + ' AND "version_num" = $2 LIMIT 2'
   ),

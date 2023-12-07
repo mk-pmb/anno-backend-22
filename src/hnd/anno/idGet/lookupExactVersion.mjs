@@ -3,6 +3,7 @@
 import getOwn from 'getown';
 
 import categorizeTargets from '../categorizeTargets.mjs';
+import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 import parseStampRows from '../parseStampRows.mjs';
@@ -14,10 +15,12 @@ const {
   fubar,
   gone,
   noSuchAnno,
+  noSuchResource,
 } = httpErrors.throwable;
 
 
 const lackOfApprovalStampName = '_ubhd:unapproved';
+const approverPrivilegeName = 'stamp_any_add_dc_dateAccepted';
 
 
 function orf(x) { return x || false; }
@@ -86,9 +89,26 @@ const EX = async function lookupExactVersion(ctx) {
     throw noSuchAnno();
   }
 
+  // For consistency (and thus, less nasty surprises) we always verify
+  // claimed roles, even for public annos.
+  const allowReadUnapproved = await (async function decide() {
+    const { asRoleName } = req;
+    if (!asRoleName) { return false; }
+    if (asRoleName === 'approver') {
+      await requireAdditionalReadPrivilege(approverPrivilegeName);
+      return true;
+    }
+    if (asRoleName === 'author') {
+      const webUser = (await detectUserIdentity(req)).userId;
+      const annoSubmitter = detailsReply.author_local_userid;
+      // console.debug('allowReadUnapproved:', { webUser, annoSubmitter });
+      return (webUser && (webUser === annoSubmitter));
+    }
+    throw noSuchResource('Unsupported role name in URL.');
+  }());
+
   if (lowlineStamps[lackOfApprovalStampName]) {
-    if (req.asRoleName === 'approver') {
-      await requireAdditionalReadPrivilege('stamp_any_add_dc_dateAccepted');
+    if (allowReadUnapproved) {
       annoDetails['dc:dateAccepted'] = false;
     } else {
       const err = noSuchAnno('Annotation requires approval');
