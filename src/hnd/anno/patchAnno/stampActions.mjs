@@ -4,6 +4,7 @@ import getOwn from 'getown';
 
 import decideAuthorIdentity from '../postNewAnno/decideAuthorIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
+import lookupExactVersion from '../idGet/lookupExactVersion.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 
 import approvalDecisionSideEffects from './approvalDecisionSideEffects.mjs';
@@ -32,6 +33,12 @@ const stampNamespaceRgx = /^\w+(?=:)/;
 //    strict here, because that responsibility lies with the ACL.
 
 
+const roleByStamp = {
+  'as:deleted':         'approver',
+  'dc:dateApproved':    'approver',
+};
+
+
 const EX = {
 
   dupeStamp() { throw stateConflict('A stamp of this type already exists'); },
@@ -45,15 +52,21 @@ const EX = {
       st_detail: null,
     };
     let uscType;
+    let stType;
     await ctx.catchBadInput(function parse(mustPopInput) {
-      stRec.st_type = mustPopInput('nonEmpty str', 'type');
-      const namespace = orf(stampNamespaceRgx.exec(stRec.st_type))[0];
+      stType = mustPopInput('nonEmpty str', 'type');
+      stRec.st_type = stType;
+      const namespace = orf(stampNamespaceRgx.exec(stType))[0];
       if (!namespace) { throw notImpl('Unsupported stamp namespace'); }
-      uscType = namespace + '_' + stRec.st_type.slice(namespace.length + 1);
+      uscType = namespace + '_' + stType.slice(namespace.length + 1);
       const popMore = getOwn(EX.addStampParseDetails, uscType);
       if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
       mustPopInput.expectEmpty();
     });
+
+    const guessRole = getOwn(roleByStamp, stType);
+    if (guessRole) { ctx.req.asRoleName = guessRole; }
+    Object.assign(ctx, await lookupExactVersion(ctx));
     const author = decideAuthorIdentity.fromAnnoCreator(ctx.annoDetails,
       ctx.who);
 
@@ -64,7 +77,7 @@ const EX = {
     stRec.st_at = (new Date()).toISOString();
     ctx.mainStampRec = stRec;
 
-    const stampFx = orf(getOwn(EX.stampFx, stRec.st_type));
+    const stampFx = orf(getOwn(EX.stampFx, stType));
     await (stampFx.prepareAdd || doNothing)(ctx);
 
     ctx.hadDupeError = false;
