@@ -5,6 +5,7 @@ import qrystr from 'qrystr';
 import splitStringOnce from 'split-string-or-buffer-once-pmb';
 
 import libFmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
+import fmtAnnosAsRssFeed from '../fmtAnnosAsRssFeed.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 
 import multiSearch from './multiSearch.mjs';
@@ -38,8 +39,17 @@ const EX = async function searchBy(pathParts, req, srv) {
 
 
 async function fmtColl({ srv, req }, annoListPr) {
-  let annos = await annoListPr;
-  if (annos.toFullAnnos) { annos = annos.toFullAnnos(); }
+  const annos = (await annoListPr).toFullAnnos();
+  const { outFmt } = annos.meta;
+
+  if (outFmt === 'rss') {
+    const rssOpt = {
+      feedTitle: 'Search',
+      linkTpl: '%au',
+    };
+    return fmtAnnosAsRssFeed({ ...rssOpt, annos, req, srv });
+  }
+
   libFmtAnnoCollection.replyToRequest(srv, req, { annos });
 }
 
@@ -48,6 +58,7 @@ function makeSubPathUrlSearch(pathKey, customOpt) {
   const opt = {
     latestOnly: true,
     readContent: 'full',
+    rssMaxItems: -1,
     ...customOpt,
   };
   const f = function subPathUrlSearch(ctx, subPathParts) {

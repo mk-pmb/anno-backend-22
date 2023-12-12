@@ -6,6 +6,7 @@ import pMap from 'p-map';
 
 import categorizeTargets from '../categorizeTargets.mjs';
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
+import fmtAnnosAsRssFeed from '../fmtAnnosAsRssFeed.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import parseStampRows from '../parseStampRows.mjs';
@@ -25,12 +26,15 @@ const EX = async function multiSearch(ctx) {
   const {
     latestOnly,
     overrideSearchTmpl,
-    readContent,
-    rowsLimit,
+    rssMaxItems,
     searchBaseId,
     skipAcl,
     subjTgtSpec,
     untrustedOpt,
+  } = ctx;
+  let {
+    readContent,
+    rowsLimit,
   } = ctx;
 
   const popUntrustedOpt = objPop(untrustedOpt, {
@@ -43,8 +47,25 @@ const EX = async function multiSearch(ctx) {
     targetUrl: subjTgtSpec,
   }));
 
+  const meta = {
+    outFmt: ctx.outFmt || '',
+  };
+
   const search = buildSearchQuery.prepare('#defaultSearchCore');
   if (searchBaseId) { search.data({ searchBaseId }); }
+
+  if (rssMaxItems) {
+    let max = rssMaxItems;
+    const flagRss = popUntrustedOpt('rss');
+    if (flagRss === true) { // <- i.e. no special value
+      meta.outFmt = 'rss';
+      readContent = 'justTitles';
+      search.tmpl('orderByTimeDirection', 'DESC');
+      if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
+      if (!rowsLimit) { rowsLimit = max; }
+      if (rowsLimit > max) { rowsLimit = max; }
+    }
+  }
 
   if (subjTgtSpec) {
     const byPrefix = subjTgtSpec.endsWith('/*') && subjTgtSpec.slice(0, -1);
@@ -103,8 +124,12 @@ const EX = async function multiSearch(ctx) {
 
   Object.assign(found, {
 
+    meta,
+
     toFullAnnos() {
-      return found.map(rec => EX.resultToFullAnno(srv, stampParserOpts, rec));
+      const a = found.map(r => EX.resultToFullAnno(srv, stampParserOpts, r));
+      a.meta = found.meta;
+      return a;
     },
 
   });

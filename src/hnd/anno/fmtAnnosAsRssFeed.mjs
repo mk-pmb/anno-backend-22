@@ -52,7 +52,9 @@ Object.assign(EX, {
 
   fmtLinkTpl(linkTpl, anno) {
     let u = linkTpl;
-    const [versId] = annoIdMustBeNest(anno.id).split('/').slice(-1);
+    const annoIdUrl = annoIdMustBeNest(anno.id);
+    const [versId] = annoIdUrl.split('/').slice(-1);
+    u = u.replace(/%au/g, annoIdUrl);
     u = u.replace(/%as/g, versId);
     return u;
   },
