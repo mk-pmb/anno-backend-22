@@ -16,7 +16,7 @@ const EX = async function approvalFeed(how) {
   const found = await multiSearch({
     srv,
     req,
-    rowsLimit: (+how.rowsLimit || 100),
+    rowsLimit: (+how.rowsLimit || fmtAnnosAsRssFeed.defaultMaxItems),
     subjTgtSpec: prefix + (req.query.subj || '*'),
     overrideSearchTmpl: { visibilityWhere: '#visibilityUndecided' },
     latestOnly: true,

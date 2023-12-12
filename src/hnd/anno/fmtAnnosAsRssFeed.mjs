@@ -48,6 +48,8 @@ const EX = function fmtAnnosAsRssFeed(how) {
 
 Object.assign(EX, {
 
+  defaultMaxItems: 50,
+
   fmtLinkTpl(linkTpl, anno) {
     let u = linkTpl;
     const [versId] = annoIdMustBeNest(anno.id).split('/').slice(-1);
