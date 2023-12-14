@@ -6,6 +6,7 @@ import decideAuthorIdentity from '../postNewAnno/decideAuthorIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import lookupExactVersion from '../idGet/lookupExactVersion.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
+import stampUtil from '../util/stampUtil.mjs';
 
 import approvalDecisionSideEffects from './approvalDecisionSideEffects.mjs';
 
@@ -27,12 +28,6 @@ function popEffTs(pop) {
 }
 
 
-const stampNamespaceRgx = /^\w+(?=:)/;
-// ^- This check is intentionally kept rather lenient, including accepting
-//    U+005F low line (_) at the start and end. There is no need to be
-//    strict here, because that responsibility lies with the ACL.
-
-
 const roleByStamp = {
   'as:deleted':         'approver',
   'dc:dateApproved':    'approver',
@@ -51,18 +46,16 @@ const EX = {
       st_effts: null,
       st_detail: null,
     };
-    let uscType;
-    let stType;
-    await ctx.catchBadInput(function parse(mustPopInput) {
-      stType = mustPopInput('nonEmpty str', 'type');
+    const stParsed = await ctx.catchBadInput(function parse(mustPopInput) {
+      const stType = mustPopInput('nonEmpty str', 'type');
       stRec.st_type = stType;
-      const namespace = orf(stampNamespaceRgx.exec(stType))[0];
-      if (!namespace) { throw notImpl('Unsupported stamp namespace'); }
-      uscType = namespace + '_' + stType.slice(namespace.length + 1);
-      const popMore = getOwn(EX.addStampParseDetails, uscType);
+      const splat = stampUtil.splitStampNameNS(stType, notImpl);
+      const popMore = getOwn(EX.addStampParseDetails, splat.aclStampName);
       if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
       mustPopInput.expectEmpty();
+      return splat;
     });
+    const { aclStampName, stType } = stParsed;
 
     const guessRole = getOwn(roleByStamp, stType);
     if (guessRole) { ctx.req.asRoleName = guessRole; }
@@ -71,7 +64,7 @@ const EX = {
       ctx.who);
 
     const privName = ('stamp_' + (author.authorized ? 'own' : 'any')
-      + '_add_' + uscType);
+      + '_add_' + aclStampName);
     await ctx.requireAdditionalReadPrivilege(privName);
     stRec.st_by = (ctx.who.userId || '');
     stRec.st_at = (new Date()).toISOString();
