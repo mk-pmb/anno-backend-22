@@ -64,18 +64,24 @@ Object.assign(EX, {
 
 
   applyRuleDecide(rule, chainCtx) {
+    const newDecisions = rule.decide;
+    const chainState = chainCtx.state;
+    if (newDecisions['*']) { chainState.tendencies = {}; }
+
     function maybe(slot) {
-      const decision = getOwn(rule.decide, slot);
+      const deci = getOwn(newDecisions, slot);
       // console.debug('D: ACL decision?', rule.traceDescr, { slot, decision });
-      if (decision === undefined) { return false; }
+      if (deci === undefined) { return false; }
       // ^- Exact equality check: Even if the value is invalid,
       //    stop evaluating the chain. Complaining about invalid
       //    ACL results is done elsewhere. (2022-08-12: in whyDeny)
-      Object.assign(chainCtx.state, { decision });
+      chainState.decision = deci;
       return true;
     }
+
     const pn = chainCtx.allMeta.privilegeName;
     const ruleHasBeenDecided = maybe(pn) || maybe('*');
+    if (ruleHasBeenDecided) { delete chainState.tendencies[pn]; }
     return ruleHasBeenDecided;
   },
 

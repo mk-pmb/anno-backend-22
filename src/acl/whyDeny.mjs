@@ -54,9 +54,7 @@ const EX = async function whyDeny(req, actionMeta) {
     mustMeta,
     chainNamesStack: [],
     state: {
-      tendencies: {
-        '*': 'deny',
-      },
+      tendencies: { '*': 'deny' },
       decision: null,
     },
   };
