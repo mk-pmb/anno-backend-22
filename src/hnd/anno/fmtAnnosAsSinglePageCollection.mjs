@@ -6,6 +6,9 @@ import sendFinalTextResponse from '../../finalTextResponse.mjs';
 import plumb from '../util/miscPlumbing.mjs';
 
 
+function orf(x) { return x || false; }
+
+
 const EX = function fmtAnnosAsSinglePageCollection(how) {
   const {
     annos,
@@ -31,6 +34,7 @@ const EX = function fmtAnnosAsSinglePageCollection(how) {
       items: annos,
     },
     last: { id: canonicalUrl },
+    ...orf(annos.meta).extraTopFields,
   };
   return coll;
 };

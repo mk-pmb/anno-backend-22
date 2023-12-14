@@ -54,6 +54,7 @@ const EX = async function whyDeny(req, actionMeta) {
     mustMeta,
     chainNamesStack: [],
     state: {
+      allDecisions: {},
       tendencies: { '*': 'deny' },
       decision: null,
     },
@@ -67,6 +68,16 @@ const EX = async function whyDeny(req, actionMeta) {
     const { tendencies } = chainCtx.state;
     decision = getOwn(tendencies, allMeta.privilegeName);
     if (decision === undefined) { decision = getOwn(tendencies, '*'); }
+  }
+
+  if (aclMetaSpy) {
+    const all = {
+      ...chainCtx.state.tendencies,
+      ...chainCtx.state.allDecisions,
+    };
+    aclMetaSpy.allPrivilegesPreview = all;
+    const byStu = aclMetaSpy.aclPreviewBySubjectTargetUrl;
+    if (byStu) { byStu[tgtUrl] = all; }
   }
 
   if (decision === 'allow') {

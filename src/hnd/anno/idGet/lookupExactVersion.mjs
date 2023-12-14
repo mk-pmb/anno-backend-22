@@ -5,6 +5,7 @@ import getOwn from 'getown';
 import categorizeTargets from '../categorizeTargets.mjs';
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 import parseStampRows from '../parseStampRows.mjs';
 
@@ -81,7 +82,16 @@ const EX = async function lookupExactVersion(ctx) {
     await srv.acl.requirePermForAllTargetUrls(req,
       subjTgtUrlsForAclCheckRead, { privilegeName, ...opt });
   }
-  await requireAdditionalReadPrivilege('read');
+
+  const topExtraFields = {};
+
+  const aclReadOpt = {};
+  if (req.asRoleName) {
+    const apre = {}; // ACL preview container
+    aclReadOpt.aclMetaSpy = { aclPreviewBySubjectTargetUrl: apre };
+    topExtraFields[miscMetaFieldInfos.subjTgtAclField] = apre;
+  }
+  await requireAdditionalReadPrivilege('read', aclReadOpt);
 
   if (versionNotFound) {
     /* At this point, permission to disclose non-existence stems from
@@ -123,6 +133,8 @@ const EX = async function lookupExactVersion(ctx) {
       throw err;
     }
   }
+
+  Object.assign(annoDetails, topExtraFields);
 
   const lookup = {
     defaultErrorHeaders,

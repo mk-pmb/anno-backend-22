@@ -9,6 +9,7 @@ import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import fmtAnnosAsRssFeed from '../fmtAnnosAsRssFeed.mjs';
 import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseStampRows from '../parseStampRows.mjs';
 
 import buildSearchQuery from './buildSearchQuery.mjs';
@@ -108,7 +109,19 @@ const EX = async function multiSearch(ctx) {
   if (rowsLimit) { search.tmplIf(rowsLimit, 'orderedSearchLimit'); }
 
   const contentMode = getOwn(EX.contentModeDetails, readContent, false);
-  if (contentMode.priv) { await addRequiredPrivilege(contentMode.priv); }
+  if (contentMode.priv) {
+    // Always delay:
+    //  * To validate read (or similar) on all targets,
+    //  * For ACL preview.
+    delayedPrivilegeChecks.add(contentMode.priv);
+    if (asRoleName) {
+      // ^-- i.e., client can be expected to tolerate our custom fields.
+      delayedPrivilegeChecks.aclPreviewPriv = contentMode.priv;
+      const apre = {}; // ACL preview container
+      meta.extraTopFields = { [miscMetaFieldInfos.subjTgtAclField]: apre };
+      delayedPrivilegeChecks.aclPreviewBySubjectTargetUrl = apre;
+    }
+  }
   if (contentMode.wrap) { search.wrapSeed(contentMode.wrap); }
   if (!contentMode.hasSubjs) { search.wrapSeed('addSubjectTargetRelUrls'); }
 
@@ -164,10 +177,13 @@ Object.assign(EX, {
     }).flat();
     if (!allSubjTgtUrls.length) { return; }
 
+    const { aclPreviewPriv, aclPreviewBySubjectTargetUrl } = privNamesSet;
     await pMap(privNames, async function check(privilegeName) {
+      const aclMetaSpy = ((privilegeName === aclPreviewPriv)
+        && { aclPreviewBySubjectTargetUrl });
       await srv.acl.requirePermForAllTargetUrls(req,
         allSubjTgtUrls, // <-- No need to de-dupe, it will be done internally.
-        { privilegeName });
+        { privilegeName, aclMetaSpy });
     });
   },
 

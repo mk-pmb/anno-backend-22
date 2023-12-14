@@ -2,6 +2,8 @@
 
 const EX = {
 
+  subjTgtAclField: 'ubhd:aclPreviewBySubjectTargetUrl',
+
   visibilityRelatedStampsNames: [
     '_ubhd:unapproved',
     'dc:dateAccepted',
