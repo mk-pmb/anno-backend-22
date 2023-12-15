@@ -69,8 +69,8 @@ function tee_output_to_logfile () {
   [ -n "$LOG" ] || return 0
   mkdir --parents -- "$(dirname -- "$LOG")"
 
-  local OLD="$LOG"
-  OLD="${OLD%.log}.prev.log"
+  local OLD="$(dirname -- "$LOG")/"
+  OLD="${OLD#./}prev.$(basename -- "$LOG")"
   [ ! -f "$LOG" ] || mv --verbose --no-target-directory \
     -- "$LOG" "$OLD" || return $?
 
