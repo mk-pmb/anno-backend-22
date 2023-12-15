@@ -45,7 +45,6 @@ async function fmtColl({ srv, req }, annoListPr) {
   if (outFmt === 'rss') {
     const rssOpt = {
       feedTitle: 'Search',
-      linkTpl: '%au',
     };
     return fmtAnnosAsRssFeed({ ...rssOpt, annos, req, srv });
   }

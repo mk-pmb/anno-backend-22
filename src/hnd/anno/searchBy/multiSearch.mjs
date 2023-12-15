@@ -217,8 +217,7 @@ Object.assign(EX, {
     }
     if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
 
-    const userRssOpts = EX.validateUserRssOpts(popUntrustedOpt);
-    if (userRssOpts) { meta.outFmt = 'rss'; }
+    EX.applyUserRssOptsInplace({ meta, popUntrustedOpt });
     if (meta.outFmt !== 'rss') { return; }
 
     ctx.readContent = 'justTitles';
@@ -231,10 +230,19 @@ Object.assign(EX, {
   },
 
 
-  validateUserRssOpts(popUntrustedOpt) {
-    const flag = popUntrustedOpt('rss');
-    if (flag === true) { return true; }
-    if (flag === undefined) { return false; }
+  applyUserRssOptsInplace(how) {
+    const { meta, popUntrustedOpt } = how;
+    const wantRss = popUntrustedOpt('rss');
+    if (wantRss === undefined) { return; }
+
+    meta.outFmt = 'rss';
+    if (wantRss === true) { return; }
+
+    if (wantRss === 'vh') {
+      meta.rssMode = 'version-history';
+      return;
+    }
+
     throw noSuchResource('Unsupported RSS mode option(s).');
   },
 

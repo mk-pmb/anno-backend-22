@@ -7,6 +7,7 @@ import xmlenc from 'xmlunidefuse';
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 
+function orf(x) { return x || false; }
 function xmlStrTag(t, c) { return `    <${t}>${xmlenc(c)}</${t}>\n`; }
 
 
@@ -25,7 +26,8 @@ const EX = function fmtAnnosAsRssFeed(how) {
   mustBe.keyless('Unexpected options', unexpected);
   mustBe.ary('Annotations list', annos);
 
-  let lnk = mustBe.nest('Link template', origLinkTpl);
+  const meta = orf(annos.meta);
+  let lnk = origLinkTpl || EX.defaultLinkTpl(meta);
   if (lnk.startsWith('/')) { lnk = srv.publicBaseUrlNoSlash + lnk; }
 
   const dateFieldName = (how.dateFieldName || 'created');
@@ -50,12 +52,21 @@ Object.assign(EX, {
 
   defaultMaxItems: 50,
 
+  defaultLinkTpl(meta) {
+    const { rssMode } = orf(meta);
+    if (rssMode === 'version-history') { return '%hu'; }
+    return '%au';
+  },
+
   fmtLinkTpl(linkTpl, anno) {
     let u = linkTpl;
     const annoIdUrl = annoIdMustBeNest(anno.id);
     const [versId] = annoIdUrl.split('/').slice(-1);
-    u = u.replace(/%au/g, annoIdUrl);
+    const prop = p => () => annoIdMustBeNest(anno[p]);
     u = u.replace(/%as/g, versId);
+    u = u.replace(/%au/g, annoIdUrl);
+    u = u.replace(/%hu/g, prop('iana:version-history'));
+    u = u.replace(/%lu/g, prop('iana:latest-version'));
     return u;
   },
 
