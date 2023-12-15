@@ -74,6 +74,7 @@ Object.assign(EX, {
 
 
   handlers: {
+    has_stamp: makeSubPathUrlSearch('searchAllWithStamp'),
     subject_target: makeSubPathUrlSearch('subjTgtSpec'),
   },
 

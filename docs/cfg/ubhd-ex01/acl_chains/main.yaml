@@ -63,6 +63,12 @@
         # ^-- Apply the rules from `📚_rules.yaml` right now, where 📚
         #   is the placeholder for serviceId.
 
+  - if:
+        memberOfAclGroup: 'doi_request_watchers'
+    decide:
+        'search_hasStamp__ubhd_doiAssign': allow
+
+
 
 
 

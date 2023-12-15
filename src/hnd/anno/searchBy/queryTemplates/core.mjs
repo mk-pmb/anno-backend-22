@@ -26,6 +26,9 @@ const EX = {
   byLinkCmpExact: '"url" = $byLinkUrl',
   byLinkCmpPrefix: 'starts_with("url", $byLinkUrl)',
 
+  inquiryAllWithStamp: ('"base_id", "version_num"'
+    + ' FROM "anno_stamps" WHERE "st_type" = $searchStampName'),
+
 };
 
 

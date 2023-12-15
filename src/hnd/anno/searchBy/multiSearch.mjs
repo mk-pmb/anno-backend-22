@@ -11,6 +11,7 @@ import genericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseStampRows from '../parseStampRows.mjs';
+import stampUtil from '../util/stampUtil.mjs';
 
 import buildSearchQuery from './buildSearchQuery.mjs';
 import qryTpl from './queryTemplates/index.mjs';
@@ -28,6 +29,7 @@ const EX = async function multiSearch(ctx) {
     latestOnly,
     overrideSearchTmpl,
     rssMaxItems,
+    searchAllWithStamp,
     searchBaseId,
     skipAcl,
     subjTgtSpec,
@@ -66,6 +68,16 @@ const EX = async function multiSearch(ctx) {
       if (!rowsLimit) { rowsLimit = max; }
       if (rowsLimit > max) { rowsLimit = max; }
     }
+  }
+
+  if (searchAllWithStamp) {
+    const st = stampUtil.splitStampNameNS(searchAllWithStamp, noSuchResource);
+    await (skipAcl || srv.acl.requirePerm(req, {
+      privilegeName: 'search_hasStamp_' + st.aclStampName,
+      targetUrl: subjTgtSpec,
+    }));
+    search.tmpl('inquiryType', '#inquiryAllWithStamp');
+    search.data('searchStampName', st.stType);
   }
 
   if (subjTgtSpec) {
