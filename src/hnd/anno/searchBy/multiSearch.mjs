@@ -28,16 +28,11 @@ const EX = async function multiSearch(ctx) {
   const {
     latestOnly,
     overrideSearchTmpl,
-    rssMaxItems,
     searchAllWithStamp,
     searchBaseId,
     skipAcl,
     subjTgtSpec,
     untrustedOpt,
-  } = ctx;
-  let {
-    readContent,
-    rowsLimit,
   } = ctx;
 
   const popUntrustedOpt = objPop(untrustedOpt, {
@@ -57,18 +52,7 @@ const EX = async function multiSearch(ctx) {
   const search = buildSearchQuery.prepare('#defaultSearchCore');
   if (searchBaseId) { search.data({ searchBaseId }); }
 
-  if (rssMaxItems) {
-    let max = rssMaxItems;
-    const flagRss = popUntrustedOpt('rss');
-    if (flagRss === true) { // <- i.e. no special value
-      meta.outFmt = 'rss';
-      readContent = 'justTitles';
-      search.tmpl('orderByTimeDirection', 'DESC');
-      if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
-      if (!rowsLimit) { rowsLimit = max; }
-      if (rowsLimit > max) { rowsLimit = max; }
-    }
-  }
+  EX.processRssOptionsInplace({ ctx, search, meta, popUntrustedOpt });
 
   if (searchAllWithStamp) {
     const st = stampUtil.splitStampNameNS(searchAllWithStamp, noSuchResource);
@@ -118,9 +102,9 @@ const EX = async function multiSearch(ctx) {
 
   if (latestOnly) { search.wrapSeed('latestOnly'); }
   search.wrapSeed('orderedSearch');
-  if (rowsLimit) { search.tmplIf(rowsLimit, 'orderedSearchLimit'); }
+  search.tmplIf(ctx.rowsLimit, 'orderedSearchLimit');
 
-  const contentMode = getOwn(EX.contentModeDetails, readContent, false);
+  const contentMode = getOwn(EX.contentModeDetails, ctx.readContent, false);
   if (contentMode.priv) {
     // Always delay:
     //  * To validate read (or similar) on all targets,
@@ -218,6 +202,40 @@ Object.assign(EX, {
     delete fullAnno['_ubhd:unapproved'];
     if (!rec.disclosed) { fullAnno['dc:dateAccepted'] = false; }
     return fullAnno;
+  },
+
+
+  processRssOptionsInplace(how) {
+    const { ctx, search, meta, popUntrustedOpt } = how;
+    let max = ctx.rssMaxItems;
+    if (!max) {
+      if (meta.outFmt === 'rss') {
+        max = -1;
+      } else {
+        return; // RSS not allowed
+      }
+    }
+    if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
+
+    const userRssOpts = EX.validateUserRssOpts(popUntrustedOpt);
+    if (userRssOpts) { meta.outFmt = 'rss'; }
+    if (meta.outFmt !== 'rss') { return; }
+
+    ctx.readContent = 'justTitles';
+    // ^- It would be nice if we could also populate the RSS <author> and
+    //    <description> fields, but generating them is too much effort.
+
+    search.tmpl('orderByTimeDirection', 'DESC');
+    const limit = (+ctx.rowsLimit || 0);
+    if ((!limit) || (limit > max)) { ctx.rowsLimit = max; }
+  },
+
+
+  validateUserRssOpts(popUntrustedOpt) {
+    const flag = popUntrustedOpt('rss');
+    if (flag === true) { return true; }
+    if (flag === undefined) { return false; }
+    throw noSuchResource('Unsupported RSS mode option(s).');
   },
 
 
