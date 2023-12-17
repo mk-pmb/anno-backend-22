@@ -7,7 +7,7 @@ import httpErrors from '../../../httpErrors.mjs';
 import parseRequestBody from '../../util/parseRequestBody.mjs';
 import sendFinalTextResponse from '../../../finalTextResponse.mjs';
 
-import stampActions from './stampActions.mjs';
+import addStamp from './addStamp.mjs';
 
 const {
   notImpl,
@@ -15,7 +15,7 @@ const {
 
 
 const actionHandlers = {
-  ...stampActions,
+  add_stamp: addStamp,
 };
 
 

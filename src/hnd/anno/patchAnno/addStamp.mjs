@@ -1,5 +1,4 @@
 // -*- coding: utf-8, tab-width: 2 -*-
-/* eslint-disable no-unused-vars */
 
 import getOwn from 'getown';
 
@@ -29,8 +28,7 @@ function popEffTs(pop) {
 }
 
 
-/*
-async add_stamp(ctx) {
+const EX = async function addStamp(ctx) {
   const stRec = {
     base_id: ctx.idParts.baseId,
     version_num: ctx.idParts.versNum,
@@ -76,10 +74,10 @@ async add_stamp(ctx) {
 
   if (ctx.hadDupeError) { EX.dupeStamp(); }
   return { st_at: stRec.st_at };
-},
-*/
+};
 
-const EX = {
+
+Object.assign(EX, {
 
   dupeStamp() { throw stateConflict('A stamp of this type already exists'); },
 
@@ -99,7 +97,7 @@ const EX = {
   },
 
 
-};
+});
 
 
 
