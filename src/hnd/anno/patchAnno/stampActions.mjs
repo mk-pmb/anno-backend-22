@@ -1,4 +1,5 @@
 // -*- coding: utf-8, tab-width: 2 -*-
+/* eslint-disable no-unused-vars */
 
 import getOwn from 'getown';
 
@@ -28,17 +29,7 @@ function popEffTs(pop) {
 }
 
 
-const roleByStamp = {
-  'as:deleted':         'approver',
-  'dc:dateApproved':    'approver',
-};
-
-
-const EX = {
-
-  dupeStamp() { throw stateConflict('A stamp of this type already exists'); },
-
-
+/*
   async add_stamp(ctx) {
     const stRec = {
       base_id: ctx.idParts.baseId,
@@ -57,7 +48,7 @@ const EX = {
     });
     const { aclStampName, stType } = stParsed;
 
-    const guessRole = getOwn(roleByStamp, stType);
+    const guessRole = getOwn(EX.roleByStamp, stType);
     if (guessRole) { ctx.req.asRoleName = guessRole; }
     Object.assign(ctx, await lookupExactVersion(ctx));
     const author = decideAuthorIdentity.fromAnnoCreator(ctx.annoDetails,
@@ -85,6 +76,16 @@ const EX = {
 
     if (ctx.hadDupeError) { EX.dupeStamp(); }
     return { st_at: stRec.st_at };
+  },
+*/
+
+const EX = {
+
+  dupeStamp() { throw stateConflict('A stamp of this type already exists'); },
+
+  roleByStamp: {
+    'as:deleted':         'approver',
+    'dc:dateApproved':    'approver',
   },
 
 
