@@ -15,7 +15,12 @@ const {
 
 
 const actionHandlers = {
-  add_stamp: addStamp,
+  addStamp,
+
+  add_stamp(ctx) {
+    ctx.req.logCkp('Deprecated snake-case stamp action "add_stamp"');
+    return addStamp(ctx);
+  },
 };
 
 
