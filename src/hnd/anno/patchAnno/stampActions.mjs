@@ -30,53 +30,53 @@ function popEffTs(pop) {
 
 
 /*
-  async add_stamp(ctx) {
-    const stRec = {
-      base_id: ctx.idParts.baseId,
-      version_num: ctx.idParts.versNum,
-      st_effts: null,
-      st_detail: null,
-    };
-    const stParsed = await ctx.catchBadInput(function parse(mustPopInput) {
-      const stType = mustPopInput('nonEmpty str', 'type');
-      stRec.st_type = stType;
-      const splat = stampUtil.splitStampNameNS(stType, notImpl);
-      const popMore = getOwn(EX.addStampParseDetails, splat.aclStampName);
-      if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
-      mustPopInput.expectEmpty();
-      return splat;
-    });
-    const { aclStampName, stType } = stParsed;
+async add_stamp(ctx) {
+  const stRec = {
+    base_id: ctx.idParts.baseId,
+    version_num: ctx.idParts.versNum,
+    st_effts: null,
+    st_detail: null,
+  };
+  const stParsed = await ctx.catchBadInput(function parse(mustPopInput) {
+    const stType = mustPopInput('nonEmpty str', 'type');
+    stRec.st_type = stType;
+    const splat = stampUtil.splitStampNameNS(stType, notImpl);
+    const popMore = getOwn(EX.addStampParseDetails, splat.aclStampName);
+    if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
+    mustPopInput.expectEmpty();
+    return splat;
+  });
+  const { aclStampName, stType } = stParsed;
 
-    const guessRole = getOwn(EX.roleByStamp, stType);
-    if (guessRole) { ctx.req.asRoleName = guessRole; }
-    Object.assign(ctx, await lookupExactVersion(ctx));
-    const author = decideAuthorIdentity.fromAnnoCreator(ctx.annoDetails,
-      ctx.who);
+  const guessRole = getOwn(EX.roleByStamp, stType);
+  if (guessRole) { ctx.req.asRoleName = guessRole; }
+  Object.assign(ctx, await lookupExactVersion(ctx));
+  const author = decideAuthorIdentity.fromAnnoCreator(ctx.annoDetails,
+    ctx.who);
 
-    const privName = ('stamp_' + (author.authorized ? 'own' : 'any')
-      + '_add_' + aclStampName);
-    await ctx.requireAdditionalReadPrivilege(privName);
-    stRec.st_by = (ctx.who.userId || '');
-    stRec.st_at = (new Date()).toISOString();
-    ctx.mainStampRec = stRec;
+  const privName = ('stamp_' + (author.authorized ? 'own' : 'any')
+    + '_add_' + aclStampName);
+  await ctx.requireAdditionalReadPrivilege(privName);
+  stRec.st_by = (ctx.who.userId || '');
+  stRec.st_at = (new Date()).toISOString();
+  ctx.mainStampRec = stRec;
 
-    const stampFx = orf(getOwn(EX.stampFx, stType));
-    await (stampFx.prepareAdd || doNothing)(ctx);
+  const stampFx = orf(getOwn(EX.stampFx, stType));
+  await (stampFx.prepareAdd || doNothing)(ctx);
 
-    ctx.hadDupeError = false;
-    await ctx.srv.db.postgresInsertOneRecord('anno_stamps', stRec, {
-      customDupeError(err) {
-        ctx.hadDupeError = err;
-        return 'ignore';
-      },
-    });
+  ctx.hadDupeError = false;
+  await ctx.srv.db.postgresInsertOneRecord('anno_stamps', stRec, {
+    customDupeError(err) {
+      ctx.hadDupeError = err;
+      return 'ignore';
+    },
+  });
 
-    await (stampFx.cleanupAfterAdd || doNothing)(ctx);
+  await (stampFx.cleanupAfterAdd || doNothing)(ctx);
 
-    if (ctx.hadDupeError) { EX.dupeStamp(); }
-    return { st_at: stRec.st_at };
-  },
+  if (ctx.hadDupeError) { EX.dupeStamp(); }
+  return { st_at: stRec.st_at };
+},
 */
 
 const EX = {
