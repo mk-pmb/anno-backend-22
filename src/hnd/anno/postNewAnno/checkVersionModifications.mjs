@@ -52,6 +52,11 @@ const EX = async function checkVersionModifications(ctx) {
 
 Object.assign(EX, {
 
+  admissibleOmissionsFieldNames: [
+    'dc:isVersionOf',
+  ],
+
+
   async validateAnnoIdParts(ctx) {
     const { srv, anno, idParts } = ctx;
     const pluckProp = objPop.d(anno);
@@ -135,6 +140,7 @@ Object.assign(EX, {
   findAndPluckAllChanges(oldAnno, newAnno) {
     const updates = {};
     const omissions = new Set(Object.keys(oldAnno));
+    EX.admissibleOmissionsFieldNames.forEach(k => omissions.delete(k));
     Object.entries(newAnno).forEach(function decide(updPair) {
       const [updKey, updVal] = updPair;
       delete newAnno[updKey]; // eslint-disable-line no-param-reassign
