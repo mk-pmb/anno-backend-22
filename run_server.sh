@@ -20,7 +20,7 @@ function run_cli_main () {
   log_progress "Reading config file(s) for host '$HOSTNAME'."
   local ITEM=
   for ITEM in cfg.@"$HOSTNAME"{/*,.*,}.rc; do
-    [ ! -f "$ITEM" ] || source -- "$ITEM" cfg:run || return $?
+    [ ! -f "$ITEM" ] || source_in_func "$ITEM" cfg:annosrv || return $?
   done
 
   "${CFG[run_task]}" "$@" || return $?
@@ -28,6 +28,12 @@ function run_cli_main () {
 
 
 function log_progress () { printf '%(%F %T)T P: %s\n' -1 "$*"; }
+
+
+function source_in_func () {
+  source -- "$@" || return $?$(
+    echo W: "$FUNCNAME failed (rv=$?) for '$1'" >&2)
+}
 
 
 function run_server_show_log_on_failure () {
