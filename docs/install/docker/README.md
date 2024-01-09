@@ -17,7 +17,7 @@ Some are for clarification or error handling.
     * [DevDock
       ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock)
       (a templating system for docker-compose).
-      * Version 0.2.x should work. At time of writing (2023-04-27),
+      * Version 0.2.1 should work. At time of writing (2024-01-09),
         this is the latest.
 1.  Make sure that the hostname is configured correctly for use as a
     FQDN (fully-qualified domain name).

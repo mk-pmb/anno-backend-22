@@ -2,7 +2,7 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-version: '3'
+version: '2.2'
 services:
 
   ${dd_tpl_bn}'':
@@ -11,12 +11,14 @@ services:
     environment:
         # For available PHP settings, see https://github.com/wodby/php
         # For available Adminer settings, see https://github.com/wodby/adminer
-        - 'ADMINER_DEFAULT_DB_DRIVER=pgsql'
-        - 'ADMINER_DEFAULT_SERVER=postgres'
-        - 'ADMINER_DEFAULT_PORT=5432'
-        - 'ADMINER_DEFAULT_DB=postgres'
-        - 'ADMINER_DEFAULT_USER=postgres'
-        # - ${dd_cfg}'ADMINER_DEFAULT_PASSWORD=postgres_pswd'
+
+        #%sed s~\bdf'~'ADMINER_DEFAULT_~
+        - df'DB_DRIVER=pgsql'
+        - df'SERVER=postgres'
+        - df'PORT=5432'
+        - df'DB=postgres'
+        - df'USER=postgres'
+
         # - 'ADMINER_DESIGN=pepa-linha-dark'
         - 'ADMINER_PLUGINS='
     ports:

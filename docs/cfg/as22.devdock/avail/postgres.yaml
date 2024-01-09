@@ -1,8 +1,8 @@
 %YAML 1.1
-# -*- coding: UTF-8, tab-width: 4 -*-
+# -*- coding: UTF-8, tab-width: 2 -*-
 ---
 
-version: '3'
+version: '2.2'
 services:
 
   ${dd_tpl_bn}'':
@@ -15,10 +15,10 @@ services:
     environment:
       - 'PGDATA=/pgdata'
       # - 'POSTGRES_USER=postgres'
-      # - ${dd_cfg}'POSTGRES_PASSWORD=postgres_pswd'
       - 'POSTGRES_PASSWORD_FILE=/run/secrets/postgres/initpswd'
-    # ports:
-    #   - '127.0.0.1:5432:5432'
+    ports:
+      #%sed s!<pg_default_port>!5432!g
+      - '127.0.0.1:<pg_default_port>:<pg_default_port>'
 
 
 ...
