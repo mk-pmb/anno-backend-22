@@ -1,4 +1,9 @@
 
+# Site-specific local files:
+/*.@*
+
+
+
 # Auto-generated files:
 /cache
 /.containerdata

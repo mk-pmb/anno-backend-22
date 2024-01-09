@@ -1,0 +1,25 @@
+%YAML 1.1
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+version: '2.2'
+services:
+
+  ${dd_tpl_bn}'':
+    image: 'node:16'
+    volumes:
+      - ${dd_cfg doibot_basedir}':/app'
+    hostname: ${dd_cfg doibot_hostname}''
+    working_dir: '/app'
+    environment:
+      - ${dd_cfg}'doibot_appdir='
+      - |
+        DOCKER_DOIBOT_CFG_OVERRIDES=
+        CFG[anno_baseurl]=${dd_cfg anno_public_baseurl}'anno/'
+        CFG[doibot_stamp_baseurl]='http://annosrv:8080/anno/'
+    command: >
+        bash -c '/app/"$$doibot_appdir"/doibot.sh cron_task'
+    restart: 'always'
+
+
+...

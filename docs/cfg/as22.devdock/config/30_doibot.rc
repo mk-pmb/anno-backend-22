@@ -1,0 +1,27 @@
+# -*- coding: utf-8, tab-width: 2 -*-
+
+###:maybe_customize:
+CFG[doibot_basedir]='/srv/annosrv/doibot'
+# Absolute path to the base directory for all modules that your DOI bot
+# instance will need to work, as seen from the docker host system.
+# No trailing slash.
+#
+# Said base directory should contain at least the `doibot_appdir`
+# (see below), and usually you want additional subdirectories next to it
+# for at least one DOI bot adapter.
+
+###:maybe_customize:
+CFG[doibot_appdir]='anno-doi-bot-23'
+# The path (as subdirectory of `doibot_basedir`) to your local clone of
+# the `anno-doi-bot-23` repository.
+
+###:maybe_customize:
+CFG[doibot_hostname]='dkdoi'
+# The DOI bot instance name will be the hostname of the DOI bot's docker
+# container.
+#   * Must be different from `annosrv_hostname`.
+#   * Should be different from the Docker daemon's (host system's) hostname.
+#   * Should not contain any dots.
+#   * Other than that, you can (optionally) be rather creative.
+
+
