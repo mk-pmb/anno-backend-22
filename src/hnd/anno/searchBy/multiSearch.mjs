@@ -125,6 +125,8 @@ const EX = async function multiSearch(ctx) {
 
   popUntrustedOpt.expectEmpty();
 
+  // search.debug.dumpDataArgs = true;
+  // search.debug.dumpSqlQuery = true;
   const found = await search.selectAll(srv);
   // console.debug('subjectTarget: found =', found, '</</ subjTgt found');
 

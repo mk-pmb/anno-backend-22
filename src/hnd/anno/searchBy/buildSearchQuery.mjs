@@ -20,6 +20,7 @@ const EX = {
       seed,
       templates: { ...EX.defaultTemplates, ...initTmpl },
       dataSlots: { ...initData },
+      debug: {},
     };
     Object.assign(b, mapObjValues(EX.api, f => f.bind(null, b)));
     return b;
@@ -64,6 +65,7 @@ EX.api = {
       ...bsq.templates,
       nowUts: Math.floor(Date.now() / 1e3),
     };
+    const { debug } = bsq;
     let query = slotTpl(bsq.seed, /#([A-Za-z]\w*)/g, tpl);
     query = query.replace(/\s+\r/g, '');
     query = query.replace(/\s+\n/g, '\n').trim();
@@ -71,8 +73,12 @@ EX.api = {
     query = slotTpl(query, /\$([A-Za-z]\w*)/g,
       mapObjValues(bsq.dataSlots, numb), { reportUnused: 'error' });
     const args = numb.values;
-    // EX.validateDbQueryArgTypes('Search query data list ', numb.values);
-    // setTimeout(() => console.debug('built SQL:', query, args), 10);
+    if (debug.dumpDataArgs) {
+      EX.validateDbQueryArgTypes('Search query data list ', args);
+    }
+    if (debug.dumpSqlQuery) {
+      setTimeout(() => console.debug('built SQL:', query, args), 10);
+    }
     return { query, args };
   },
 

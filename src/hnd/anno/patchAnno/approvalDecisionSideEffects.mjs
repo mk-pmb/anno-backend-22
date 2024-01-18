@@ -1,5 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import makeStampDeleter from '../util/makeStampDeleter.mjs';
+
+
 const unapStamp = '_ubhd:unapproved';
 
 
@@ -27,18 +30,10 @@ sunsetUEV.sqlTpl = `
   ON CONFLICT ("base_id", "version_num", "st_type") DO NOTHING;
   `;
 
-const delUnap = async function deleteStampUbhdUnapproved(ctx) {
-  const st = ctx.mainStampRec;
-  if (st.st_type === unapStamp) { return; }
-  const { sqlTpl } = delUnap;
-  const args = [st.base_id, st.version_num];
-  await ctx.srv.db.postgresQueryRows(sqlTpl, args);
-};
 
-delUnap.sqlTpl = `
-  DELETE FROM "anno_stamps" WHERE "base_id" = $1 AND "version_num" = $2
-    AND "st_type" = '${unapStamp}'
-  `;
+const delUnap = makeStampDeleter.fromCtxProp({ st_type: unapStamp });
+
+
 
 
 const EX = {
