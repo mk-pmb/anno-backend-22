@@ -44,6 +44,7 @@
     "create-object-and-assign": "^0.1.1",
     "deviate": "^1.0.0",
     "dictlist-util-pmb": "^0.1.0",
+    "doi-utils-pmb": "^0.1.0",
     "envcfg-merge-configs-pmb": "^0.1.3",
     "equal-pmb": "^0.1.24",
     "error-util-pmb": "^0.1.0",

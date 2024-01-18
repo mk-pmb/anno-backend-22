@@ -5,6 +5,7 @@
 ^:
     acl_user_groups:
         - 'doi_request_watchers'
+        - 'doi_sources'
 
 
 ...

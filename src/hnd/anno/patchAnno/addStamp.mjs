@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import libDoi from 'doi-utils-pmb';
 import getOwn from 'getown';
 
 import decideAuthorIdentity from '../postNewAnno/decideAuthorIdentity.mjs';
@@ -9,6 +10,7 @@ import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 import stampUtil from '../util/stampUtil.mjs';
 
 import approvalDecisionSideEffects from './approvalDecisionSideEffects.mjs';
+import deleteDoiRequestStamp from './deleteDoiRequestStamp.mjs';
 
 
 const {
@@ -41,6 +43,14 @@ const EX = async function addStamp(ctx) {
     const splat = stampUtil.splitStampNameNS(stType, notImpl);
     const popMore = getOwn(EX.addStampParseDetails, splat.aclStampName);
     if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
+    let det;
+
+    if (stType === 'dc:identifier') {
+      const doi = libDoi.expectBareDoi(mustPopInput('nonEmpty str', 'doi'));
+      det = libDoi.toUri(doi);
+    }
+
+    if (det !== undefined) { stRec.st_detail = JSON.stringify(det); }
     mustPopInput.expectEmpty();
     return splat;
   });
@@ -60,8 +70,10 @@ const EX = async function addStamp(ctx) {
   ctx.mainStampRec = stRec;
 
   const stampFx = orf(getOwn(EX.stampFx, stType));
+  // console.debug('addStamp: prepare:', ctx.mainStampRec);
   await (stampFx.prepareAdd || doNothing)(ctx);
 
+  // console.debug('addStamp: main:', ctx.mainStampRec);
   ctx.hadDupeError = false;
   await ctx.srv.db.postgresInsertOneRecord('anno_stamps', stRec, {
     customDupeError(err) {
@@ -70,7 +82,9 @@ const EX = async function addStamp(ctx) {
     },
   });
 
+  // console.debug('addStamp: cleanup:', ctx.mainStampRec);
   await (stampFx.cleanupAfterAdd || doNothing)(ctx);
+  // console.debug('addStamp: done:', ctx.mainStampRec);
 
   if (ctx.hadDupeError) { EX.dupeStamp(); }
   return { st_at: stRec.st_at };
@@ -94,6 +108,7 @@ Object.assign(EX, {
 
   stampFx: {
     'dc:dateAccepted': approvalDecisionSideEffects,
+    'dc:identifier': deleteDoiRequestStamp,
   },
 
 

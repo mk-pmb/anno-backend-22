@@ -41,6 +41,18 @@
         # mentioned. The ACL processing will continue unfettered for requests
         # that do not require the "shutdown" permission.
 
+
+  - if:
+        memberOfAclGroup: 'doi_sources'
+    decide:
+        stamp_any_add_dc_identifier: allow
+
+  - if:
+        memberOfAclGroup: 'doi_request_watchers'
+    decide:
+        search_hasStamp__ubhd_doiAssign: allow
+
+
   - ifAll:
       - paramInList:
             param: 'serviceId'
@@ -62,11 +74,6 @@
     aclSubChain: '📚_rules'
         # ^-- Apply the rules from `📚_rules.yaml` right now, where 📚
         #   is the placeholder for serviceId.
-
-  - if:
-        memberOfAclGroup: 'doi_request_watchers'
-    decide:
-        'search_hasStamp__ubhd_doiAssign': allow
 
 
 

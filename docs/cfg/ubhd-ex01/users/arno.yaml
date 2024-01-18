@@ -66,6 +66,7 @@
         - 'diglit_proofreaders'
 
         - 'doi_request_watchers'
+        - 'doi_sources'
 
 
     upstream_userid_aliases:

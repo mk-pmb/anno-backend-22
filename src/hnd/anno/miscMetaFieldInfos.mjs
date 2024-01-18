@@ -2,6 +2,7 @@
 
 const EX = {
 
+  doiRequestStampName: '_ubhd:doiAssign',
   subjTgtAclField: 'ubhd:aclPreviewBySubjectTargetUrl',
 
   visibilityRelatedStampsNames: [
