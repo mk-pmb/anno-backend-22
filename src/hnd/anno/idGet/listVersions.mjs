@@ -27,9 +27,9 @@ const EX = async function listVersions(ctx) {
 
   // await minis.lookupLatestVersionNum(ctx);
   const searchBaseId = idParts.baseId;
-  const allVers = await multiSearch({ srv, req, searchBaseId });
-  // console.debug('listVersions: allVers:', allVers);
-  if (!allVers.length) { throw noSuchAnno(); }
+  const allVisibleVersions = await multiSearch({ srv, req, searchBaseId });
+  // console.debug('listVersions: allVisibleVersions:', allVisibleVersions);
+  if (!allVisibleVersions.length) { throw noSuchAnno(); }
 
   function makePreview(rec) {
     const anno = {
@@ -44,7 +44,7 @@ const EX = async function listVersions(ctx) {
     return anno;
   }
 
-  const previews = allVers.map(makePreview);
+  const previews = allVisibleVersions.map(makePreview);
   fmtAnnoCollection.replyToRequest(srv, req, { annos: previews });
 };
 
