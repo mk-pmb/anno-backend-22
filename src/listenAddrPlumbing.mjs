@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import spawnDetached from 'childprocess-spawn-detached';
+
 import pify from 'pify';
 import smartListen from 'net-smartlisten-pmb';
 
@@ -18,6 +20,7 @@ const EX = function installListenAddrPlumbing(srv) {
 
   const webSrv = srv.getLowLevelWebServer();
 
+  const notifyListeningCmd = srv.popCfg('str', 'notify_server_listening', '');
 
   async function listen() {
     const aliasReason = (function whyAlias() {
@@ -30,6 +33,7 @@ const EX = function installListenAddrPlumbing(srv) {
     console.info(descr);
     await pify(cb => webSrv.listen(lsnSpec, cb))();
     console.info('Now listening.');
+    spawnDetached(notifyListeningCmd);
   }
 
 

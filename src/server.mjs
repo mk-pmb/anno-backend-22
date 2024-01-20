@@ -32,6 +32,7 @@ const defaultConfig = {
   cfgfiles: configFilesAdapter.getConfigDefaults(),
 
   listen_addr: '127.0.0.1:33321',
+  notify_server_listening: '',
   public_baseurl: '',
   wwwpub_path: pathInRepo('wwwpub'),
 
