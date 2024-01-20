@@ -6,6 +6,8 @@ import httpErrors from '../../../httpErrors.mjs';
 import multiSearch from '../searchBy/multiSearch.mjs';
 import ubhdAnnoIdFmt from '../ubhdAnnoIdFmt.mjs';
 
+import findLatest from './findLatestVersionNumsForBaseId.mjs';
+
 const versionSep = ubhdAnnoIdFmt.versionNumberSeparator;
 
 const {
@@ -31,10 +33,15 @@ const EX = async function listVersions(ctx) {
   // console.debug('listVersions: allVisibleVersions:', allVisibleVersions);
   if (!allVisibleVersions.length) { throw noSuchAnno(); }
 
+  const workingCopyVersion = (await findLatest(ctx)).max;
+  const workingCopyUrl = latestPubUrl + versionSep + workingCopyVersion;
+  req.res.links({ 'working-copy': workingCopyUrl });
+
   function makePreview(rec) {
     const anno = {
       id: latestPubUrl + versionSep + rec.version_num,
       created: rec.time_created.toISOString(),
+      'iana:working-copy': workingCopyUrl,
     };
     if (rec.disclosed) {
       if (!rec.sunny) { anno['as:deleted'] = uts2iso(rec.sunset_uts); }
