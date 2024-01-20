@@ -101,14 +101,17 @@ const EX = async function lookupExactVersion(ctx) {
 
   // For consistency (and thus, less nasty surprises) we always verify
   // claimed roles, even for public annos.
+  let clientMustCopeWithLowlineStamps = false;
   const allowReadUnapproved = await (async function decide() {
     const { asRoleName } = req;
     if (!asRoleName) { return false; }
     if (asRoleName === 'approver') {
+      clientMustCopeWithLowlineStamps = true;
       await requireAdditionalReadPrivilege(approverPrivilegeName);
       return true;
     }
     if (asRoleName === 'author') {
+      clientMustCopeWithLowlineStamps = true;
       const webUser = (await detectUserIdentity(req)).userId;
       const annoSubmitter = detailsReply.author_local_userid;
       // console.debug('allowReadUnapproved:', { webUser, annoSubmitter });
@@ -132,9 +135,12 @@ const EX = async function lookupExactVersion(ctx) {
       err.headers = defaultErrorHeaders;
       throw err;
     }
+    delete lowlineStamps[lackOfApprovalStampName];
   }
 
-  Object.assign(annoDetails, topExtraFields);
+  Object.assign(annoDetails, topExtraFields,
+    clientMustCopeWithLowlineStamps && lowlineStamps,
+  );
 
   const lookup = {
     defaultErrorHeaders,
