@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import crObAss from 'create-object-and-assign';
+import errUtil from 'error-util-pmb';
 import pgLib from 'pg';
 import pgPool from 'postgres-pool-pmb';
 
@@ -35,9 +36,24 @@ async function init(how) {
 }
 
 
+async function runOnePoolQuery(query, slots) {
+  try {
+    return await this.getPool().query(query, slots);
+  } catch (err) {
+    Object.assign(err, {
+      via: errUtil.trace(),
+      // query, // usually too verbose
+      // slots, // might reveal secret data
+    });
+    throw err;
+  }
+}
+
+
 const api = {
-  init,
   getConfigDefaults() { return dfCfg; },
+  init,
+  runOnePoolQuery,
 };
 
 export default { api };

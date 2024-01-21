@@ -31,8 +31,8 @@ function unpackRows(r) {
 
 
 async function postgresQueryRows(tpl, slots) {
-  const pool = this.getPool();
-  const resp = await pool.query(maybeJoin(tpl, '\n'), slots);
+  const query = maybeJoin(tpl, '\n');
+  const resp = await this.runOnePoolQuery(query, slots);
   return unpackRows(resp);
 }
 

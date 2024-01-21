@@ -23,9 +23,8 @@ async function postgresInsertOneRecord(table, rec, origOpt) {
     + Object.values(rec).map(slotify).join(', ') + ');');
   // console.debug('pg insert: ', query);
 
-  const pool = this.getPool();
   try {
-    const resp = await pool.query(query, slots);
+    const resp = await this.runOnePoolQuery(query, slots);
     mustBe.tProp('Postgres insert reply ', resp, 'eeq:1', 'rowCount');
     return resp;
   } catch (origErr) {
