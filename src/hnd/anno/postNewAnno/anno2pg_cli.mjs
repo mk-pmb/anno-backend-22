@@ -96,7 +96,10 @@ const EX = {
 
   fallibleImportOneAnno(anno, idx) {
     const recNum = idx + 1;
-    return vTry.pr(EX.importOneAnno, 'Import record #' + recNum)(anno);
+    const trace = ('Import record #' + recNum + ' ('
+      + (anno ? 'ID ' + anno.id : anno)
+      + ')');
+    return vTry.pr(EX.importOneAnno, trace)(anno);
   },
 
 
