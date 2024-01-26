@@ -70,7 +70,6 @@ function dinst_inside_docker_install () {
   cd -- "$REPOPATH/$APP_SUBPATH" || return $?
   chapterize --cwd '' npm install . || return $?
 
-  chapterize --cwd dinst_register_os_commands || return $?
   chapterize --cwd 'Generate database initialization file' \
     dinst_dbinit_gen || return $?
 }
@@ -94,20 +93,6 @@ function dinst_configure_npm () {
     package-lock    = false
     update-notifier = false
     ' >"$HOME"/.npmrc || return $?
-}
-
-
-function dinst_register_os_commands () {
-  local PKGS=(
-    nodemjs
-    )
-  echo
-  echo "Registering OS commands installed by npm:"
-  local PKG=
-  for PKG in "${PKGS[@]}"; do
-    cd -- "$REPOPATH/node_modules/$PKG" || return $?
-    npm link || return $?
-  done
 }
 
 
