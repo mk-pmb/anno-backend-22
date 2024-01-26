@@ -7,7 +7,7 @@ version: '2.2'
 services:
 
   ${dd_tpl_bn}'':
-    image: 'node:16'
+    image: 'node:20'
     volumes:
       - ${dd_cfg annosrv_appdir}':/app'
       - ${dd_dir}'secrets/postgres.pswd.txt:/run/secrets/postgres.pswd.txt'

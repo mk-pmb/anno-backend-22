@@ -6,7 +6,7 @@ version: '2.2'
 services:
 
   ${dd_tpl_bn}'':
-    image: 'node:16'
+    image: 'node:20'
     volumes:
       - ${dd_cfg doibot_basedir}':/app'
     hostname: ${dd_cfg doibot_hostname}''

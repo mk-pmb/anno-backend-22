@@ -50,7 +50,7 @@ function dinst_dockerize () {
     --volume "$REPOPATH:/app:rw"
     "${DK_VARS[@]}"
     --workdir /app
-    node:16
+    node:20
     "$DKSELF"
     inside_docker_"$DK_TASK"
     )
