@@ -20,7 +20,7 @@ function chapterize () {
 
   [ -n "$DESCR" ] || DESCR="$*"
   echo -n "==== $DESCR "
-  [[ "$FLAGS" == ,--cwd, ]] && echo -n "@ $PWD "
+  [[ "$FLAGS" == *,--cwd,* ]] && echo -n "@ $PWD "
   echo '===='
   [ "$#" == 0 ] && return 0
   "$@"

@@ -28,6 +28,8 @@ Some are for clarification or error handling.
     `ln --symbolic --target-directory=enabled -- ../avail/pgadminer.yaml`
     * If your shell completion lacks support for `--target-directory=`,
       you may want to first omit `../`, complete the path, then insert `../`.
+1.  If you would like to use the DOI bot,
+    `ln --symbolic --target-directory=enabled -- ../avail/doibot.yaml`
 1.  You may now close the shell session for the anno server user.
 1.  Open a shell session for root.
 1.  Start the DevDock project's container group. (See [the DevDock readme

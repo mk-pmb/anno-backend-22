@@ -7,6 +7,7 @@ Some are for clarification or error handling.
 
 1.  Recommended OS is Ubuntu focal.
     Any later Ubuntu LTS should work as well.
+1.  Shell commands in this tutorial assume you use bash as your shell.
 1.  Install:
     * git
     * Docker CE (Community Edition) &rarr; [Docker Ubuntu Install Guide](
@@ -61,13 +62,50 @@ Some are for clarification or error handling.
       Expect frequent history rewrites.
 1.  Verify the cloning: `ls anno-server-22/run_*.sh` — the expected good
     response is `anno-server-22/run_server.sh`.
+
+
+
+### Intermezzo: DOI bot
+
+If you want DOI registration for your annotations, this optional chapter
+shows how to install `anno-doi-bot-23`.
+The anno server works perfectly well even without a DOI bot.
+
+1.  If you do not need a DOI bot, jump to the next subchapter "Back to root".
+1.  Create a directory for the DOI bot modules.
+    We'll assume `/srv/annosrv/doibot`.
+1.  `cd /srv/annosrv/doibot`
+1.  Clone the main DOI bot repo:
+    `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-doi-bot-23`
+1.  If you also want the DataCite registry adapter:
+    `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-doi-bot-23-adapter-datacite`
+1.  Install and configure (don't: start) the DOI bot according to [its readme.
+    ](https://github.com/mk-pmb/anno-doi-bot-23)
+    * You can skip the steps for cloning (you've just done that)
+      and the step for `npm install` (we'll do that soon).
+1.  If you chose to install (don't: start) the DataCite registry adapter,
+    install and configure it according to [its readme.
+    ](https://github.com/mk-pmb/anno-doi-bot-23-adapter-datacite)
+    * You can skip the steps for cloning (you've just done that)
+      and the step for `npm install` (we'll do that soon).
+
+
+
+### Back to root
+
 1.  Put the `annosrv` shell aside for later. Switch back to your root shell.
+1.  If you have chosen to do the DOI bot install part above, export an
+    environment variable `EXTRAS_DIR` that points to where your DOI bot
+    modules are. With the example paths, that would be:
+    `export EXTRAS_DIR=/srv/annosrv/doibot`
 1.  In that root shell, run:
     `/srv/annosrv/anno-server-22/util/install_dockerized.sh`
     * It will create a temporary node.js docker container, mount the
       `anno-server-22` directory into it, and use npm inside the container
       to arrange various things. (For details about what and why, see
       `util/install_dockerized.md` next to the script.)
+    * If you have set an `EXTRAS_DIR`, the script will also install all
+      Node.js modules that are subdirectories of `EXTRAS_DIR`.
 1.  You may now close the root shell.
     The further configuration should happen as user `annosrv`.
     (Or you can do them as anyone and later `chown` all files.)

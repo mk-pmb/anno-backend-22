@@ -8,11 +8,7 @@ function dinst_main () {
   source -- "$SELFPATH"/lib/kisi.sh --lib || return $?
 
   local REPOPATH="$(dirname -- "$SELFPATH")"
-  case "$REPOPATH" in
-    *[': ']* )
-      echo "E: Path contains unsupported characters: $REPOPATH" >&2
-      return 8;;
-  esac
+  dinst_validate_docker_volume_path 'repo path' "$REPOPATH" || return $?
 
   local TASK="${1:-dockerize}"; shift
   "${FUNCNAME%_*}_$TASK" "$@" || return $?$(
@@ -46,6 +42,11 @@ function dinst_dockerize () {
     DK_CMD+=( --tty )
   fi
 
+  if [ -n "$EXTRAS_DIR" ]; then
+    dinst_validate_docker_volume_path EXTRAS_DIR "$EXTRAS_DIR" || return $?
+    DK_CMD+=( --volume "$EXTRAS_DIR:/extras:rw" )
+  fi
+
   DK_CMD+=(
     --volume "$REPOPATH:/app:rw"
     "${DK_VARS[@]}"
@@ -55,21 +56,40 @@ function dinst_dockerize () {
     inside_docker_"$DK_TASK"
     )
   "${DK_CMD[@]}" || return $?
-  echo 'Gonna fix permissions (usually, no files should be affected):'
-  sudo chown --reference . --changes -- node_modules/ || return $?
-  echo 'Cleaning up some potential traps:'
-  rm -- package-lock.json 2>/dev/null
+  echo 'Gonna fix permissions:'
+  dinst_fix_npm_file_perms . || return $?
+  dinst_fix_npm_file_perms /extras || return $?
 
   echo; chapterize 'All done.'
 }
 
 
+function dinst_fix_npm_file_perms () {
+  [ -d "$1" ] || return 0
+  sudo chown --reference "$1" --recursive -- "$1"/node_modules || return $?
+}
+
+
+function dinst_validate_docker_volume_path () {
+  local DESCR="$1" VPATH="$2"
+  case "$VPATH" in
+    *:* | *' '* )
+      echo E: "$DESCR contains unsupported characters: $VPATH" >&2
+      return 8;;
+  esac
+  [ -d "$VPATH" ] || return 4$(
+    echo E: "$DESCR seems to not be a directory: $VPATH" >&2)
+}
+
+
 function dinst_inside_docker_install () {
+  local RUNMJS="$REPOPATH/node_modules/.bin/nodemjs"
+
   chapterize dinst_configure_npm || return $?
+  dinst_maybe_install_extras || return $?
 
   cd -- "$REPOPATH/$APP_SUBPATH" || return $?
-  chapterize --cwd '' npm install . || return $?
-
+  chapterize --cwd '' dinst_install_npm_module || return $?
   chapterize --cwd 'Generate database initialization file' \
     dinst_dbinit_gen || return $?
 }
@@ -83,7 +103,7 @@ function dinst_inside_docker_eval () {
 
 function dinst_inside_docker_run_script () {
   cd -- "$REPOPATH/$APP_SUBPATH" || return $?
-  ./node_modules/.bin/nodemjs $DK_EVAL || return $?
+  $RUNMJS $DK_EVAL || return $?
 }
 
 
@@ -96,10 +116,34 @@ function dinst_configure_npm () {
 }
 
 
+function dinst_maybe_install_extras () {
+  if [ ! -d /extras ]; then
+    echo D: 'No extras directory is mounted. Skip.'
+    return 0
+  fi
+
+  local PKGDIR= DESCR=
+  for PKGDIR in /extras/*/package.json; do
+    [ -f "$PKGDIR" ] || continue
+    PKGDIR="${PKGDIR%/*}"
+    DESCR="$(basename -- "$PKGDIR")"
+    cd -- "$PKGDIR" || return $?$(echo E: "Failed to chdir to $PKGDIR!" >&2)
+    chapterize --cwd '' dinst_install_npm_module || return $?
+  done
+  cd -- "$REPOPATH" || return $?
+}
+
+
+function dinst_install_npm_module () {
+  npm install . || return $?
+  rm -- package-lock.json 2>/dev/null || true
+}
+
+
 function dinst_dbinit_gen () {
   cd -- "$REPOPATH" || return $?
   local DEST='util/pg/dbinit_structure.sql'
-  nodemjs "${DEST%.*}".gen.mjs >"$DEST" || return $?
+  $RUNMJS "${DEST%.*}".gen.mjs >"$DEST" || return $?
   # wc --lines -- "$DEST" || return $?
   grep --with-filename -Fe '$date$' -- "$DEST" || return $?
 }
