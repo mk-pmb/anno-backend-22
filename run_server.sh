@@ -104,6 +104,12 @@ function verify_sigterm_compat () {
 
 
 function verify_run_prog () {
+  local NMBIN="$SELFPATH"/node_modules/.bin
+  if [[ ":$PATH:" != *":$NMBIN:"* ]]; then
+    PATH="$NMBIN:$PATH:"
+    export PATH
+  fi
+
   local PROG="${CFG[run_prog]}"
   case "$PROG" in
     '!no_verify!'* ) CFG[run_prog]="${PROG#!*!}"; return 0;;
