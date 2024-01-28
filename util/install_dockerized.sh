@@ -37,6 +37,7 @@ function dinst_dockerize () {
     docker
     run
     --interactive     # Some tasks need stdio even in batch mode.
+    --rm              # Remove temporary container after use
     )
 
   if tty --silent; then
