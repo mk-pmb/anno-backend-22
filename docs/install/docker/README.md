@@ -141,8 +141,14 @@ The anno server works perfectly well even without a DOI bot.
         [../../cfg/as22.devdock/](../../cfg/as22.devdock/).
         To use it: `cp -rnt cfg.@dkas22/ -- docs/cfg/as22.devdock`
 1.  The anno server software itself is now installed.
-    For how to prepare the database and how to start the server,
-    please refer to the `README.md` of the example DevDock project.
+
+
+### Next steps:
+
+* Set up a reverse proxy and ensure some security aspects:
+  [see here](../../cfg/reverse_proxy/).
+* Prepare the database and start the server:
+  See the `README.md` of the example DevDock project.
 
 
 
