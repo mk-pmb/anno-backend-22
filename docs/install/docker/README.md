@@ -81,15 +81,14 @@ The anno server works perfectly well even without a DOI bot.
     `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-doi-bot-23`
 1.  If you also want the DataCite registry adapter:
     `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-doi-bot-23-adapter-datacite`
-1.  Install and configure (don't: start) the DOI bot according to [its readme.
-    ](https://github.com/mk-pmb/anno-doi-bot-23)
-    * You can skip the steps for cloning (you've just done that)
-      and the step for `npm install` (we'll do that soon).
-1.  If you chose to install (don't: start) the DataCite registry adapter,
-    install and configure it according to [its readme.
-    ](https://github.com/mk-pmb/anno-doi-bot-23-adapter-datacite)
-    * You can skip the steps for cloning (you've just done that)
-      and the step for `npm install` (we'll do that soon).
+1.  Pre-emptive hints for the next step:
+    * You do not need to `npm install` those repos individually.
+      Skip that step, because the docker install script will do that soon.
+    * You already cloned them, so you can skip their cloning step.
+    * Don't start the DOI bot or any adapter yet. DevDock will do that later.
+1.  With those hints in mind, set up each DOI bot component according to its
+    readme (or similar docs), because it may have warnings or instructions
+    not addressed above.
 
 
 
