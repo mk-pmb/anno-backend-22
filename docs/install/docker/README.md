@@ -127,8 +127,11 @@ The anno server works perfectly well even without a DOI bot.
       To use it: `cp -rnT -- docs/cfg/ubhd-ex01/ cfg.@dkas22`
     * Directory naming explained: "cfg." = config, "@" = host-specific.
       In the future, there may be others like "cfg.site" and "cfg.vendor".
-1.  Customize your instance config.
+1.  You can customize your instance config now or at any time later.
     See the example config's `README.md` for how.
+    Most changes will take effect only when you restart the server.
+    * ⚠ Make sure to review the ACL and security settings before you make
+      your anno server accessible to users or the public.
 1.  Now you need to set up docker-compose.
     To make that easier, we use the templating system "DevDock".
     1.  The next steps will require basic knowledge of DevDock, at least
