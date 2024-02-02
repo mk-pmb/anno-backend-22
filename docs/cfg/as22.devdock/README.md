@@ -15,6 +15,13 @@ Some are for clarification or error handling.
     It's probably where this here README resides. It contains a `dock.sh`.
     If the path to here contains `docs/cfg/`, you may have missed a copy step.
     Edit your local copy instead.
+1.  If you're reusing an existing DevDock project directory, make sure to
+    delete all remnants of your previous service data directories.
+    * They are probably in a "hidden" directory (i.e. name starts with a dot)
+      like `.containerdata/` inside your DevDock project directory.
+    * In case you really want to keep your old Postgres data, you'll have
+      to adjust login credentials manually, because when Postgres finds an
+      existing users database, it will ignore our new password file.
 1.  Adjust the config files in `config/`.
     The most important places are marked with `:maybe_customize:`,
     so you can easily find them with<br>
