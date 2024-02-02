@@ -11,6 +11,10 @@
         vSubDirs:
           - 'projectName'
           - 'pageNumStr'
+          # vSubDir = virtual subdirectory maps parts of the URL into the
+          # ACL meta data namespace, so you can use it in ACL conditions.
+          # They will also be displayed in "access denied" error messages
+          # to help debug the conitions that caused the error.
 
 
     annoBrowserRedirect: '%sc/%bi/image,info'
