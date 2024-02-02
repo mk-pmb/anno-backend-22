@@ -32,12 +32,10 @@ Some are for clarification or error handling.
     `ln --symbolic --target-directory=enabled -- ../avail/doibot.yaml`
 1.  You may now close the shell session for the anno server user.
 1.  Open a shell session for root.
-1.  Start the DevDock project's container group. (See [the DevDock readme
-    ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock)
-    for how.)
-    * When you start the project for the first time,
-      the database is not yet initialized, so a lot of features are not
-      available yet. We'll fix that later.
+1.  When you start the project for the first time, the database is not yet
+    initialized, so a lot of features are not available yet. We'll fix that
+    later. For now, just start the DevDock project's container group.
+    (See [the DevDock readme][devdock-readme] for how.)
     * There should be some Postgres messages about first time startup
       preparations. This should complete within a few minutes.
     * Meanwhile there may be failure messages from the anno server about
@@ -71,8 +69,9 @@ Some are for clarification or error handling.
 How to control the docker container group
 -----------------------------------------
 
-See [the DevDock readme
-](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock).
+See [the DevDock readme][devdock-readme].
+
+  [devdock-readme]: https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock
 
 
 
