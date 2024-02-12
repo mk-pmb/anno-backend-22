@@ -3,6 +3,7 @@
 const EX = {
 
   doiRequestStampName: '_ubhd:doiAssign',
+  doiStampName: 'dc:identifier',
   subjTgtAclField: 'ubhd:aclPreviewBySubjectTargetUrl',
   unapprovedStampName: '_ubhd:unapproved',
 

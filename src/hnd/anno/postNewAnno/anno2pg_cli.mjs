@@ -37,9 +37,6 @@ const EX = {
   ],
 
 
-  doiField: 'dc:identifier',
-
-
   dbRecords: {
     data: [],
     links: [],
@@ -122,8 +119,8 @@ const EX = {
       const parsed = parseSubmittedAnno(pop, {
         ...minimumConfig,
         extraCopyFields: {
+          [miscMetaFieldInfos.doiStampName]: 'undef | nonEmpty str',
           created: 'nonEmpty str',
-          [EX.doiField]: 'undef | nonEmpty str',
         },
       });
       // const createdTimeJs = new Date(parsed.created)).getTime();

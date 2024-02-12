@@ -6,6 +6,7 @@ import getOwn from 'getown';
 import decideAuthorIdentity from '../postNewAnno/decideAuthorIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 import lookupExactVersion from '../idGet/lookupExactVersion.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseDatePropOrFubar from '../../util/parseDatePropOrFubar.mjs';
 import stampUtil from '../util/stampUtil.mjs';
 
@@ -45,7 +46,7 @@ const EX = async function addStamp(ctx) {
     if (popMore) { Object.assign(stRec, popMore(mustPopInput)); }
     let det;
 
-    if (stType === 'dc:identifier') {
+    if (stType === miscMetaFieldInfos.doiStampName) {
       const doi = libDoi.expectBareDoi(mustPopInput('nonEmpty str', 'doi'));
       det = libDoi.toUri(doi);
     }
@@ -107,8 +108,8 @@ Object.assign(EX, {
 
 
   stampFx: {
+    [miscMetaFieldInfos.doiStampName]: deleteDoiRequestStamp,
     'dc:dateAccepted': approvalDecisionSideEffects,
-    'dc:identifier': deleteDoiRequestStamp,
   },
 
 
