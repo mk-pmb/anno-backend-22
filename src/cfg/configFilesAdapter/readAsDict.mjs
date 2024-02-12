@@ -32,6 +32,7 @@ const EX = async function readAsDict(topic) {
     const bfn = name.slice(0, cutSuf);
     const fullPath = pathLib.join(basePath, name);
     const cfg = await oppoRead.readConfigFileIfExists(fullPath);
+    if (!cfg) { return; } // probably broken symlink => treat as non-existing
     if (cfg['^'] !== undefined) {
       cfg[bfn] = cfg['^'];
       delete cfg['^']; // Please don't use `^.yaml` as your filename.
