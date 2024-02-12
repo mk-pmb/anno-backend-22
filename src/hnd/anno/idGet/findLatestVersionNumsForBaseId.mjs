@@ -2,6 +2,7 @@
 
 import detectUserIdentity from '../../../acl/detectUserIdentity.mjs';
 import httpErrors from '../../../httpErrors.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import miscSql from '../miscSql.mjs';
 import ubhdAnnoIdFmt from '../ubhdAnnoIdFmt.mjs';
 
@@ -24,7 +25,7 @@ const EX = async function findLatestVersionNums(ctx) {
 
 
 (function compileTpl() {
-  const unapStamp = '_ubhd:unapproved';
+  const unapStamp = miscMetaFieldInfos.unapprovedStampName;
   const coal = 'SELECT COALESCE(MAX("version_num")::smallint, 0) FROM "av"';
   const main = `
     WITH "av" AS (

@@ -1,9 +1,10 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import makeStampDeleter from '../util/makeStampDeleter.mjs';
+import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 
 
-const unapStamp = '_ubhd:unapproved';
+const unapStamp = miscMetaFieldInfos.unapprovedStampName;
 
 
 const sunsetUEV = async function sunsetUndecidedEarlierVersions(ctx) {

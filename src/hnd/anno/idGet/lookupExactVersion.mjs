@@ -20,7 +20,6 @@ const {
 } = httpErrors.throwable;
 
 
-const lackOfApprovalStampName = '_ubhd:unapproved';
 const approverPrivilegeName = 'stamp_any_add_dc_dateAccepted';
 
 
@@ -120,7 +119,7 @@ const EX = async function lookupExactVersion(ctx) {
     throw noSuchResource('Unsupported role name in URL.');
   }());
 
-  if (lowlineStamps[lackOfApprovalStampName]) {
+  if (lowlineStamps[miscMetaFieldInfos.unapprovedStampName]) {
     if (allowReadUnapproved) {
       annoDetails['dc:dateAccepted'] = false;
     } else {
@@ -135,7 +134,7 @@ const EX = async function lookupExactVersion(ctx) {
       err.headers = defaultErrorHeaders;
       throw err;
     }
-    delete lowlineStamps[lackOfApprovalStampName];
+    delete lowlineStamps[miscMetaFieldInfos.unapprovedStampName];
   }
 
   Object.assign(annoDetails, topExtraFields,

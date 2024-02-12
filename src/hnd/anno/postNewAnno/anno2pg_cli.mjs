@@ -160,7 +160,7 @@ const EX = {
     const apiFieldName = 'dc:dateAccepted';
     if (anno[apiFieldName] !== false) { return; }
     delete anno[apiFieldName]; // eslint-disable-line no-param-reassign
-    stamps.push({ st_type: '_ubhd:unapproved' });
+    stamps.push({ st_type: miscMetaFieldInfos.unapprovedStampName });
   },
 
 

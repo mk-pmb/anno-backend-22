@@ -4,6 +4,18 @@ import loMapValues from 'lodash.mapvalues';
 import pgDumpWriter from 'postgres-dump-writer-helpers-220524-pmb';
 
 
+const externalDefs = { /*
+  These definitions have their authoritative source in other files of the
+  project which usually should be `import`ed rather than defined here.
+  However, avoiding any parent directory dependencies in the DB schema
+  generator might make it easier to mount less directory scope into a
+  DB-related docker container, so I'm not entirely decided yet. */
+
+  unappStamp: '_ubhd:unapproved', /*
+    from `../../src/hnd/anno/miscMetaFieldInfos.mjs` */
+};
+
+
 console.log('-- -*- coding: UTF-8, tab-width: 2 -*-\n');
 console.log('-- $date$ File generated at ' + (new Date()).toString() + '\n');
 
@@ -28,7 +40,7 @@ const visibilityViews = (function compile() {
   const wrapOrder = [].join.bind(['SELECT * FROM (\n',
     '\n) AS "in" ORDER BY "base_id" ASC, "version_num" ASC']);
   const stampType = selCols + '"anno_stamps" WHERE "st_type" ';
-  const unappSt = stampType + "= '_ubhd:unapproved'";
+  const unappSt = `${stampType}= '${externalDefs.unappStamp}'`;
   return {
     views: {
       anno_unapproved: wrapOrder(unappSt),

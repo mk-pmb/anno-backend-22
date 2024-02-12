@@ -139,9 +139,7 @@ const EX = async function postNewAnno(srv, req) {
   // be accepted. We optimistically pre-generate the stamp and relation
   // records anyway, to catch potential errors therein before touching
   // the database.
-  const bareStamps = [];
-  if (ctx.approvalRequired) { bareStamps.push('_ubhd:unapproved'); }
-
+  const bareStamps = EX.decideBareStamps(ctx);
   const relRecs = fmtRelRecs({ srv, anno, ...ctx.idParts, tgtCateg });
   const stampRecs = mapMergeDefaults({
     ...dbAddr,
@@ -193,7 +191,17 @@ Object.assign(EX, {
     if (servicesInvolved.size > 1) {
       await ctx.requirePermForSubjTgtUrls('create_across_services');
     }
-    ctx.approvalRequired = !!aclMetaSpy['nServicesWith:approvalRequired'];
+    ctx.anySvcCfgFlag = flag => !!aclMetaSpy['nServicesWith:' + flag];
+    // ^-- :TODO: Why does eslint allow this param reassignment?
+  },
+
+
+  decideBareStamps(ctx) {
+    const bs = [];
+    const mfi = miscMetaFieldInfos;
+    const flag = ctx.anySvcCfgFlag;
+    if (flag('approvalRequired')) { bs.push(mfi.unapprovedStampName); }
+    return bs;
   },
 
 

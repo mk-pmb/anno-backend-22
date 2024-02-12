@@ -4,11 +4,15 @@ const EX = {
 
   doiRequestStampName: '_ubhd:doiAssign',
   subjTgtAclField: 'ubhd:aclPreviewBySubjectTargetUrl',
+  unapprovedStampName: '_ubhd:unapproved',
+
+};
+Object.assign(EX, {
 
   visibilityRelatedStampsNames: [
-    '_ubhd:unapproved',
-    'dc:dateAccepted',
     'as:deleted',
+    'dc:dateAccepted',
+    EX.unapprovedStampName,
   ],
 
   serverAssignedFields: [ /*
@@ -19,9 +23,7 @@ const EX = {
     'created',
   ],
 
-};
-
-
+});
 Object.assign(EX, {
 
   nonInheritableFields: [

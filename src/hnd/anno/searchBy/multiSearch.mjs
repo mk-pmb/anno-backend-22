@@ -201,7 +201,7 @@ Object.assign(EX, {
       // xDisclosed: rec.disclosed,
       // xSunny: rec.sunny,
     };
-    delete fullAnno['_ubhd:unapproved'];
+    delete fullAnno[miscMetaFieldInfos.unapprovedStampName];
     if (!rec.disclosed) { fullAnno['dc:dateAccepted'] = false; }
     return fullAnno;
   },

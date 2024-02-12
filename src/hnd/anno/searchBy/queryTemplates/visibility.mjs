@@ -1,12 +1,16 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import miscMetaFieldInfos from '../../miscMetaFieldInfos.mjs';
 import miscSql from '../../miscSql.mjs';
+
+
+const unapStamp = miscMetaFieldInfos.unapprovedStampName;
 
 
 const EX = {
 
   visibilityStampJoins: `
-      ${miscSql.joinStampEffUts0('unapproval', '_ubhd:unapproved').join}
+      ${miscSql.joinStampEffUts0('unapproval', unapStamp).join}
       ${miscSql.joinStampEffUts0('retractions', 'as:deleted').join}
     `.trim(),
 
