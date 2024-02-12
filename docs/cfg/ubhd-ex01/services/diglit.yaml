@@ -22,6 +22,12 @@
 
     approvalRequired: yes
 
+    autoRequestNextVersionDoi: yes
+        # ^- If enabled, when a revision is submitted for a version that has
+        # a DOI, a DOI request is stamped onto the newly submitted version.
+
+
+
     rssFeeds:
 
         team23: # <- The sub URL (inside /rssb) of this feed

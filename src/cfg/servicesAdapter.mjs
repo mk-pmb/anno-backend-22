@@ -95,6 +95,7 @@ const EX = {
 
   svcCfgFlagNames: [
     'approvalRequired',
+    'autoRequestNextVersionDoi',
   ],
 
 

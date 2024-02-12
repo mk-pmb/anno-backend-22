@@ -31,6 +31,7 @@ const errDuplicateRandomUuid = httpErrors.fubar.explain(
 
 function orf(x) { return x || false; }
 function panic(msg) { throw new Error(msg); }
+// function jsonDebug(x) { throw badRequest(JSON.stringify(x, null, 2)); }
 
 
 const EX = async function postNewAnno(srv, req) {
@@ -85,7 +86,7 @@ const EX = async function postNewAnno(srv, req) {
     return 'create';
   }());
 
-  req.logCkp('postNewAnno input', { subjTgtUrls, replyTgtVersIds });
+  // req.logCkp('postNewAnno input', { subjTgtUrls, replyTgtVersIds });
 
   if (replyTgtVersIds.length > 1) {
     const msg = ('Cross-posting (reply to multiple annotations)'
@@ -202,6 +203,12 @@ Object.assign(EX, {
     const mfi = miscMetaFieldInfos;
     const flag = ctx.anySvcCfgFlag;
     if (flag('approvalRequired')) { bs.push(mfi.unapprovedStampName); }
+
+    const old = orf(ctx.oldAnnoDetails);
+    if (old[mfi.doiStampName] && flag('autoRequestNextVersionDoi')) {
+      bs.push(mfi.doiRequestStampName);
+    }
+
     return bs;
   },
 

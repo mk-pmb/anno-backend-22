@@ -24,10 +24,15 @@ Object.assign(EX, {
     'created',
   ],
 
+  externallyAssignedFields: [
+    EX.doiStampName,
+  ],
+
 });
 Object.assign(EX, {
 
   nonInheritableFields: [
+    ...EX.externallyAssignedFields,
     ...EX.serverAssignedFields,
     ...EX.visibilityRelatedStampsNames,
   ],
