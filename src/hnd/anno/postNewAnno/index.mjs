@@ -29,6 +29,7 @@ const errDuplicateRandomUuid = httpErrors.fubar.explain(
   'ID assignment failed: Duplicate generated random UUID.').throwable;
 
 
+function orf(x) { return x || false; }
 function panic(msg) { throw new Error(msg); }
 
 
@@ -54,10 +55,10 @@ const EX = async function postNewAnno(srv, req) {
     who,
 
     async requirePermForSubjTgtUrls(privilegeName, origOpt) {
-      const opt = (origOpt || false);
+      const opt = orf(origOpt);
       const urlsList = (opt.customUrlsList || subjTgtUrls);
       const { aclMetaSpyEach } = opt;
-      const aclMetaSpy = (opt.aclMetaSpy || (aclMetaSpyEach && {}) || false);
+      const aclMetaSpy = orf(opt.aclMetaSpy || (aclMetaSpyEach && {}));
       await pEachSeries(urlsList, async function checkUrl(url) {
         await srv.acl.requirePerm(req,
           { targetUrl: url, privilegeName, aclMetaSpy });
