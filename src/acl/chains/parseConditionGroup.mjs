@@ -32,6 +32,7 @@ const EX = async function parseConditionGroup(origHow) {
   await EX.parseCondKey({ ...how, singleCond: true });
   await EX.parseCondKey({ ...how, keySuffix: 'Any' });
   await EX.parseCondKey({ ...how, keySuffix: 'All', setGS: initMet });
+  // `git grep` trap: ifAny, ifAll, unlessAny, unlessAll
 
   if (!grSt.checkFuncsList.length) { grSt.checkFuncsList = false; }
 
