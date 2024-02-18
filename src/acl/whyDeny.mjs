@@ -6,6 +6,7 @@ import sortedJson from 'safe-sortedjson';
 import getOrAddKey from 'getoraddkey-simple';
 
 import httpErrors from '../httpErrors.mjs';
+import servicesAdapter from '../cfg/servicesAdapter.mjs';
 
 import aclSubChain from './chains/aclSubChain.mjs';
 import detectUserIdentity from './detectUserIdentity.mjs';
@@ -37,7 +38,13 @@ const EX = async function whyDeny(req, actionMeta) {
     ...urlMeta,
   };
   Object.assign(allMeta, pubMeta);
-  if (aclMetaSpy) { Object.assign(aclMetaSpy, allMeta); }
+  if (aclMetaSpy) {
+    Object.assign(aclMetaSpy, allMeta);
+    EX.metaSpySvcBoolCounters.forEach(function incr(p) {
+      const k = 'nServicesWith' + (allMeta[p] ? '' : 'out') + ':' + p;
+      aclMetaSpy[k] = (+aclMetaSpy[k] || 0) + 1;
+    });
+  }
 
   const chainCtx = {
     getAcl() { return acl; },
@@ -78,6 +85,16 @@ const EX = async function whyDeny(req, actionMeta) {
   const errDeny = httpErrors.aclDeny.throwable(denyMsg);
   return errDeny;
 };
+
+
+Object.assign(EX, {
+
+  metaSpySvcBoolCounters: [
+    ...servicesAdapter.svcCfgFlagNames,
+  ],
+
+
+});
 
 
 export default EX;

@@ -75,8 +75,8 @@ const EX = {
       }
       const meta = {
         serviceId: svcId,
-        approvalRequired: Boolean(svcInfo.approvalRequired),
       };
+      EX.svcCfgFlagNames.forEach((k) => { meta[k] = Boolean(svcInfo[k]); });
 
       const tumCfg = svcInfo.targetUrlMetadata;
       const subUrl = tgtUrl.slice(svcFromPrefix.pfx.length);
@@ -91,6 +91,12 @@ const EX = {
     },
 
   },
+
+
+  svcCfgFlagNames: [
+    'approvalRequired',
+  ],
+
 
 };
 
