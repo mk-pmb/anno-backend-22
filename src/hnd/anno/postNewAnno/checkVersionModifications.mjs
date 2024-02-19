@@ -35,7 +35,10 @@ const EX = async function checkVersionModifications(ctx) {
   const nUpdates = Object.keys(ctx.annoChanges).length;
   if (nUpdates < 1) { throw badRequest('Found no modifications.'); }
   await EX.validateModificationPermissions(ctx);
-  Object.assign(anno, ctx.oldAnnoDetails, ctx.annoChanges);
+
+  const inherit = { ...ctx.oldAnnoDetails };
+  miscMetaFieldInfos.nonInheritableFields.forEach(k => delete inherit[k]);
+  Object.assign(anno, inherit, ctx.annoChanges);
 };
 
 
