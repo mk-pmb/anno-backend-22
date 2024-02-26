@@ -1,0 +1,19 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+# This file is an example for how to use GND IDs as author ID URL.
+
+^:
+
+    author_identities:
+        'https://d-nb.info/gnd/1019546514':
+            name: 'Leonhard Maylein'
+            type: Person
+            email: 'maylein@ub.uni-heidelberg.de'
+            homepage:
+              - 'https://d-nb.info/gnd/1019546514'
+              - 'https://www.ub.uni-heidelberg.de/helios/digi/ansprechpartner.html'
+
+
+...
