@@ -5,7 +5,7 @@ import uuidv5 from 'uuidv5';
 
 const EX = function learnOneAuthorIdentitiy(ctx, aidKey, origSpec) {
   if (!origSpec) { return; }
-  const agent = ctx.cfgMeta.mergeInheritedFragments(origSpec);
+  const agent = ctx.mergeInheritedFragments(origSpec);
   let agentId = agent.id;
   if (!agentId) {
     agentId = aidKey;

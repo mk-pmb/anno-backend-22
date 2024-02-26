@@ -40,7 +40,7 @@ const EX = async function learnLocalUser(ctx, userName, mustPopDetail) {
 Object.assign(EX, {
 
   async learnMeta(ctx, mustPopCfgMeta) {
-    const { cfgMeta, mgr, srv } = ctx;
+    const { mgr, srv } = ctx;
 
     mgr.authorAgentUuidBaseUrl = (function parse() {
       const cfgKey = 'author_agent_uuid5_baseurl';
@@ -60,8 +60,6 @@ Object.assign(EX, {
       const aiKeys = arrayOfTruths(origSpec);
       return aiKeys;
     }());
-
-    cfgMeta.fragments = await srv.configFiles.readAsDict('users/fragments');
   },
 
 
