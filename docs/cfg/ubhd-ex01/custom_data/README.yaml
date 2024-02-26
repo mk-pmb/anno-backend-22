@@ -1,0 +1,16 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 2 -*-
+---
+
+About the custom_data directory: |
+
+  This config category is meant for site-specific additional data that
+  can be referenced in other configs.
+
+  This file is a placeholder because our config mechanism expects at
+  least one config per category. We could implement exceptions to that
+  rule, but the added code complexity isn't worth it compared to the
+  trivial solution.
+
+
+...

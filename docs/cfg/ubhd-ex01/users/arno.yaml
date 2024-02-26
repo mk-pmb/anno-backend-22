@@ -29,7 +29,9 @@
             type: Person
             email: 'arno.nym@example.net'
             INHERITS:
-                - 'icon_wp_vector_anon'
+                # The `INHERITS` option can be used to include fragments
+                # from the `custom_data` config category.
+                - 'user_icon_fragments.wp_vector_anon'
 
         minimal:
             name: 'A. Nym'
