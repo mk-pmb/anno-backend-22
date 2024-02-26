@@ -2,20 +2,28 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Chain name. `^` means to use the basename of the filename.
-
-  - if:
-        memberOfAclGroup: '📚_authors'
+^_author:
+  - if: always
     tendency:
+        create:                 allow
+        create_across_services: allow
+        reply:                  allow
         revise_own:             allow
         revise_own_creator:     allow
         revise_own_body:        allow
         revise_own_target_add:  allow
         revise_own_target_del:  allow
 
-  - if:
-        memberOfAclGroup: '📚_moderators'
+
+# ========================================================================
+
+
+^_moderator:
+  - if: always
     tendency:
+        stamp_any_add_dc_dateAccepted:      allow
+        stamp_any_add_as_deleted:           allow
+
         revise_any:             allow
         revise_any_creator:     allow
 
@@ -33,6 +41,22 @@
         revise_any_body:        allow
         revise_any_target_add:  allow
         revise_any_target_del:  allow
+
+
+# ========================================================================
+
+
+^_publisher:
+  - if: always
+    tendency:
+        stamp_any_add__ubhd_doiAssign:      allow
+
+
+# ========================================================================
+
+
+
+
 
 
 

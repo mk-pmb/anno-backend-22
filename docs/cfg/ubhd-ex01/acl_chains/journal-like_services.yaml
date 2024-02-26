@@ -1,0 +1,23 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:  # <-- Chain name. `^` means to use the basename of the filename.
+
+  - repeat:
+        type: staticMetadataForEach
+        slot: checkRole
+        list:
+          - author
+          - moderator
+          - publisher
+    if:
+        memberOfAclGroup:
+          - 'svc_<$serviceId>/<$checkRole>'
+          - 'svc_<$serviceId>/zs_<$zsKuerzel>/<$checkRole>'
+          - 'svc_<$serviceId>/zs_<$zsKuerzel>/sub<$submissionId>/<$checkRole>'
+    aclSubChain: 'default_perms_<$checkRole>'
+
+
+
+...

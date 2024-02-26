@@ -57,15 +57,15 @@
 
 
     acl_user_groups:
-        - 'diglit_authors'
-        - 'diglit_moderators'
-        - 'diglit_publishers'
-        - 'journals_authors'
-        - 'journals_publishers'
+        - 'svc_diglit/author'
+        - 'svc_diglit/moderator'
+        - 'svc_diglit/publisher'
+        - 'svc_journals/author'
+        - 'svc_journals/publisher'
 
         # You can also declare group membership in a group config file.
         # Membership declarations merge cumulatively, so this is redundant:
-        - 'diglit_proofreaders'
+        - 'svc_diglit/proofreaders'
 
         - 'doi_request_watchers'
         - 'doi_sources'

@@ -1,0 +1,37 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:  # <-- Chain name. `^` means to use the basename of the filename.
+
+  - if: always
+    setMeta:
+      - source: customDataDict
+        setSlot: null   # null = Import dictionary rather than a single slot.
+        dict: 'diglit_aclmeta'
+        searchFor: '<$projectName>'
+        notFound:
+            sammlung: 'PROJEKT_OHNE_SAMMLUNG'
+
+  - repeat:
+        type: staticMetadataForEach
+        slot: checkRole
+        list:
+          - author
+          - moderator
+          - publisher
+    if:
+        memberOfAclGroup:
+          - 'svc_<$serviceId>/<$checkRole>'
+          - 'svc_<$serviceId>/proj_<$projectName>/<$checkRole>'
+          - 'svc_<$serviceId>/proj_<$projectName>/pg<$pageNumStr>/<$checkRole>'
+          - 'svc_<$serviceId>/samm_<$sammlung>/<$checkRole>'
+          - 'svc_<$serviceId>/oai_<$gnt_oai_Gartenkunst>/<$checkRole>'
+          - 'svc_<$serviceId>/oai_<$gnt_oai_Karten>/<$checkRole>'
+          - 'svc_<$serviceId>/oai_<$gnt_oai_leo-bw>/<$checkRole>'
+          - 'svc_<$serviceId>/oai_<$gnt_oai_Zeitungen>/<$checkRole>'
+    aclSubChain: 'default_perms_<$checkRole>'
+
+
+
+...

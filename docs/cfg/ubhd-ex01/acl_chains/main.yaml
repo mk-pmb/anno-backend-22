@@ -20,64 +20,11 @@
         discover: allow
         # ^- Required to read version history
 
-
-  - if:
-        memberOfAclGroup: 'suspended'
-    decide:
-        '*': deny
-        # `decide` sets the decisions for selected privileges and stops
-        # ACL processing, thus making the decisions final.
-
-  - if:
-        memberOfAclGroup: 'superadmin'
-    decide:
-        '*': allow
-
-  - unless:
-        memberOfAclGroup: 'superadmin'
-    decide:
-        shutdown: deny
-        # Lack of a '*' entry means this rule has no effect for actions not
-        # mentioned. The ACL processing will continue unfettered for requests
-        # that do not require the "shutdown" permission.
-
-
-  - if:
-        memberOfAclGroup: 'doi_sources'
-    decide:
-        stamp_any_add_dc_identifier: allow
-
-  - if:
-        memberOfAclGroup: 'doi_request_watchers'
-    decide:
-        search_hasStamp__ubhd_doiAssign: allow
-
-
-  - ifAll:
-      - paramInList:
-            param: 'serviceId'
-            list:
-              - 'anno-frontend-tests'
-      - isLoggedIn
-    decide:
-        create: allow
-        create_across_services: allow
         read: allow
-    # debugDump: meta
 
 
-  - param: 'serviceId'
-    if:
-        paramInList:
-            - 'diglit'
-            - 'journals'
-    aclSubChain: '📚_rules'
-        # ^-- Apply the rules from `📚_rules.yaml` right now, where 📚
-        #   is the placeholder for serviceId.
-
-
-
-
+  - if: isLoggedIn
+    aclSubChain: logged_in_users
 
 
 
