@@ -3,7 +3,7 @@
 import loGet from 'lodash.get';
 import mustBe from 'typechecks-pmb/must-be';
 
-import aclEmojiTemplate from '../emojiTemplate.mjs';
+import metaSlotTemplate from '../metaSlotTemplate.mjs';
 import common from './common.mjs';
 
 
@@ -47,7 +47,7 @@ const EX = {
 
   memberOfAclGroup(how) {
     const groupNameSpec = mustBe.nest('group name', how.args);
-    const decideGroupName = aclEmojiTemplate.compile(groupNameSpec);
+    const decideGroupName = metaSlotTemplate.compile(groupNameSpec);
     const staticGroupName = (decideGroupName.isIdentityFunc && groupNameSpec);
     const ckf = function check(aclCtx) {
       const groups = common.findUserAclGroups(aclCtx);

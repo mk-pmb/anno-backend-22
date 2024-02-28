@@ -10,7 +10,7 @@ import vTry from 'vtry';
 
 import decisionEnum from '../decisionEnum.mjs';
 import parseConditionGroup from './parseConditionGroup.mjs';
-import aclEmojiTemplate from './emojiTemplate.mjs';
+import metaSlotTemplate from './metaSlotTemplate.mjs';
 
 const traceApi = { toString() { return '[' + this.traceDescr + ']'; } };
 
@@ -70,7 +70,7 @@ Object.assign(EX, {
 
     const subChainSpec = popRuleProp('nonEmpty str | undef', 'aclSubChain');
     const aclSubChain = (subChainSpec
-      && aclEmojiTemplate.compile(subChainSpec));
+      && metaSlotTemplate.compile(subChainSpec));
 
     const rule = {
       traceDescr,
