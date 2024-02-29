@@ -1,6 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-import loGet from 'lodash.get';
+import objDive from 'objdive';
 import mustBe from 'typechecks-pmb/must-be';
 
 import metaSlotTemplate from '../metaSlotTemplate.mjs';
@@ -73,7 +73,7 @@ const EX = {
       list = mustBe(...listFmt)(how.args);
     }
     const ckf = function check(aclCtx) {
-      const val = loGet(aclCtx.allMeta, path);
+      const val = objDive(aclCtx.allMeta, path);
       const found = list.includes(val);
       // console.debug('D: paramInList?', { path, val, list, found });
       return found;
