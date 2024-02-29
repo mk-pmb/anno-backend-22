@@ -39,19 +39,24 @@ const EX = async function readAsDict(topic) {
     return cfg;
   });
 
-  const readableConfigs = (await Promise.all([
+  let allConfig = (await Promise.all([
     singleFilePr,
     ...dirConfigPrs,
   ])).filter(Boolean);
-  const merged = mergeOpt({}, ...readableConfigs);
-  if (!Object.keys(merged).length) {
+  try {
+    allConfig = mergeOpt({}, ...allConfig);
+  } catch (mergeErr) {
+    mergeErr.configTopic = topic;
+    throw mergeErr;
+  }
+  if (!Object.keys(allConfig).length) {
     const msg = ('Found no config settings AT ALL for topic '
       + JSON.stringify(topic)
       + '. Please double-check your config directory path '
       + JSON.stringify(basePath));
     throw new Error(msg);
   }
-  return merged;
+  return allConfig;
 };
 
 
