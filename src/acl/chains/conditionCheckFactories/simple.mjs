@@ -1,18 +1,18 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import objDive from 'objdive';
 import mustBe from 'typechecks-pmb/must-be';
 
-import metaSlotTemplate from '../metaSlotTemplate.mjs';
+import makeTemplateSpecListIntersectionChecker from
+  '../templateSpecListIntersectionChecker.mjs';
+
 import common from './common.mjs';
-
-
-function alwaysFalse() { return false; }
 
 
 const EX = {
 
-  never() { return alwaysFalse; },
+  never() { return common.alwaysFalse; },
 
   isLoggedIn(how) {
     common.expectNoCondArgs(how);
@@ -41,24 +41,17 @@ const EX = {
   memberOfAnyAclGroup(how) {
     common.expectNoCondArgs(how);
     return function check(aclCtx) {
-      return (common.findUserAclGroups(aclCtx).size >= 1);
+      return (common.findUserAclGroupsSet(aclCtx).size >= 1);
     };
   },
 
   memberOfAclGroup(how) {
-    const groupNameSpec = mustBe.nest('group name', how.args);
-    const decideGroupName = metaSlotTemplate.compile(groupNameSpec);
-    const staticGroupName = (decideGroupName.isIdentityFunc && groupNameSpec);
-    const ckf = function check(aclCtx) {
-      const groups = common.findUserAclGroups(aclCtx);
-      if (!groups) { return false; }
-      const gn = (staticGroupName || decideGroupName(aclCtx));
-      if (!gn) { return false; }
-      const result = groups.has(gn);
-      // console.debug('D: memberOfAclGroup?', { gn, groups, result });
-      return result;
-    };
-    return ckf;
+    return makeTemplateSpecListIntersectionChecker({
+      specsItemDescr: 'group name template',
+      specsList: arrayOfTruths(how.args),
+      getAclCtxValues: common.findUserAclGroupsArray,
+      debugHint: how.traceDescr,
+    });
   },
 
   paramInList(how) {

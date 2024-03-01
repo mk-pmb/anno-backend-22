@@ -1,5 +1,8 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import mustBe from 'typechecks-pmb/must-be';
+
+
 const allSlotsRgx = /<\$([A-Za-z][\w\-\.]*)>/g;
 
 allSlotsRgx.reset = function reset() {
@@ -30,6 +33,34 @@ const EX = {
       (m, k) => (ctx.allMeta[m && k] || ''));
     return r;
   },
+
+  bulkCompile(opt, specsList) {
+    const renderers = [];
+    const verbatims = new Set();
+    (opt.specsList || specsList).forEach(function compile(spec, idx) {
+      if ((spec === '') && opt.allowEmptySpec) { return verbatims.add(spec); }
+      mustBe.nest(opt.specsItemDescr + ' #' + (idx + 1), spec);
+      const r = EX.compile(spec);
+      if (r.hasSlots) { return renderers.push(r); }
+      verbatims.add(spec);
+    });
+    const nTotal = renderers.length + verbatims.size;
+    const report = { renderers, verbatims, nTotal };
+    if (opt.debugHint) { console.debug(opt.debugHint, report); }
+    return report;
+  },
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

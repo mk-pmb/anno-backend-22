@@ -5,6 +5,9 @@ function orf(x) { return x || false; }
 
 const EX = {
 
+  alwaysFalse() { return false; },
+  truthyToArray(x) { return x && Array.from(x); },
+
 
   expectNoCondArgs(how) {
     if (how.args === undefined) { return; }
@@ -20,8 +23,13 @@ const EX = {
     return orf(aclCtx.getReq().getSrv().lusrmgr.users.get(userId));
   },
 
-  findUserAclGroups(aclCtx) {
+  findUserAclGroupsSet(aclCtx) {
     return orf(EX.findUserDetails(aclCtx).aclUserGroups);
+  },
+
+
+  findUserAclGroupsArray(aclCtx) {
+    return EX.truthyToArray(EX.findUserAclGroupsSet(aclCtx));
   },
 
 
