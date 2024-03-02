@@ -75,12 +75,8 @@ Object.assign(EX, {
     const rule = {
       traceDescr,
       ...traceApi,
-      ...objFromKeys(function popDecisionDict(key) {
-        return decisionEnum.popValidateDict(popRuleProp, key);
-      }, [
-        'decide',
-        'tendency',
-      ]),
+      ...objFromKeys(key => decisionEnum.popValidateDict(popRuleProp, key),
+        ['decide', 'tendency']),
       condGroups: {},
       aclSubChain,
     };
