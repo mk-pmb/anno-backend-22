@@ -36,23 +36,22 @@ Object.assign(EX, {
 
   async oneRule(rule, chainCtx) {
     const chainState = chainCtx.state;
-    const trace = rule.traceDescr;
+    const trace = console.debug.bind(console, rule.traceDescr);
+    // trace('check', { deci: chainState.decision });
     if (chainState.decision) { return; }
-    // console.debug('D: ACL rule check:', trace);
 
     const skipRule = await EX.decideSkipRule(rule, chainCtx);
     if (rule.debugDump === 'meta') {
-      console.debug('D: ACL meta @', trace, { skipRule },
-        'allMeta:', chainCtx.allMeta);
+      trace({ skipRule }, 'allMeta:', chainCtx.allMeta);
     }
     if (skipRule) {
-      // console.debug('D: ACL rule skip!', trace);
+      // trace('skip!');
       return;
     }
 
     if (rule.decide && EX.applyRuleDecide(rule, chainCtx)) { return; }
 
-    // console.debug('D: ACL rule apply!', { ...rule, condGroups: '[…]' });
+    // trace('apply!', { ...rule, condGroups: '[…]' });
     Object.assign(chainState.tendencies, rule.tendency);
 
     const decideSubChainName = rule.aclSubChain;
@@ -71,12 +70,13 @@ Object.assign(EX, {
 
     function maybe(slot) {
       const deci = getOwn(newDecisions, slot);
-      // console.debug('D: ACL decision?', rule.traceDescr, { slot, decision });
+      // console.debug(rule.traceDescr, 'decision?', { slot, decision });
       if (deci === undefined) { return false; }
       // ^- Exact equality check: Even if the value is invalid,
       //    stop evaluating the chain. Complaining about invalid
       //    ACL results is done elsewhere. (2022-08-12: in whyDeny)
       chainState.decision = deci;
+      chainState.traceDecision = rule.traceDescr;
       return true;
     }
 
