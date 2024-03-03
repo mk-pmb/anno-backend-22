@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import mustBe from 'typechecks-pmb/must-be';
 import objFromKeys from 'obj-from-keys-list';
 import objPop from 'objpop';
@@ -68,18 +69,17 @@ Object.assign(EX, {
       throw new Error('Rule can use at most on of: ' + used.join(', '));
     });
 
-    const subChainSpec = popRuleProp('nonEmpty str | undef', 'aclSubChain');
-    const aclSubChain = (subChainSpec
-      && metaSlotTemplate.compile(subChainSpec));
-
     const rule = {
       traceDescr,
       ...traceApi,
       ...objFromKeys(key => decisionEnum.popValidateDict(popRuleProp, key),
         ['decide', 'tendency']),
       condGroups: {},
-      aclSubChain,
     };
+
+    rule.subChainNameBuilders = arrayOfTruths.ifAnyMap(
+      popRuleProp('undef | str | ary', 'aclSubChain'),
+      metaSlotTemplate.compile);
 
     await pEachSeries(EX.supportedCondGroups, async function cg(spec) {
       const { propKeyBase } = spec;

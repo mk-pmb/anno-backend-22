@@ -18,8 +18,7 @@ const EX = async function aclSubChain(chainCtx, chainName) {
     chainNamesStack: [...chainCtx.chainNamesStack, chainName],
   };
 
-  const acl = chainCtx.getAcl();
-  const rules = acl.getChainByName(chainName);
+  const rules = chainCtx.getAcl().getChainByName(chainName);
   if (!rules) {
     const err = new Error('Found no ACL chain named '
       + JSON.stringify(chainName));
@@ -54,10 +53,11 @@ Object.assign(EX, {
     // trace('apply!', { ...rule, condGroups: '[…]' });
     Object.assign(chainState.tendencies, rule.tendency);
 
-    const decideSubChainName = rule.aclSubChain;
-    if (decideSubChainName) {
-      const subChainName = String(decideSubChainName(chainCtx));
-      await EX(chainCtx, subChainName);
+    if (rule.subChainNameBuilders) {
+      const subchainNames = rule.subChainNameBuilders.map(nb => nb(chainCtx));
+      // trace('subchainNames:', subchainNames);
+      await pEachSeries(subchainNames,
+        cn => (cn && (!chainState.decision) && EX(chainCtx, cn)));
     }
   },
 
