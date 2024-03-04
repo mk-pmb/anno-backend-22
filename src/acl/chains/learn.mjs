@@ -10,6 +10,7 @@ import pMap from 'p-map';
 import pProps from 'p-props';
 import vTry from 'vtry';
 
+import repeaterFactories from './repeaterFactories.mjs';
 import sideEffectFactories from './sideEffectFactories.mjs';
 
 import decisionEnum from '../decisionEnum.mjs';
@@ -83,6 +84,10 @@ Object.assign(EX, {
         ['decide', 'tendency']),
       condGroups: {},
     };
+
+    rule.repeatImpl = await EX.prepareFactoryFunc(acl, traceDescr,
+      popRuleProp('undef | dictObj', 'repeat'),
+      repeaterFactories, 'type');
 
     const sideEffectSpecs = arrayOfTruths.ifAny(popRuleProp('undef | ary',
       'sideEffects'));

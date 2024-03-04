@@ -34,6 +34,11 @@ const EX = async function aclSubChain(chainCtx, chainName) {
 Object.assign(EX, {
 
   async oneRule(rule, chainCtx) {
+    if (rule.repeatImpl) {
+      const once = { ...rule, repeatImpl: false };
+      return rule.repeatImpl(EX.oneRule, once, chainCtx);
+    }
+
     const chainState = chainCtx.state;
     // const trace = console.debug.bind(console, rule.traceDescr);
     // trace('check', { deci: chainState.decision });
