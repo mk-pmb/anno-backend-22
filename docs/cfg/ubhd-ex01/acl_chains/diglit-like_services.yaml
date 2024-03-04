@@ -5,8 +5,8 @@
 ^:  # <-- Chain name. `^` means to use the basename of the filename.
 
   - if: always
-    setMeta:
-      - source: customDataDict
+    sideEffects:
+      - :: setMetaFromCustomDataDict
         setSlot: null   # null = Import dictionary rather than a single slot.
         dict: 'diglit_aclmeta'
         searchFor: '<$projectName>'

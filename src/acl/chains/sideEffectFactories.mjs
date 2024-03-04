@@ -15,6 +15,28 @@ const EX = {
   },
 
 
+  setMetaFromCustomDataDict(how) {
+    const { popSpecProp, acl } = how;
+    const dict = objDive(acl.initTmp.cfg.customData,
+      popSpecProp('nonEmpty str', 'dict'));
+    const searchFor = metaSlotTemplate.compile(
+      popSpecProp('nonEmpty str', 'searchFor'));
+    const notFound = popSpecProp('any', 'notFound');
+    const setSlot = popSpecProp('nonEmpty str | nul', 'setSlot');
+    return function setMetaFromCustomDataDict(chainCtx) {
+      const key = searchFor(chainCtx);
+      const data = getOwn(dict, key, notFound);
+      const { allMeta } = chainCtx;
+      if (setSlot === null) {
+        Object.assign(allMeta, data);
+      } else {
+        allMeta[setSlot] = data;
+      }
+      console.debug(how.ruleTraceDescr, 'setMeta', { key, data, allMeta });
+    };
+  },
+
+
 };
 
 
