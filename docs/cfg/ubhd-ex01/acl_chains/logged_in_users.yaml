@@ -44,7 +44,8 @@
         create: allow
         create_across_services: allow
         read: allow
-    # debugDump: meta
+    sideEffects:
+      - :: debugDumpMeta
 
 
   - param: 'serviceId'

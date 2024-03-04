@@ -30,6 +30,8 @@
           - 'svc_<$serviceId>/oai_<$gnt_oai_Karten>/<$checkRole>'
           - 'svc_<$serviceId>/oai_<$gnt_oai_leo-bw>/<$checkRole>'
           - 'svc_<$serviceId>/oai_<$gnt_oai_Zeitungen>/<$checkRole>'
+    sideEffects:
+      - :: debugDumpMeta
     aclSubChain: 'default_perms_<$checkRole>'
 
 

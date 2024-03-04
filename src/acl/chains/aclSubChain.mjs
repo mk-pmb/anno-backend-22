@@ -35,18 +35,15 @@ Object.assign(EX, {
 
   async oneRule(rule, chainCtx) {
     const chainState = chainCtx.state;
-    const trace = console.debug.bind(console, rule.traceDescr);
+    // const trace = console.debug.bind(console, rule.traceDescr);
     // trace('check', { deci: chainState.decision });
     if (chainState.decision) { return; }
 
     const skipRule = await EX.decideSkipRule(rule, chainCtx);
-    if (rule.debugDump === 'meta') {
-      trace({ skipRule }, 'allMeta:', chainCtx.allMeta);
-    }
-    if (skipRule) {
-      // trace('skip!');
-      return;
-    }
+    if (skipRule) { return; }
+
+    const { sideEffects } = rule;
+    await (sideEffects && pEachSeries(sideEffects, se => se(chainCtx)));
 
     if (rule.decide && EX.applyRuleDecide(rule, chainCtx)) { return; }
 
