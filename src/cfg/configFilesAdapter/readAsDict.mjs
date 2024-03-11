@@ -3,6 +3,7 @@
 import pathLib from 'path';
 
 import getOwn from 'getown';
+import mapKeys from 'lodash.mapkeys';
 import mergeOpt from 'merge-options';
 import mustBe from 'typechecks-pmb/must-be';
 
@@ -31,12 +32,10 @@ const EX = async function readAsDict(topic) {
   const dirConfigPrs = dirCfgFiles.map(async function oneCfgFile(name) {
     const bfn = name.slice(0, cutSuf);
     const fullPath = pathLib.join(basePath, name);
-    const cfg = await oppoRead.readConfigFileIfExists(fullPath);
+    let cfg = await oppoRead.readConfigFileIfExists(fullPath);
     if (!cfg) { return; } // probably broken symlink => treat as non-existing
-    if (cfg['^'] !== undefined) {
-      cfg[bfn] = cfg['^'];
-      delete cfg['^']; // Please don't use `^.yaml` as your filename.
-    }
+    mustBe.dictObj('Config data in file ' + fullPath, cfg);
+    cfg = mapKeys(cfg, (v, k) => k.replace(/\^/g, bfn));
     return cfg;
   });
 
