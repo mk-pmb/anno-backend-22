@@ -13,6 +13,8 @@ import multiSearch from './multiSearch.mjs';
 
 const unsupportedCriterion = httpErrors.notImpl.explain(
   'Search criterion not implemented.').throwable;
+const missingCriterionParam = httpErrors.noSuchResource.explain(
+  'Search criterion requires a parameter.').throwable;
 
 
 function apacheSlashes(sub) {
@@ -62,6 +64,7 @@ function makeSubPathUrlSearch(pathKey, customOpt) {
   };
   const f = function subPathUrlSearch(ctx, subPathParts) {
     const sub = apacheSlashes(subPathParts);
+    if (!sub) { throw missingCriterionParam(); }
     return fmtColl(ctx, multiSearch({ ...ctx, ...opt, [pathKey]: sub }));
   };
   Object.assign(f, { pathKey });
