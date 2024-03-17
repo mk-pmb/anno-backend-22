@@ -32,7 +32,7 @@ const EX = {
       } else {
         allMeta[setSlot] = data;
       }
-      console.debug(how.ruleTraceDescr, 'setMeta', { key, data, allMeta });
+      // console.debug(how.ruleTraceDescr, 'setMeta', { key, data, allMeta });
     };
   },
 
