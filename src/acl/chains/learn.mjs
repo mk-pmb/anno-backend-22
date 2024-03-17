@@ -89,8 +89,8 @@ Object.assign(EX, {
       popRuleProp('undef | dictObj', 'repeat'),
       repeaterFactories, 'type');
 
-    const sideEffectSpecs = arrayOfTruths.ifAny(popRuleProp('undef | ary',
-      'sideEffects'));
+    const sideEffectSpecs = arrayOfTruths.ifAny(popRuleProp(
+      'undef | nul | ary', 'sideEffects'));
     rule.sideEffects = await (sideEffectSpecs && pMap(sideEffectSpecs,
       se => EX.prepareFactoryFunc(acl, traceDescr, se,
         sideEffectFactories, ':',
