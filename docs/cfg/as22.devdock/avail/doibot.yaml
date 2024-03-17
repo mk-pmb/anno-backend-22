@@ -15,8 +15,8 @@ services:
       - ${dd_cfg}'doibot_appdir='
       - |
         DOCKER_DOIBOT_CFG_OVERRIDES=
-        CFG[anno_baseurl]=${dd_cfg anno_public_baseurl}'anno/'
-        CFG[doibot_stamp_baseurl]='http://annosrv:8080/anno/'
+        CFG[anno_public_baseurl]=${dd_cfg anno_public_baseurl}'anno/'
+        CFG[doibot_auth_baseurl]='http://annosrv:8080/anno/'
     command: >
         bash -c '/app/"$$doibot_appdir"/doibot.sh cron_task'
     restart: 'always'
