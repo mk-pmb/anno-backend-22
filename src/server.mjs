@@ -36,6 +36,8 @@ const defaultConfig = {
   public_baseurl: '',
   wwwpub_path: pathInRepo('wwwpub'),
 
+  response_timeout_sec: 5,
+
   ...fallbackErrorHandler.configDefaults,
 
 };
@@ -60,7 +62,9 @@ const EX = async function createServer(customConfig) {
   });
 
   installGlobalRequestExtras(app);
-  app.use(timeoutFallbackResponse());
+  app.use(timeoutFallbackResponse({
+    timeoutMsec: popCfg('str | num | undef', 'response_timeout_sec') * 1e3,
+  }));
 
   const rootRouter = PrRouter({
     strict: true,
