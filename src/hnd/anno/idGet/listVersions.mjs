@@ -16,6 +16,7 @@ const {
 } = httpErrors.throwable;
 
 
+function orf(x) { return x || false; }
 function uts2iso(u) { return (new Date(u * 1e3)).toISOString(); }
 
 
@@ -51,8 +52,12 @@ const EX = async function listVersions(ctx) {
     return anno;
   }
 
-  const previews = allVisibleVersions.map(makePreview);
-  fmtAnnoCollection.replyToRequest(srv, req, { annos: previews });
+  const meta = orf(allVisibleVersions.meta);
+  const coll = {
+    annos: allVisibleVersions.map(makePreview),
+    extraTopFields: { 'skos:note': String(meta.stopwatchDurations) },
+  };
+  fmtAnnoCollection.replyToRequest(srv, req, coll);
 };
 
 

@@ -42,16 +42,21 @@ const EX = async function searchBy(pathParts, req, srv) {
 
 async function fmtColl({ srv, req }, annoListPr) {
   const annos = (await annoListPr).toFullAnnos();
-  const { outFmt } = annos.meta;
+  const { outFmt, stopwatchDurations } = annos.meta;
+  const stopwatchReport = String(stopwatchDurations);
 
   if (outFmt === 'rss') {
     const rssOpt = {
       feedTitle: 'Search',
+      headerHints: stopwatchReport,
     };
     return fmtAnnosAsRssFeed({ ...rssOpt, annos, req, srv });
   }
 
-  libFmtAnnoCollection.replyToRequest(srv, req, { annos });
+  const extraTopFields = {
+    'skos:note': stopwatchReport,
+  };
+  libFmtAnnoCollection.replyToRequest(srv, req, { annos, extraTopFields });
 }
 
 

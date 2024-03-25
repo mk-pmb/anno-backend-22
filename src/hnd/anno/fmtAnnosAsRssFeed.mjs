@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import dateFmtRfc822 from 'rfc822-date';
 import mustBe from 'typechecks-pmb/must-be';
 import xmlenc from 'xmlunidefuse';
@@ -18,6 +19,7 @@ const EX = function fmtAnnosAsRssFeed(how) {
   const {
     annos,
     feedTitle,
+    headerHints,
     linkTpl: origLinkTpl,
     req,
     srv,
@@ -35,6 +37,7 @@ const EX = function fmtAnnosAsRssFeed(how) {
     '<?xml version="1.0" encoding="utf-8"?>',
     '<rss version="2.0"><channel>',
     xmlStrTag('title', feedTitle || 'Annotations'),
+    ...arrayOfTruths(headerHints).map(h => '  <!-- ' + xmlenc(h) + ' -->'),
     ...annos.filter(Boolean).map(a => ('  <item>\n'
       + xmlStrTag('title', a['dc:title'] || a.title || '(untitled)')
       + xmlStrTag('link', EX.fmtLinkTpl(lnk, a))

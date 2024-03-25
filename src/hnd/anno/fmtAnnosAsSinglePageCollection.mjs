@@ -13,6 +13,7 @@ const EX = function fmtAnnosAsSinglePageCollection(how) {
   const {
     annos,
     canonicalUrl,
+    extraTopFields,
     ...unexpected
   } = how;
   mustBe.keyless('Unexpected options', unexpected);
@@ -35,6 +36,7 @@ const EX = function fmtAnnosAsSinglePageCollection(how) {
     },
     last: { id: canonicalUrl },
     ...orf(annos.meta).extraTopFields,
+    ...orf(extraTopFields),
   };
   return coll;
 };

@@ -12,6 +12,7 @@ import httpErrors from '../../../httpErrors.mjs';
 import miscMetaFieldInfos from '../miscMetaFieldInfos.mjs';
 import parseStampRows from '../parseStampRows.mjs';
 import stampUtil from '../util/stampUtil.mjs';
+import stopwatchUtil from '../../util/stopwatchUtil.mjs';
 
 import buildSearchQuery from './buildSearchQuery.mjs';
 import qryTpl from './queryTemplates/index.mjs';
@@ -24,6 +25,7 @@ const {
 
 
 const EX = async function multiSearch(ctx) {
+  const stopwatch = { ZERO: Date.now() };
   const { srv, req } = ctx;
   const {
     latestOnly,
@@ -44,6 +46,7 @@ const EX = async function multiSearch(ctx) {
     privilegeName: 'discover',
     targetUrl: subjTgtSpec,
   }));
+  stopwatch.earlyAcl = Date.now();
 
   const meta = {
     outFmt: ctx.outFmt || '',
@@ -60,6 +63,7 @@ const EX = async function multiSearch(ctx) {
       privilegeName: 'search_hasStamp_' + st.aclStampName,
       targetUrl: subjTgtSpec,
     }));
+    stopwatch.stampAcl = Date.now();
     search.tmpl('inquiryType', '#inquiryAllWithStamp');
     search.data('searchStampName', st.stType);
   }
@@ -127,11 +131,14 @@ const EX = async function multiSearch(ctx) {
 
   // search.debug.dumpDataArgs = true;
   // search.debug.dumpSqlQuery = true;
+  stopwatch.prep = Date.now();
   const found = await search.selectAll(srv);
+  stopwatch.db = Date.now();
   // console.debug('subjectTarget: found =', found, '</</ subjTgt found');
 
   await (skipAcl || EX.checkSubjTgtAcl(srv, req,
     delayedPrivilegeChecks, found));
+  stopwatch.lateAcl = Date.now();
 
   Object.assign(found, {
 
@@ -144,6 +151,9 @@ const EX = async function multiSearch(ctx) {
     },
 
   });
+
+  stopwatch.packaged = Date.now();
+  meta.stopwatchDurations = stopwatchUtil.durations(stopwatch);
   return found;
 };
 
