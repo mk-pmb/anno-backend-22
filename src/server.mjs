@@ -14,7 +14,7 @@ import fallbackErrorHandler from './hnd/fallbackErrorHandler.mjs';
 import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
 import installListenAddrPlumbing from './listenAddrPlumbing.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
-import logRequestCheckpoint from './logRequestCheckpoint.mjs';
+import loggingUtil from './hnd/util/logging.mjs';
 import lusrmgr from './cfg/lusrmgr/index.mjs';
 import makeGenericCorsHandler from './hnd/util/genericCorsHandler.mjs';
 import prepareAcl from './acl/prepareAcl.mjs';
@@ -88,6 +88,8 @@ const EX = async function createServer(customConfig) {
 
     getRootRouter() { return rootRouter; },
     getLowLevelWebServer() { return webSrv; },
+
+    ...loggingUtil.basics,
   };
   await installListenAddrPlumbing(srv);
 
@@ -104,7 +106,7 @@ const EX = async function createServer(customConfig) {
     confirmCors() { return confirmCorsImpl(this); },
     getDb() { return srv.db; },
     getSrv() { return srv; },
-    logCkp: logRequestCheckpoint,
+    ...loggingUtil.requestExtras,
   });
 
   return srv;

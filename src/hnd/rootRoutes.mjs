@@ -5,7 +5,7 @@ import express from 'express';
 import eternal from './wrap/eternal.mjs';
 import plumb from './util/miscPlumbing.mjs';
 import httpErrors from '../httpErrors.mjs';
-import logIncomingRequest from './util/logIncomingRequest.mjs';
+import loggingUtil from './util/logging.mjs';
 import makeAnnoRoute from './anno/route.mjs';
 import makeBearerRssHandler from './rss/bearer.mjs';
 import makeSessionRoute from './sess/route.mjs';
@@ -18,7 +18,7 @@ const EX = async function installRootRoutes(srv) {
   const rt = srv.getRootRouter();
   const { popCfg } = srv;
 
-  rt.use(logIncomingRequest);
+  rt.use(loggingUtil.middleware.logIncomingRequest);
 
   const serveFile = express.static(popCfg('nonEmpty str', 'wwwpub_path'));
   rt.use('/static/favicon.ico', eternal());

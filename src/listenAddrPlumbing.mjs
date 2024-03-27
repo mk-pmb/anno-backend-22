@@ -30,9 +30,9 @@ const EX = function installListenAddrPlumbing(srv) {
     const aliasHint = (aliasReason && (' which ' + aliasReason
       + ' is also ' + pubUrl));
     const descr = ('Gonna listen on ' + origLsnDescr + aliasHint);
-    console.info(descr);
+    srv.logMsg(descr);
     await pify(cb => webSrv.listen(lsnSpec, cb))();
-    console.info('Now listening.');
+    srv.logMsg('Now listening.');
     spawnDetached(notifyListeningCmd);
   }
 
