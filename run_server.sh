@@ -15,7 +15,6 @@ function run_cli_main () {
     [log_dest]="logs.@$HOSTNAME/server.log"
     )
   tty --silent || CFG[run_task]='actually_run_server'
-  export anno_cfgfiles_dir="$SELFPATH/cfg.@$HOSTNAME"
 
   log_progress "Reading config file(s) for host '$HOSTNAME'."
   local ITEM=

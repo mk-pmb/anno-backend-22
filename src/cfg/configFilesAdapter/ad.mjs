@@ -1,5 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import osLib from 'os';
+
 import absDir from 'absdir';
 import crObAss from 'create-object-and-assign';
 import makeExtendedOrderedMap from 'ordered-map-extended-pmb';
@@ -12,8 +14,14 @@ import readAsDict from './readAsDict.mjs';
 
 const pathInRepo = absDir(import.meta, '../../..');
 
+const hostname = (process.env.HOSTNAME
+  || osLib.hostname()
+  || 'localhost');
+
 
 const EX = {
+
+  hostname,
 
   async make(how) {
     const { popCfg } = how;
@@ -34,7 +42,7 @@ const EX = {
 
   getConfigDefaults() {
     const df = {
-      dir: pathInRepo('cfg.@localhost'), // usually set by run_server.sh
+      dir: pathInRepo('cfg.@' + hostname),
     };
     return df;
   },
