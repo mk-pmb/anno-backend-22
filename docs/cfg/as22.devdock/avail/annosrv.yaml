@@ -17,9 +17,10 @@ services:
     restart: 'always'
     environment:
         - ${dd_cfg}'anno_public_baseurl='
-        - 'anno_listen_addr=0.0.0.0:8080'
+        - ${dd_cfg}'anno_response_timeout_sec='
         - 'anno_db_pool_host=postgres'
         - 'anno_db_pool_pswd=utf8file:/run/secrets/postgres.pswd.txt'
+        - 'anno_listen_addr=0.0.0.0:8080'
     ports:
       - ${dd_cfg annosrv_dkport}':8080'
 

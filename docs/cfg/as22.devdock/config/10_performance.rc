@@ -1,0 +1,17 @@
+# -*- coding: utf-8, tab-width: 2 -*-
+
+###:maybe_customize:
+CFG[anno_response_timeout_sec]='10'
+# How many seconds the anno server may spend trying to compute a proper
+# response before it instead serves a timeout failure message.
+# This is a wager on the speed and reliability of the docker container,
+# and thus, usually on that of the docker host system.
+# When the response is meant to be used in contexts where other mechanisms
+# are waiting on it (e.g. a website) and there is a temporary hickup (e.g.
+# postgres having restarted and still warming up), an early timeout message
+# may embank the failure so that other components have more time to run
+# before an overall timeout hits. In case of a website, this could mean that
+# only the embedded annotation part will be broken but all other parts of
+# the website load before the browser (or user) gives up.
+
+
