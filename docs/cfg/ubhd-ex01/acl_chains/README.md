@@ -20,6 +20,8 @@ the strongest level thereof: "required privilege".
 However, in future versions, we're planning support for
 "alternative privileges".)
 
+* see also: [List of all currently supported privileges](privileges.md)
+
 A __decision__ is a pair of a privilege name and a decision values, given as
 an entry in the dictionary of the `decide` effect.
 The name (key) of these entries should be a privilege name.
