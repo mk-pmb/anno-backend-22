@@ -42,7 +42,10 @@ Object.assign(EX, {
     const baseUrl = srv.publicBaseUrlNoSlash + '/anno/';
     if (versId.startsWith(baseUrl)) { versId = url.slice(baseUrl.length); }
     if (versId.includes(':') || versId.includes('/')) {
-      throw errInvalidAnno('Currently, only local anno IDs are supported.');
+      const msg = 'Currently, only local anno IDs are supported.';
+      const err = errInvalidAnno(msg);
+      err.versId = versId;
+      throw err;
     }
     const p = EX(errInvalidAnno, versId);
     p.url = baseUrl + p.versId;
