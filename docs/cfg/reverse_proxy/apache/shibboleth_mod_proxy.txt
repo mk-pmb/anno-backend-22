@@ -2,8 +2,13 @@
     AuthType shibboleth
     ShibRequestSetting requireSession 0
     ShibUseHeaders On
+
     Require valid-user
+    # ^-- Old shibboleth probably needs `Require shibboleth`, see [1].
+
+    # Make sure to enable Apache module `mod_allowmethods` for this:
     AllowMethods DELETE GET MKCOL OPTIONS PATCH POST PROPPATCH PUT
+    # MKCOL is WebDAV's "make collection" verb.
 
     ProxyPass http://127.0.0.1:33321/ retry=0 connectiontimeout=5
     # ^-- You can choose any port here. Later when you configure
@@ -15,4 +20,9 @@
   <Location /anno-test/session/login>
     # Enforce Shibboleth Login
     ShibRequestSetting requireSession 1
+    # ^-- Old shibboleth probably needs `Require shib-session`, see [1].
   </Location>
+
+
+
+# [1] https://web.archive.org/web/2022/https://docs.shib.ncsu.edu/docs/htaccess.html
