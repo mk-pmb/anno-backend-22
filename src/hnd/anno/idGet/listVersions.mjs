@@ -38,16 +38,17 @@ const EX = async function listVersions(ctx) {
   const workingCopyUrl = latestPubUrl + versionSep + workingCopyVersion;
   req.res.links({ 'working-copy': workingCopyUrl });
 
+  const role = ctx.req.asRoleName;
+
   function makePreview(rec) {
     const anno = {
       id: latestPubUrl + versionSep + rec.version_num,
       created: rec.time_created.toISOString(),
       'iana:working-copy': workingCopyUrl,
     };
-    if (rec.disclosed) {
+    if (role) {
+      if (!rec.disclosed) { anno['dc:dateAccepted'] = false; }
       if (!rec.sunny) { anno['as:deleted'] = uts2iso(rec.sunset_uts); }
-    } else {
-      anno['dc:dateAccepted'] = false;
     }
     return anno;
   }
