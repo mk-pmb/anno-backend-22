@@ -104,6 +104,23 @@ Described above in "Policy concepts".
 Expected value: A dictionary of decisions.
 
 
+### `sideEffects`
+
+Miscellaneous debug behaviors.
+Expected value: A list of dictionaries that each have a `:` key identifying
+the actual side effect desired. Currently, these are supported:
+
+* `debugDumpMeta`: Print all current ACL meta data to the server log.
+
+
+
+
+
+
+
+
+
+
 
 
 
