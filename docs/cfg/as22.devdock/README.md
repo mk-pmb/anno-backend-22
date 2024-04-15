@@ -43,6 +43,8 @@ Some are for clarification or error handling.
     initialized, so a lot of features are not available yet. We'll fix that
     later. For now, just start the DevDock project's container group.
     (See [the DevDock readme][devdock-readme] for how.)
+    * If you get error messages about missing files in `/app`,
+      some of the paths in the config files are misconfigured.
     * There should be some Postgres messages about first time startup
       preparations. This should complete within a few minutes.
     * Meanwhile there may be failure messages from the anno server about
