@@ -38,7 +38,18 @@ Object.assign(EX, {
       if (!values.length) { return false; }
       return checkVerbatims(values) || checkRenderers(aclCtx, values);
     };
+    // return EX.traceThisCheckFunc(ckf);
     return ckf;
+  },
+
+
+  traceThisCheckFunc(ckf) {
+    const trace = (new Error('buildCheckFunc() was invoked from:')
+    ).stack.split(/\n\s*/).slice(3);
+    return (...args) => ckf(args).then(null, (err) => {
+      err.traceCheckFunc = trace; // eslint-disable-line no-param-reassign
+      throw err;
+    });
   },
 
 
