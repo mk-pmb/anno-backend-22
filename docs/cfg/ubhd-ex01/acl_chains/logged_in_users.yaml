@@ -9,10 +9,10 @@
     decide:
         '*': deny
 
-  - if:
-        memberOfAclGroup: 'superadmin'
-    decide:
-        '*': allow
+  # - unless:
+  #       memberOfAclGroup: 'superadmin'
+  #   decide:
+  #       shutdown: deny
 
   - unless:
         memberOfAclGroup: 'superadmin'
