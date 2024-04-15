@@ -34,6 +34,7 @@ Object.assign(EX, {
     const ckf = async function check(aclCtx) {
       const values = await getAclCtxValues(aclCtx);
       if (debugSpy) { debugSpy('getAclCtxValues yielded:', values); }
+      if (values === false) { return false; }
       if (!Array.isArray(values)) { throw new TypeError('Expected array'); }
       if (!values.length) { return false; }
       return checkVerbatims(values) || checkRenderers(aclCtx, values);
