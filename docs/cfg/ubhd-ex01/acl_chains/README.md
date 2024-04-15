@@ -44,6 +44,15 @@ It's best to not rely on them.
 
 
 
+Meta data templates
+-------------------
+
+In some places, a __meta data template__ can be used. It is specified as
+a string and can use slot markers in the form of `<$slotName>`.
+To figure out the slot names, see `debugDumpMeta` below.
+
+
+
 Conditions
 ----------
 
@@ -102,6 +111,16 @@ Effects
 
 Described above in "Policy concepts".
 Expected value: A dictionary of decisions.
+
+
+### `aclSubChain`
+
+Run (an)other ACL chain(s).
+Expected value: Name(s) of the subchain(s) to run.
+
+* Names can be a string or a list of strings.
+* All names are given as meta data templates.
+
 
 
 ### `sideEffects`
