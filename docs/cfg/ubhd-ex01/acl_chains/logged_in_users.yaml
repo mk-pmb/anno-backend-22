@@ -14,10 +14,11 @@
   #   decide:
   #       shutdown: deny
 
-  - unless:
-        memberOfAclGroup: 'superadmin'
-    decide:
-        shutdown: deny
+
+  - if: always
+    aclSubChain:
+      - '?useracl_<$userId>'
+      - '?svcacl_<$serviceId>'
 
 
   - if:
@@ -29,18 +30,6 @@
         memberOfAclGroup: 'doi_request_watchers'
     decide:
         search_hasStamp__ubhd_doiAssign: allow
-
-
-  - param: 'serviceId'
-    if:
-        paramInList:
-          - 'anno-frontend-tests'
-    decide:
-        create: allow
-        create_across_services: allow
-        read: allow
-    sideEffects:
-      # - :: debugDumpMeta
 
 
   - param: 'serviceId'

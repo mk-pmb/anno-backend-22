@@ -1,0 +1,13 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:
+# curl -X POST -H Remote_User:config_bot http://localhost:33321/admin/shutdown
+
+  - if: always
+    decide:
+        shutdown: allow
+        '*': deny
+
+...

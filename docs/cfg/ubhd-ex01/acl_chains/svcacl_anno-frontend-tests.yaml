@@ -1,0 +1,15 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:
+
+  - if: always
+    decide:
+        create: allow
+        create_across_services: allow
+        read: allow
+    sideEffects:
+      # - :: debugDumpMeta
+
+...

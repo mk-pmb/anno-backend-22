@@ -9,7 +9,11 @@ import vTry from 'vtry';
 const condResultMustBeBool = mustBe('bool', 'condition check result');
 
 
-const EX = async function aclSubChain(chainCtx, chainName) {
+const EX = async function aclSubChain(chainCtx, chainNameSpec) {
+  let chainName = chainNameSpec;
+  const opportunistic = chainName.startsWith('?');
+  if (opportunistic) { chainName = chainName.slice(1); }
+
   if (chainCtx.chainNamesStack.includes(chainName)) {
     throw new Error('Circular aclSubChain');
   }
@@ -20,6 +24,7 @@ const EX = async function aclSubChain(chainCtx, chainName) {
 
   const rules = chainCtx.getAcl().getChainByName(chainName);
   if (!rules) {
+    if (opportunistic) { return; }
     const err = new Error('Found no ACL chain named '
       + JSON.stringify(chainName));
     Object.assign(err, { chainName });

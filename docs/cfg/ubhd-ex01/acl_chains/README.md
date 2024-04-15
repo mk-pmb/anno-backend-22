@@ -120,6 +120,9 @@ Expected value: Name(s) of the subchain(s) to run.
 
 * Names can be a string or a list of strings.
 * All names are given as meta data templates.
+* If the name starts with a question mark (`?`), it is stripped and instead
+  the entry is considered opportunistic, which means it is silently skipped
+  if no ACL chain with that name exists.
 
 
 
