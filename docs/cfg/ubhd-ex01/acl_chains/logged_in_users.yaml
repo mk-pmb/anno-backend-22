@@ -8,8 +8,6 @@
         memberOfAclGroup: 'suspended'
     decide:
         '*': deny
-        # `decide` sets the decisions for selected privileges and stops
-        # ACL processing, thus making the decisions final.
 
   - if:
         memberOfAclGroup: 'superadmin'
@@ -20,9 +18,6 @@
         memberOfAclGroup: 'superadmin'
     decide:
         shutdown: deny
-        # Lack of a '*' entry means this rule has no effect for actions not
-        # mentioned. The ACL processing will continue unfettered for requests
-        # that do not require the "shutdown" permission.
 
 
   - if:

@@ -28,12 +28,16 @@ The name (key) of these entries should be a privilege name.
 A __matching decision__ is a decision whose name matches the desired privilege.
 It sets the final decision value. This immediately terminates ACL processing.
 The reserved special name `*` is used to optionally express a
-__fallback decision__ that will substitute for a matching decision
-if there was none.
+__fallback decision__ that will substitute for a matching decision if there
+was none, thus immediately deciding any other privilege not mentioned.
 
 A __tendency__ is most like a decision, but only takes effect if the ACL
 processing ends without having reached a decision. It is given in the
 dictionary of the `tendency` effect.
+A __matching tendency__ is a tendency whose name matches the desired privilege.
+A __fallback tendency__ is similar to the fallback decision, but since
+tendencies do not stop ACL processing, it can still be overruled by a later
+matching tendency, a matching decision, or even a fallback decision.
 
 The __default policies__ are tendencies defined in server code.
 It's best to not rely on them.
