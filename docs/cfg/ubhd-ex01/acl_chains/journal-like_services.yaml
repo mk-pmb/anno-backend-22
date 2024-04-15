@@ -2,7 +2,7 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Chain name. `^` means to use the basename of the filename.
+^:
 
   - repeat:
         type: staticMetadataForEach
