@@ -64,7 +64,7 @@ const EX = async function whyDeny(req, actionMeta) {
   // req.logCkp('ACL state after', chainCtx.state);
   let { decision } = chainCtx.state;
 
-  if (decision === null) {
+  if ((decision === null) || (decision === 'stop')) {
     const { tendencies } = chainCtx.state;
     decision = getOwn(tendencies, allMeta.privilegeName);
     if (decision === undefined) { decision = getOwn(tendencies, '*'); }

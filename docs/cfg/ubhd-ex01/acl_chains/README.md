@@ -9,7 +9,8 @@ An ACL __rule__ has at least one __effect__, and at least one __condition__
 for when the effect(s) shall apply.
 Conditions have at least one __criterion__.
 
-A __decision value__ is either `allow` and `deny`.
+A __decision value__ is either `allow`, `deny` or `stop`.
+(The latter will be explained below.)
 
 An ACL __chain__ is a list of rules.
 By default, processing starts with the chain named `main`.
@@ -111,6 +112,10 @@ Effects
 
 Described above in "Policy concepts".
 Expected value: A dictionary of decisions.
+
+The decision value `stop` can be used only in `decide` (i.e. not in tendencies)
+and will stop ACL processing without a decision, thus delegating to tendencies.
+
 
 
 ### `aclSubChain`

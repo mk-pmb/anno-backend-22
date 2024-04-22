@@ -72,7 +72,6 @@ Object.assign(EX, {
   applyRuleDecide(rule, chainCtx) {
     const newDecisions = rule.decide;
     const chainState = chainCtx.state;
-    if (newDecisions['*']) { chainState.tendencies = {}; }
     Object.assign(chainState.allDecisions, newDecisions);
 
     function maybe(slot) {

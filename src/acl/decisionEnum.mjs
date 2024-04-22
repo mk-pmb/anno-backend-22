@@ -5,24 +5,20 @@ import mustBe from 'typechecks-pmb/must-be';
 
 
 const safeDefaultValue = 'deny';
-const validValues = [
-  safeDefaultValue,
-  'allow',
-];
 
 
 const EX = {
 
   safeDefaultValue,
-  validValues,
-
-  validate: mustBe([['oneOf', validValues]]),
 
   popValidateDict(popRuleProp, rulePropName) {
     const dict = popRuleProp('obj | undef', rulePropName);
     if (!dict) { return false; }
-    return loMapValues(dict, function validate(v, k) {
-      return EX.validate(rulePropName + '[' + k + ']', v);
+    const validValues = [safeDefaultValue, 'allow'];
+    if (rulePropName === 'decide') { validValues.push('stop'); }
+    const validate = mustBe([['oneOf', validValues]]);
+    return loMapValues(dict, function eachPrivName(deci, privName) {
+      return validate(rulePropName + '[' + privName + ']', deci);
     });
   },
 

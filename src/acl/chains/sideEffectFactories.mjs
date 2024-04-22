@@ -15,6 +15,15 @@ const EX = {
   },
 
 
+  debugTrace(how) {
+    const { popSpecProp, ruleTraceDescr } = how;
+    const msg = popSpecProp('nonEmpty str | undef', 'msg');
+    return function debugTrace() {
+      console.debug(ruleTraceDescr, msg);
+    };
+  },
+
+
   setMetaFromCustomDataDict(how) {
     const { popSpecProp, acl } = how;
     const dict = objDive(acl.initTmp.cfg.customData,
