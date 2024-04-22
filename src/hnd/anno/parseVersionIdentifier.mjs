@@ -9,6 +9,8 @@ const replySep = ubhdAnnoIdFmt.legacyReplySeparator;
 
 const versIdRgx = /^([A-Za-z0-9_\-]{10,36})((?:\.[\d\.]+)*)(?:\~(\d+)|)$/;
 
+function orf(x) { return x || false; }
+
 
 function parseVersNum(s, e) {
   if (s === undefined) { return 0; }
@@ -39,8 +41,15 @@ Object.assign(EX, {
 
   fromLocalUrl(srv, errInvalidAnno, url) {
     let versId = url;
-    const baseUrl = srv.publicBaseUrlNoSlash + '/anno/';
-    if (versId.startsWith(baseUrl)) { versId = url.slice(baseUrl.length); }
+    let baseUrl = srv.publicBaseUrlNoSlash + '/';
+    if (versId.startsWith(baseUrl)) {
+      const v = url.slice(baseUrl.length);
+      const m = orf(/^(?:as\/\w+\/|)anno\//.exec(v))[0];
+      if (m) {
+        baseUrl += m;
+        versId = v.slice(m.length);
+      }
+    }
     if (versId.includes(':') || versId.includes('/')) {
       const msg = 'Currently, only local anno IDs are supported.';
       const err = errInvalidAnno(msg);
