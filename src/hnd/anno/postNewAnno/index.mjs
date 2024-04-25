@@ -25,8 +25,18 @@ const {
   badRequest,
 } = httpErrors.throwable;
 
-const errDuplicateRandomUuid = httpErrors.fubar.explain(
+const errDuplicateRandomBaseId = httpErrors.fubar.explain(
   'ID assignment failed: Duplicate generated random UUID.').throwable;
+
+
+function generateRandomBaseId() {
+  // NB: For easy use in DOIs, the generated IDs need to be case-independent
+  // because DOIS have to be case-independent.
+  //  * The DataCite API lists the DOIs in lower case.
+  //  * The UUID namespace defined in RFC 4122 (chapter 3) wants lower case.
+  //  * Our UUID module generates lower case by default.
+  return randomUuid();
+}
 
 
 function orf(x) { return x || false; }
@@ -117,7 +127,7 @@ const EX = async function postNewAnno(srv, req) {
   anno.creator = (ctx.author.agent
     || panic('Author lookup failed without refusal.'));
   anno.created = (new Date()).toISOString();
-  if (!ctx.idParts.baseId) { ctx.idParts.baseId = randomUuid(); }
+  if (!ctx.idParts.baseId) { ctx.idParts.baseId = generateRandomBaseId(); }
   const fullAnno = redundantGenericAnnoMeta.add(srv, ctx.idParts, anno);
   const ftrOpt = {
     type: 'annoLD',
@@ -153,7 +163,7 @@ const EX = async function postNewAnno(srv, req) {
 
   // Now that all data has been validated, we can actually write to the DB.
   await srv.db.postgresInsertOneRecord('anno_data', dataRec, {
-    customDupeError: errDuplicateRandomUuid,
+    customDupeError: errDuplicateRandomBaseId,
   });
   // At this point, our idParts have been accepted, so we can insert the
   // stamp and relation records as well.
