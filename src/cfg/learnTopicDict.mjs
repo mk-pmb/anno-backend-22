@@ -1,5 +1,6 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
+import arrayOfTruths from 'array-of-truths';
 import bindAllMethods from 'bind-all-methods-nondestructive-pmb';
 import mergeOpt from 'merge-options';
 import mustBe from 'typechecks-pmb/must-be';
@@ -18,16 +19,21 @@ const EX = async function learnTopicDict(origCtx, topic, learnImpl) {
   const ctx = { ...origCtx, cfgMeta, cfgDict };
   bindAllMethods.dest(ctx, EX.api);
 
-  if (learnImpl.learnMeta) {
-    const mustPopCfgMeta = objPop(cfgMeta, { mustBe }).mustBe;
-    await vTry.pr(learnImpl.learnMeta,
+  const mustPopCfgMeta = objPop(cfgMeta, { mustBe }).mustBe;
+  const maybeLearnMeta = lmCtx => (lmCtx.learnMeta
+    && vTry.pr(lmCtx.learnMeta.bind(learnImpl),
       // ^-- Using dot notation to support `this` keyword inside.
-      descr + ', common settings')(ctx, mustPopCfgMeta);
-    mustPopCfgMeta.expectEmpty(descr + ': Unsupported common setting(s)');
-  }
+      descr + ', common settings')(ctx, mustPopCfgMeta));
+  await maybeLearnMeta(learnImpl);
+  await maybeLearnMeta(ctx);
+  mustPopCfgMeta.expectEmpty(descr + ': Unsupported common setting(s)');
 
-  await pProps(cfgDict, async function learnListEntry(details, key) {
-    const mustPopDetail = objPop(details, { mustBe }).mustBe;
+  ctx.topicDefaults = (ctx.mergeInheritedFragments(ctx.topicDefaults) || {});
+
+  await pProps(cfgDict, async function learnListEntry(origDetails, key) {
+    let det = mergeOpt(ctx.topicDefaults, origDetails || {});
+    det = ctx.mergeInheritedFragments(det);
+    const mustPopDetail = objPop(det, { mustBe }).mustBe;
     await vTry.pr(learnImpl, descr + ', entry ' + key)(ctx, key, mustPopDetail);
   });
 };
@@ -39,15 +45,18 @@ const api = {
     if (!fragPaths) { return false; }
     const ctx = this;
     const { customData } = ctx.srv.configFiles;
-    const frags = fragPaths.map(function lookupInherit(path) {
+    const frags = arrayOfTruths.ifAnyMap(fragPaths, function lookup(path) {
       const inc = objDive(customData, path);
       if (inc !== undefined) { return inc; }
+      console.debug('Known top-level fragments:',
+        Object.keys(customData).sort());
       throw new Error('Cannot find fragment ' + path);
     });
     return frags;
   },
 
   mergeInheritedFragments(origSpec) {
+    if (!origSpec) { return origSpec; }
     const ctx = this;
     const inherited = ctx.retrieveInheritedFragments(origSpec.INHERITS);
     if (!inherited) { return origSpec; }
