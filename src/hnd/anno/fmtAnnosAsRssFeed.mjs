@@ -7,12 +7,11 @@ import xmlenc from 'xmlunidefuse';
 
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
+import fmtAnnoRssLink from '../rss/fmtAnnoRssLink.mjs';
+
 
 function orf(x) { return x || false; }
 function xmlStrTag(t, c) { return `    <${t}>${xmlenc(c)}</${t}>\n`; }
-
-
-const annoIdMustBeNest = mustBe('nonEmpty str', 'Annotation field "id"');
 
 
 const EX = function fmtAnnosAsRssFeed(how) {
@@ -40,7 +39,7 @@ const EX = function fmtAnnosAsRssFeed(how) {
     ...arrayOfTruths(headerHints).map(h => '  <!-- ' + xmlenc(h) + ' -->'),
     ...annos.filter(Boolean).map(a => ('  <item>\n'
       + xmlStrTag('title', a['dc:title'] || a.title || '(untitled)')
-      + xmlStrTag('link', EX.fmtLinkTpl(lnk, a))
+      + xmlStrTag('link', fmtAnnoRssLink(lnk, a, meta))
       + xmlStrTag('pubDate', dateFmtRfc822(a[dateFieldName]))
       + '  </item>')),
     '</channel>',
@@ -59,18 +58,6 @@ Object.assign(EX, {
     const { rssMode } = orf(meta);
     if (rssMode === 'version-history') { return '%hu'; }
     return '%au';
-  },
-
-  fmtLinkTpl(linkTpl, anno) {
-    let u = linkTpl;
-    const annoIdUrl = annoIdMustBeNest(anno.id);
-    const [versId] = annoIdUrl.split('/').slice(-1);
-    const prop = p => () => annoIdMustBeNest(anno[p]);
-    u = u.replace(/%as/g, versId);
-    u = u.replace(/%au/g, annoIdUrl);
-    u = u.replace(/%hu/g, prop('iana:version-history'));
-    u = u.replace(/%lu/g, prop('iana:latest-version'));
-    return u;
   },
 
 
