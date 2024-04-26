@@ -2,53 +2,26 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Service name. `^` means to use the basename of the filename.
+^:
+    INHERITS: 'svctpl.diglit-like'
 
     targetUrlMetadata:
         prefixes:
           - 'https://digi.ub.uni-heidelberg.de/diglit/'
           # Example annotation: 0b3c9340-11f7-3ec8-8721-09504062a007
-        vSubDirs:
-          - 'projectName'
-          - 'pageNumStr'
-          # vSubDir = virtual subdirectory maps parts of the URL into the
-          # ACL meta data namespace, so you can use it in ACL conditions.
-          # They will also be displayed in "access denied" error messages
-          # to help debug the conitions that caused the error.
-
-
-    annoBrowserRedirect: '%sc/%bi/image,info'
-        # ^-- For available slots, see `src/hnd/anno/browserRedirect.mjs`
-
-    approvalRequired: yes
-
-    autoRequestNextVersionDoi: yes
-        # ^- If enabled, when a revision is submitted for a version that has
-        # a DOI, a DOI request is stamped onto the newly submitted version.
-
-
 
     rssFeeds:
 
         team23: # <- The sub URL (inside /rssb) of this feed
+            INHERITS: 'svctpl.approvalFeed'
             keyHash: '$2y$05$pumfI6EZRlq/Od5zPfjefOPYIwDDswZ0IzT409Ww6ekF7GrD8iTPm'
             # Example plaintext token is: `xmUndc5rSLjp9a81FBbmWesgVwZobm1O`
             # => URL will be /rssb/team23?key=xmUn…
-            # For your convenience, we include a bcrypt token generator:
-            # `../../../../util/create_bcrypt_rss_token.sh`
 
-            type: 'approval'
 
-            # prefix: 'https://…'
-            # ^-- When omitted, assumes `1` (the number); and numbers denote
-            #   the n-th item from targetUrlMetadata. Thus, omitting the
-            #   prefix means to use the first targetUrlMetadata prefix URL.
 
-            feedTitle: 'DigLit annos waiting for approval'  # optional
 
-            linkTpl: '/static/local/redir/approve-anno.html?%as'
-            # Many RSS readers require an absolute URL. Our RSS formatter
-            # will thus replace a leading slash with its public base URL.
+
 
 
 

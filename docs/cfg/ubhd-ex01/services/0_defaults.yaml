@@ -1,0 +1,39 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+'':
+    annoBrowserRedirect: '%sc/%bi/image,info'
+    # ^-- For available slots, see `src/hnd/anno/browserRedirect.mjs`
+
+    approvalRequired: true
+
+    autoRequestNextVersionDoi: true
+    # ^- If enabled, when a revision is submitted for a version that has
+    # a DOI, a DOI request is stamped onto the newly submitted version.
+
+
+    rssFeeds:
+        '': # <- Empty sub URL = Defaults for all feeds for this service.
+            #   And since this is in the service defaults, these settings
+            #   will set the defaults for all feeds in all services.
+
+            keyHash: ''
+            # Empty key hash disables access to the feed.
+            # This is usually a good default because usually you want a
+            # different key for each feed.
+            # For your convenience, we include a bcrypt token generator:
+            # `../../../../util/create_bcrypt_rss_token.sh`
+
+            # prefix: 'https://…'
+            # ^-- When omitted, assumes `1` (the number); and numbers
+            #   denote the n-th item from targetUrlMetadata.
+            #   Thus, omitting the prefix means to use the first
+            #   targetUrlMetadata prefix URL.
+
+
+
+
+
+
+...

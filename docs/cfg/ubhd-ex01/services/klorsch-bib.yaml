@@ -2,15 +2,13 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Service name. `^` means to use the basename of the filename.
+^:
+    INHERITS: 'svctpl.diglit-like'
 
     targetUrlMetadata:
         prefixes:
           - 'https://bibliotheca-laureshamensis-digital.de/bav/'
           # Example annotation: 3d82c273-c104-3023-90dc-bb48f0d4ba87
-        vSubDirs:
-          - 'projectName'
-          - 'pageNumStr'
 
 
 ...

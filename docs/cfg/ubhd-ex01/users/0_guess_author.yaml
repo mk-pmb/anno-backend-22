@@ -22,7 +22,7 @@
 #   !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
 
 
-'': # <-- Empty username = not a user but server-wide settings.
+'':
 
     missing_author_fallback_identity_keys:
         # This option is the stopgap described above.

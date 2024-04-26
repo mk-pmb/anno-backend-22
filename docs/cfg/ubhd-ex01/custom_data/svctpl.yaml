@@ -1,0 +1,49 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:
+    # This data is used for `INHERITS` in service config example files.
+
+    approvalFeed:
+        type: 'approval'
+        feedTitle: 'Annos waiting for approval' # optional
+
+        linkTpl: '/static/local/redir/approve-anno.html?%as'
+        # Many RSS readers require an absolute URL. Our RSS formatter
+        # will thus replace a leading slash with its public base URL.
+        # For available slots, see `src/hnd/anno/rssLinkSlots.mjs`.
+
+
+    diglit-like:
+        targetUrlMetadata:
+            vSubDirs:
+              - 'projectName'
+              - 'pageNumStr'
+              # vSubDir = virtual subdirectory maps parts of the URL into the
+              # ACL meta data namespace, so you can use it in ACL conditions.
+              # They will also be displayed in "access denied" error messages
+              # to help debug the conitions that caused the error.
+
+        staticAclMeta:
+            serviceType: 'diglit-like'
+
+
+
+    journals-like:
+        targetUrlMetadata:
+            vSubDirs:
+              - 'zsKuerzel'
+              - null    # expected to always be 'article'
+              - null    # expected to always be 'view'
+              - 'submissionId'
+
+        staticAclMeta:
+            serviceType: 'journals-like'
+
+
+
+
+
+
+...

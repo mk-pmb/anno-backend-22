@@ -2,19 +2,14 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Service name. `^` means to use the basename of the filename.
+^:
+    INHERITS: 'svctpl.diglit-like'
 
     targetUrlMetadata:
         prefixes:
-          - 'http://journals.ub.uni-heidelberg.de/index.php/'
           - 'https://journals.ub.uni-heidelberg.de/index.php/'
           # … arch-inf/article/view/81388
           # Example annotation: btwujJsWTBWL-IYNk-1raQ
-        vSubDirs:
-          - 'zsKuerzel'
-          - null    # expected to always be 'article'
-          - null    # expected to always be 'view'
-          - 'submissionId'
 
 
 ...

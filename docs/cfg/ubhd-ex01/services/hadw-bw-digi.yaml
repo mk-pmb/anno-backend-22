@@ -7,8 +7,7 @@
 
     targetUrlMetadata:
         prefixes:
-          - 'https://archivum-laureshamense-digital.de/view/'
-          # Example annotations: a10a4cf67a aea8699a8e ef5d92d228 fb25d8d0a6
+          - 'https://digi.hadw-bw.de/view/'
 
 
 ...

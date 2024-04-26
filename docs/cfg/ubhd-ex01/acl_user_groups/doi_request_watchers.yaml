@@ -2,7 +2,7 @@
 # -*- coding: UTF-8, tab-width: 4 -*-
 ---
 
-^:  # <-- Group name. `^` means to use the basename of the filename.
+^:
 
     usernames:
         # You can also declare group membership in a user config file.

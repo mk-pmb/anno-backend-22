@@ -62,13 +62,11 @@
         - 'svc_diglit/publisher'
         - 'svc_journals/author'
         - 'svc_journals/publisher'
+        - 'doi_sources'
 
         # You can also declare group membership in a group config file.
         # Membership declarations merge cumulatively, so this is redundant:
-        - 'svc_diglit/proofreaders'
-
         - 'doi_request_watchers'
-        - 'doi_sources'
 
 
     upstream_userid_aliases:

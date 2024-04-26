@@ -14,13 +14,6 @@
   #   decide:
   #       shutdown: deny
 
-
-  - if: always
-    aclSubChain:
-      - '?useracl_<$userId>'
-      - '?svcacl_<$serviceId>'
-
-
   - if:
         memberOfAclGroup: 'doi_sources'
     decide:
@@ -31,24 +24,11 @@
     decide:
         search_hasStamp__ubhd_doiAssign: allow
 
-
-  - param: 'serviceId'
-    if:
-        paramInList:
-          - 'diglit'
-          - 'klorsch-bib'
-          - 'klorsch-archiv'
-    aclSubChain: 'diglit-like_services'
-
-
-  - param: 'serviceId'
-    if:
-        paramInList:
-          - 'journals'
-    aclSubChain: 'journal-like_services'
-
-
-
+  - if: always
+    aclSubChain:
+      - '?useracl_<$userId>'
+      - '?svcacl_<$serviceId>'
+      - '<$serviceType>_services'
 
 
 

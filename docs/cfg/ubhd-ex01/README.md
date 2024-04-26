@@ -26,6 +26,18 @@ Structure
   This will be explained below in section "Config merging".
 
 
+
+Config fragments
+----------------
+
+* In some places, configs can __inherit fragments__ from files in the
+  `custom_data` topic by specifying a key named `INHERITS` which must
+  be a string or a list of strings. Each string is a __fragment path__,
+  specified using the [`objdive` path syntax](https://npm.im/objdive).
+  The first path segment refers to an entry name in the `custom_data` topic.
+
+
+
 Available config topics
 -----------------------
 
