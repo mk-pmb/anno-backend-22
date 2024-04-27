@@ -12,15 +12,17 @@
   var host = location.hostname, port = (+location.port || 0),
     protoHost = location.protocol + '//' + host, frontendBaseUrl,
     isStagingServer = [0, 80, 443].includes(port),
-    redir, link = document.getElementsByTagName('a')[0];
+    qs = {}, redir, link = document.getElementsByTagName('a')[0];
   frontendBaseUrl = (protoHost
     + (isStagingServer ? '' : ':33380')
     + '/anno-frontend/'
     + (isStagingServer ? 'experimental/' : '')
     );
+  location.search.replace(/[\?\&]/g, ' ').replace(/(\S+)=(\S+)/g,
+    function (m, k, v) { qs[k] = m && v; });
   redir = (frontendBaseUrl
     + 'test/html/displayAnnotations.nm.html'
-    + '?approval=1&cmp1=' + location.search.slice(1));
+    + '?approval=1&svc=' + qs.svc + '&cmp1=' + qs.anno);
   if (link) { link.href = redir; }
   location.href = redir;
 }());

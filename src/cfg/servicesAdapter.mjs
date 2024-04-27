@@ -81,9 +81,12 @@ const EX = {
       if (!origFeedId) { return; }
       // ^-- Empty feed ID is used for defaults.
       const feedId = origFeedId.replace(/\^/g, svcId);
-      const merged = mergeOpt(feedDefaults,
-        ctx.mergeInheritedFragments(origFeedCfg));
       // console.debug('learnOneRssFeed:', feedId, merged);
+      const merged = mergeOpt({
+        staticMeta: {
+          serviceId: svcId,
+        },
+      }, feedDefaults, ctx.mergeInheritedFragments(origFeedCfg));
       const fc = ctx.srv.rssFeeds.register(feedId, merged);
       if (!fc.prefix) { fc.prefix = 1; }
       if (isNum(fc.prefix)) { fc.prefix = urlPrefixes[fc.prefix - 1]; }

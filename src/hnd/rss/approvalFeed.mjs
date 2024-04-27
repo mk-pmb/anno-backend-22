@@ -9,6 +9,7 @@ const EX = async function approvalFeed(how) {
     feedTitle,
     linkTpl,
     prefix,
+    staticMeta,
     req,
     srv,
   } = how;
@@ -23,6 +24,7 @@ const EX = async function approvalFeed(how) {
     readContent: 'justTitles',
   });
   const annos = found.toFullAnnos();
+  if (staticMeta) { annos.meta = { ...annos.meta, ...staticMeta }; }
   return fmtAnnosAsRssFeed({
     annos,
     feedTitle,

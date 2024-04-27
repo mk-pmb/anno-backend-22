@@ -9,7 +9,7 @@
         type: 'approval'
         feedTitle: 'Annos waiting for approval' # optional
 
-        linkTpl: '/static/local/redir/approve-anno.html?%as'
+        linkTpl: '/static/local/redir/approve-anno.html?svc=%sv&anno=%as'
         # Many RSS readers require an absolute URL. Our RSS formatter
         # will thus replace a leading slash with its public base URL.
         # For available slots, see `src/hnd/anno/rssLinkSlots.mjs`.

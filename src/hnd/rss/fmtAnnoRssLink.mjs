@@ -11,6 +11,7 @@ const EX = function fmtAnnoRssLink(linkTpl, anno, meta) {
   [a.versId] = a.annoIdUrl.split('/').slice(-1);
   mustBe.nest('Anno version ID', a.versId);
   const m = mustBe.tProp('Meta field ', meta, 'nonEmpty str');
+  m.orEmptyStr = k => (meta[k] || '');
   return linkSlots(linkTpl, a, m);
 };
 

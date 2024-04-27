@@ -5,6 +5,7 @@
 
 const EX = function annoRssLinkSlot(t, a, m) {
   let u = t;
+  u = u.replace(/%sv/g, m.orEmptyStr('serviceId'));
   u = u.replace(/%as/g, a.versId);
   u = u.replace(/%au/g, a.annoIdUrl);
   u = u.replace(/%hu/g, a('iana:version-history'));
