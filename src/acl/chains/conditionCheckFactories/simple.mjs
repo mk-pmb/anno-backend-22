@@ -54,6 +54,15 @@ const EX = {
     });
   },
 
+  slotEmpty(how) {
+    function aclSlotEmpty(slot, aclCtx) {
+      const val = objDive(aclCtx.allMeta, slot);
+      if (val === 0) { return false; }
+      return !(val && (val.length || val.size));
+    }
+    return aclSlotEmpty.bind(null, how.args);
+  },
+
   paramInList(how) {
     let { param: path, list } = how.args;
     const pathFmt = ['nonEmpty str | nonEmpty ary', 'param'];
