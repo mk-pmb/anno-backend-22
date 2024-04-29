@@ -46,6 +46,17 @@
 
 
 
+    books-like:
+        targetUrlMetadata:
+            vSubDirs:
+              - 'submissionId'
+
+        staticAclMeta:
+            serviceType: 'books-like'
+
+
+
+
 
 
 
