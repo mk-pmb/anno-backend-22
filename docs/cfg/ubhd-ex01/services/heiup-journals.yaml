@@ -1,0 +1,14 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 4 -*-
+---
+
+^:
+    INHERITS: 'svctpl.journals-like'
+
+    targetUrlMetadata:
+        prefixes:
+          - 'https://heiup.uni-heidelberg.de/journals/'
+          # … apocalyptica/issue/view/2448
+
+
+...

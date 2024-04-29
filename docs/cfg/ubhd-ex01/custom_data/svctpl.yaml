@@ -34,8 +34,11 @@
         targetUrlMetadata:
             vSubDirs:
               - 'zsKuerzel'
-              - null    # expected to always be 'article'
-              - null    # expected to always be 'view'
+              - null
+                # ^-- expected to always be the same:
+                #   * 'article' on journals.ub.UniHD
+                #   * 'issue' on heiup.UniHD and hasp.ub.UniHD
+              - null # expected to always be 'view'
               - 'submissionId'
 
         staticAclMeta:
