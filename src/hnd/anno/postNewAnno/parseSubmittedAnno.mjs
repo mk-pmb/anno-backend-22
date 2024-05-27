@@ -43,6 +43,8 @@ const EX = function parseSubmittedAnno(mustPopInput, cfg) {
     loMapValues(cfg.extraCopyFields, (rule, key) => copy(key, rule));
   }
 
+  copy('as:audience', 'obj | ary | nonEmpty str | undef');
+  copy('as:context', 'obj | ary | nonEmpty str | undef');
   copy('creator', 'obj | ary | nonEmpty str | undef');
   copy('dc:isVersionOf', 'nonEmpty str | undef');
   copy('dc:language', 'nonEmpty str | undef');
