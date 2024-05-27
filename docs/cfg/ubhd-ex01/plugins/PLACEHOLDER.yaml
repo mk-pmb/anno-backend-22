@@ -1,0 +1,11 @@
+%YAML 1.2
+# -*- coding: UTF-8, tab-width: 2 -*-
+---
+
+About the plugins directory: |
+
+  This config category will be used in future versions.
+  This placeholder file is here to improve your future upgrade experience.
+
+
+...
