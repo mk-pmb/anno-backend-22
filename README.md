@@ -41,14 +41,14 @@ Configuration overview
   * [anno-doi-bot-23][doibot23] &rarr;
     [last known config docs][doibot23cfg]
   * [anno-frontend][anno-fe] &rarr;
-    [experimental config docs][anno-fe-ex-cfg]
+    [last known config docs][anno-fe-cfg]
 
 
 
   [doibot23]: https://github.com/UB-Heidelberg/anno-doi-bot-23/
   [doibot23cfg]: https://github.com/UB-Heidelberg/anno-doi-bot-23/blob/master/funcs/cfg.default.rc
   [anno-fe]: https://github.com/UB-Heidelberg/anno-frontend/
-  [anno-fe-ex-cfg]: https://github.com/UB-Heidelberg/anno-frontend/tree/stable/src/default-config
+  [anno-fe-cfg]: https://github.com/UB-Heidelberg/anno-frontend/tree/stable/src/default-config
 
 
 <!--#toc stop="scan" -->
