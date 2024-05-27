@@ -23,7 +23,7 @@ z.B. um [Fotos geographisch einzuordnen][anno-yellowstone] oder um
 
 
 Der sichtbare Anteil wird von der Software
-["anno-frontend"](https://github.com/mk-pmb/anno-frontend/)
+["anno-frontend"](https://github.com/UB-Heidelberg/anno-frontend/)
 bereitgestellt.
 Diese Software sorgt dafür, dass Bildbereiche hervorgehoben und ausgewählt
 werden können, und dass man die Kommentare zu diesen Bereichen lesen kann.
@@ -42,12 +42,6 @@ Dieser Nachfolger heißt "anno-server-22" und das ist dieses Projekt hier.
 
 
 
-Wann wird die neue Software betriebsbereit sein?
-------------------------------------------------
-
-Siehe dazu [unsere Planungsdokumente][anno-ausblick].
-
-  [anno-ausblick]: https://github.com/mk-pmb/anno-ausblick
 
 
 

@@ -1,5 +1,5 @@
 { "name": "anno-server-22",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "Accepts and serves annotations in our flavor of the W3C Web Annotation Protocol and W3C Web Annotation Data Model.",
   "keywords": [
     "annotation",
@@ -11,10 +11,10 @@
   "homepage": "https://github.com/UB-Heidelberg/anno-server-22/#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mk-pmb/anno-server-22.git"
+    "url": "git+https://github.com/UB-Heidelberg/anno-server-22.git"
   },
   "bugs": {
-    "url": "https://github.com/mk-pmb/anno-server-22/issues"
+    "url": "https://github.com/UB-Heidelberg/anno-server-22/issues"
   },
 
   "contributors": [

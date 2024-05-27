@@ -80,7 +80,7 @@ How to control the docker container group
 
 See [the DevDock readme][devdock-readme].
 
-  [devdock-readme]: https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock
+  [devdock-readme]: https://github.com/UB-Heidelberg/docker-devel-util-pmb/tree/master/devdock
 
 
 
@@ -88,6 +88,7 @@ See [the DevDock readme][devdock-readme].
 How to interact with the database
 ---------------------------------
 
+<a name="database-commands-docker" id="database-commands-docker"></a>
 
 ### Using docker
 

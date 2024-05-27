@@ -15,9 +15,7 @@ Some are for clarification or error handling.
     * an apache webserver with `mod_proxy`
       * optionally, some sort of user login mechanism for Apache.
       * [How to configure your Apache](../../cfg/reverse_proxy/apache/)
-    * [DevDock
-      ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock)
-      (a templating system for docker-compose).
+    * [DevDock][devdock-readme] (a templating system for docker-compose).
       * Version 0.2.1 should work. At time of writing (2024-01-09),
         this is the latest.
 1.  Make sure that the hostname is configured correctly for use as a
@@ -59,7 +57,7 @@ Some are for clarification or error handling.
     install attempt, move it to some backup directory.
     The next step (cloning) would fail if the directory already exists.
 1.  Clone the staging branch:
-    `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-server-22`
+    `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-server-22`
     * The "staging" branch is almost as unstable as "experimental".
       Expect frequent history rewrites.
 1.  Verify the cloning: `ls anno-server-22/run_*.sh` — the expected good
@@ -78,9 +76,9 @@ The anno server works perfectly well even without a DOI bot.
     We'll assume `/srv/annosrv/doibot`.
 1.  `cd /srv/annosrv/doibot`
 1.  Clone the main DOI bot repo:
-    `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-doi-bot-23`
+    `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-doi-bot-23`
 1.  If you also want the DataCite registry adapter:
-    `git clone --single-branch --branch staging https://github.com/mk-pmb/anno-doi-bot-23-adapter-datacite`
+    `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-doi-bot-23-adapter-datacite`
 1.  Pre-emptive hints for the next step:
     * You do not need to `npm install` those repos individually.
       Skip that step, because the docker install script will do that soon.
@@ -137,8 +135,7 @@ The anno server works perfectly well even without a DOI bot.
     To make that easier, we use the templating system "DevDock".
     1.  The next steps will require basic knowledge of DevDock, at least
         project/directory names and container control commands.
-        You can find them in [the DevDock Readme
-        ](https://github.com/mk-pmb/docker-devel-util-pmb/tree/master/devdock).
+        You can find them in [the DevDock Readme][devdock-readme].
     1.  A good place to put your DevDock project is inside your
         instance config directory.
     1.  An example config directory can be found in
@@ -159,6 +156,9 @@ The anno server works perfectly well even without a DOI bot.
 
 
 
+
+
+  [devdock-readme]: https://github.com/UB-Heidelberg/docker-devel-util-pmb/tree/master/devdock
 
 
 <!-- Deprecated steps kept around in case we need them again. Please ignore.

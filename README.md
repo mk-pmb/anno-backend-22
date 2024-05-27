@@ -26,6 +26,8 @@ Configuration overview
 
 * [Docker config](docs/cfg/as22.devdock/config/):
   Paths, network connectivity etc.
+  * 🛠 [Interact with the dockerized Postgres database
+    ](docs/cfg/as22.devdock/README.md#database-commands-docker)
 
 * [Instance config](docs/cfg/ubhd-ex01/):
   Everything about annotations, users and permissions.
@@ -43,10 +45,10 @@ Configuration overview
 
 
 
-  [doibot23]: https://github.com/mk-pmb/anno-doi-bot-23/
-  [doibot23cfg]: https://github.com/mk-pmb/anno-doi-bot-23/blob/master/funcs/cfg.default.rc
-  [anno-fe]: https://github.com/mk-pmb/anno-frontend/
-  [anno-fe-ex-cfg]: https://github.com/mk-pmb/anno-frontend/tree/experimental/src/default-config
+  [doibot23]: https://github.com/UB-Heidelberg/anno-doi-bot-23/
+  [doibot23cfg]: https://github.com/UB-Heidelberg/anno-doi-bot-23/blob/master/funcs/cfg.default.rc
+  [anno-fe]: https://github.com/UB-Heidelberg/anno-frontend/
+  [anno-fe-ex-cfg]: https://github.com/UB-Heidelberg/anno-frontend/tree/stable/src/default-config
 
 
 <!--#toc stop="scan" -->

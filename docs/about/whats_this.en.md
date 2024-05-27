@@ -21,7 +21,7 @@ or [give historical background on art sales][anno-goethesammlung].
 
 
 The visible part is powered in part by
-["anno-frontend"](https://github.com/mk-pmb/anno-frontend/)
+["anno-frontend"](https://github.com/UB-Heidelberg/anno-frontend/)
 — that is the software that makes it so you can see areas of the
 images highlighted, and read the comments for those areas.
 For authorizes scholars, it also provides the ability to mark parts of
@@ -37,12 +37,8 @@ That new replacement is called "anno-server-22" and it's this project.
 
 
 
-When will the new software be ready?
-------------------------------------
 
-Please refer to our [german-language planning documents][anno-ausblick].
 
-  [anno-ausblick]: https://github.com/mk-pmb/anno-ausblick
 
 
 
