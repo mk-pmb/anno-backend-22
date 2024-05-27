@@ -56,10 +56,7 @@ Some are for clarification or error handling.
 1.  If you already have a `/srv/annosrv/anno-server-22` from a previous
     install attempt, move it to some backup directory.
     The next step (cloning) would fail if the directory already exists.
-1.  Clone the staging branch:
-    `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-server-22`
-    * The "staging" branch is almost as unstable as "experimental".
-      Expect frequent history rewrites.
+1.  `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-server-22`
 1.  Verify the cloning: `ls anno-server-22/run_*.sh` — the expected good
     response is `anno-server-22/run_server.sh`.
 
