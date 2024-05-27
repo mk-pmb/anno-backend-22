@@ -5,7 +5,8 @@ anno-server-22
 <!--/#echo -->
 
 <!--#echo json="package.json" key="description" -->
-UB-HD Web Anntation Server, 2022 Edition
+Accepts and serves annotations in our flavor of the W3C Web Annotation
+Protocol and W3C Web Annotation Data Model.
 <!--/#echo -->
 
 * 🇺🇸 [What is this project?](docs/about/whats_this.en.md)

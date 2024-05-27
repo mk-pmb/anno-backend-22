@@ -1,6 +1,6 @@
 { "name": "anno-server-22",
   "version": "0.0.3",
-  "description": "UB-HD Web Anntation Server, 2022 Edition",
+  "description": "Accepts and serves annotations in our flavor of the W3C Web Annotation Protocol and W3C Web Annotation Data Model.",
   "keywords": [
     "annotation",
     "web annotation data model",
