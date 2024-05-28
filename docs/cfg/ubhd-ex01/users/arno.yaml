@@ -57,11 +57,13 @@
 
 
     acl_user_groups:
+        - 'svc_anno-frontend-tests/author'
         - 'svc_diglit/author'
         - 'svc_diglit/moderator'
         - 'svc_diglit/publisher'
         - 'svc_journals/author'
         - 'svc_journals/publisher'
+
         - 'doi_sources'
 
         # You can also declare group membership in a group config file.

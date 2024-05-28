@@ -3,12 +3,11 @@
 ---
 
 ^:
+    INHERITS: 'svctpl.diglit-like'
+
     targetUrlMetadata:
         prefixes:
           - 'http://anno.test/'
-        vSubDirs:
-          - 'projectName'
-          - 'pageNumStr'
 
 
 ...
