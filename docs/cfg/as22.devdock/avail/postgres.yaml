@@ -10,7 +10,10 @@ services:
     volumes:
       - ${dd_dir}'.containerdata/postgres.data/v14:/pgdata:rw'
       - ${dd_dir}'secrets/postgres.pswd.txt:/run/secrets/postgres/initpswd:ro'
+        #!^# volume_entry_expect_file: -f …
       - ${dd_cfg annosrv_appdir}'/util/pg:/asu:ro'
+        #!^# volume_entry_expect_file: -f …/dkpgu.sh
+        #!^# volume_entry_expect_file: -x …/dkpgu.sh
     restart: always
     environment:
       - 'PGDATA=/pgdata'

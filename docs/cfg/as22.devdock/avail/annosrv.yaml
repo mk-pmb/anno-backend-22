@@ -10,7 +10,11 @@ services:
     image: 'node:20'
     volumes:
       - ${dd_cfg annosrv_appdir}':/app'
+        #!^# volume_entry_expect_file: -f …/package.json
+        #!^# volume_entry_expect_file: -f …/run_server.sh
+        #!^# volume_entry_expect_file: -x …/run_server.sh
       - ${dd_dir}'secrets/postgres.pswd.txt:/run/secrets/postgres.pswd.txt'
+        #!^# volume_entry_expect_file: -f …
     hostname: ${dd_cfg annosrv_hostname}''
     working_dir: '/app'
     command: '/app/run_server.sh'

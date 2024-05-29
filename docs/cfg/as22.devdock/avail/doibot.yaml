@@ -9,6 +9,9 @@ services:
     image: 'node:20'
     volumes:
       - ${dd_cfg doibot_basedir}':/app'
+        #!^# volume_entry_expect_file: -f …/${dd_cfg doibot_appdir}'/package.json'
+        #!^# volume_entry_expect_file: -f …/${dd_cfg doibot_appdir}'/doibot.sh'
+        #!^# volume_entry_expect_file: -x …/${dd_cfg doibot_appdir}'/doibot.sh'
     hostname: ${dd_cfg doibot_hostname}''
     working_dir: '/app'
     environment:
