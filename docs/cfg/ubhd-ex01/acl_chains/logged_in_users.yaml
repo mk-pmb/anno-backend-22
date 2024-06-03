@@ -28,6 +28,10 @@
     aclSubChain:
       - '?useracl_<$userId>'
       - '?svcacl_<$serviceId>'
+
+  - unless:
+        slotEmpty: 'serviceType'
+    aclSubChain:
       - '<$serviceType>_services'
 
 

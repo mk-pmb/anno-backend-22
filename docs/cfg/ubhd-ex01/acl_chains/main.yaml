@@ -24,8 +24,6 @@
 
 
   - if: isLoggedIn
-    unless:
-        slotEmpty: serviceType
     aclSubChain: logged_in_users
 
 
