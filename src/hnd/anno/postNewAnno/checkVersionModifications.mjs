@@ -25,12 +25,13 @@ const {
 function commaList(x) { return Array.from(x).sort().join(', '); }
 function repackIdStr(x) { return ((x && isStr(x) && { id: x }) || x || false); }
 
+const readUnapproved = { allowReadUnapprovedAnnos: '*' };
 
 const EX = async function checkVersionModifications(ctx) {
   await EX.validateAnnoIdParts(ctx);
   const { anno, idParts, req } = ctx;
   if (!idParts.baseId) { return; }
-  const lookup = await lookupExactVersion(ctx);
+  const lookup = await lookupExactVersion({ ...ctx, ...readUnapproved });
   ctx.oldAnnoDetails = lookup.annoDetails;
   idParts.versNum += 1;
 

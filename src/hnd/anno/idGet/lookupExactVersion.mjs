@@ -102,6 +102,7 @@ const EX = async function lookupExactVersion(ctx) {
   // claimed roles, even for public annos.
   let clientMustCopeWithLowlineStamps = false;
   const allowReadUnapproved = await (async function decide() {
+    if (ctx.allowReadUnapprovedAnnos === '*') { return true; }
     const { asRoleName } = req;
     if (!asRoleName) { return false; }
     if (asRoleName === 'approver') {
