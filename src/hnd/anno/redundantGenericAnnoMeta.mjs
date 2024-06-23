@@ -41,6 +41,7 @@ const EX = {
     }
     const addMeta = {
       id: fullPubUrl,
+      type: 'Annotation',
       'dc:isVersionOf': latestPubUrl,
       'iana:latest-version': latestPubUrl,
       'iana:version-history': latestPubUrl + '/versions',

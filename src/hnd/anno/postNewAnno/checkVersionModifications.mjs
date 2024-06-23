@@ -22,8 +22,10 @@ const {
 
 // function jsonDeepCopy(x) { return JSON.parse(JSON.stringify(x)); }
 
-function commaList(x) { return Array.from(x).sort().join(', '); }
+function toSortedList(x) { return Array.from(x).sort(); }
+function commaList(x) { return toSortedList(x).join(', '); }
 function repackIdStr(x) { return ((x && isStr(x) && { id: x }) || x || false); }
+function unpackSingleItem(a) { return (a && (a.length === 1)) ? a[0] : a; }
 
 const readUnapproved = { allowReadUnapprovedAnnos: '*' };
 
@@ -170,8 +172,7 @@ Object.assign(EX, {
 
 
   async validateModificationPermissions(ctx) {
-    const { annoChanges } = ctx;
-    const updKeys = new Set(Object.keys(annoChanges));
+    const updKeys = new Set(Object.keys(ctx.annoChanges));
 
     async function chkPerm(key, how, customPerm) {
       if (!updKeys.has(key)) { return; }
@@ -205,10 +206,17 @@ Object.assign(EX, {
       updKeys.delete('target');
     }
 
+    if (updKeys.has('type')) {
+      if (EX.validateTypeModifications(ctx)) { updKeys.delete('type'); }
+    }
+
     if (updKeys.size) {
+      const keysList = toSortedList(updKeys.keys());
       const msg = ('Found no valid strategy for '
         + 'validating permission to modify these fields: '
-        + commaList(updKeys.keys()));
+        + commaList(keysList));
+      console.debug(msg, ...keysList.map(k => [k,
+        ctx.oldAnnoDetails[k], '->', ctx.annoChanges[k]]));
       throw badRequest(msg);
     }
   },
@@ -245,6 +253,16 @@ Object.assign(EX, {
       await chkList('target_reorder', diff.commonInOld);
     }
     */
+  },
+
+
+  validateTypeModifications(ctx) {
+    const old = ctx.oldAnnoDetails.type;
+    if (old === undefined) { return true; }
+    const upd = ctx.annoChanges.type;
+    if (upd === undefined) { return true; }
+    if (unpackSingleItem(old) === unpackSingleItem(upd)) { return true; }
+    return false;
   },
 
 

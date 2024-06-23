@@ -17,6 +17,11 @@ const alwaysDiscardFields = [
   'iana:version-history',
 ];
 
+const unpackSingleElementArrays = [
+  'rights',
+  'type',
+];
+
 
 function maybeWrapId(rec) {
   if (typeof rec === 'string') { return { id: rec }; }
@@ -93,6 +98,11 @@ const EX = function parseSubmittedAnno(mustPopInput, cfg) {
       + ' we expect to also see motivation "replying".');
     throw new Error(msg);
   }
+
+  unpackSingleElementArrays.forEach(function maybe(k) {
+    const v = anno[k];
+    if (Array.isArray(v) && (v.length === 1)) { [anno[k]] = v; }
+  });
 
   mustPopInput.expectEmpty('Unsupported annotation field');
   fixLocalUrlFieldsInplace(cfg, anno);
