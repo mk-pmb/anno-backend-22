@@ -20,23 +20,37 @@ const EX = async function installRootRoutes(srv) {
 
   rt.use(loggingUtil.middleware.logIncomingRequest);
 
-  const serveFile = express.static(popCfg('nonEmpty str', 'wwwpub_path'));
-  rt.use('/static/favicon.ico', eternal());
-  rt.use('/static', serveFile);
-  rt.get('/', plumb.makeRedirector('static/'));
+
+  // ========================================================================
+  // ##BEGIN## Paths relevant for the reverse proxy
+  /*  Check `../../wwwpub/` to see which additional files may be relevant
+      for your production environment (e.g. `robots.txt`). */
+
+  const annoRoute = await makeAnnoRoute(srv);
+  rt.use('/anno/*', annoRoute);
+  rt.use('/as/:asRoleName/anno/*', annoRoute);
+  /*  The `/as/*` namespace is a way for clients to request extended
+      feature sets beyond the W3 anno protocol. */
+  rt.use('/rssb/', await makeBearerRssHandler(srv));
 
   const sessionRoute = await makeSessionRoute(srv);
   rt.use('/session/*', sessionRoute);
   rt.use('/as/:asRoleName/session/', sessionRoute.asRoleName);
 
-  const annoRoute = await makeAnnoRoute(srv);
-  rt.use('/anno/*', annoRoute);
-  rt.use('/as/:asRoleName/anno/*', annoRoute);
-  rt.use('/rssb/', await makeBearerRssHandler(srv));
-  siteLocalReservedRoutes.installRoutes(rt);
+  // ##ENDOF## Paths relevant for the reverse proxy
+  // ========================================================================
 
+
+  siteLocalReservedRoutes.installRoutes(rt); // safe to ignore.
+
+  // APIs for use only inside the docker network:
   rt.use('/admin/shutdown*', shutdownHandler);
 
+  // Static file serving for use as a stand-alone debug server:
+  rt.get('/', plumb.makeRedirector('static/'));
+  rt.use('/static/favicon.ico', eternal());
+  const serveFile = express.static(popCfg('nonEmpty str', 'wwwpub_path'));
+  rt.use('/static', serveFile);
   rt.get('/:filename', eternal(simpleFilenameRedirector('static/:filename')));
 
 

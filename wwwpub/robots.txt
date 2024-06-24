@@ -2,5 +2,6 @@
 
 User-Agent: *
 Disallow: /api/
+Disallow: /admin/
 Disallow: /debug/
 Disallow: /session/

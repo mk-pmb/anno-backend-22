@@ -10,6 +10,8 @@ have a reserved URL namespace which a reverse proxy can delegate to a
 separate webspace with advanced features like CGI support.
 
 The reserved namespaces are defined below in `urlTopDirs`.
+The purpose of giving them their own file is to provide reliable
+machine-readable access to this information.
 
 */
 
@@ -28,6 +30,8 @@ const urlTopDirs = [
 ];
 
 const EX = {
+  urlTopDirs,
+
   installRoutes(rt) {
     urlTopDirs.forEach(function register(pat) {
       rt.use(pat, hnd);
