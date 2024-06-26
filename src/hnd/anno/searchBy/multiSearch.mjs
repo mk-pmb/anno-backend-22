@@ -98,7 +98,7 @@ const EX = async function multiSearch(ctx) {
     validRole = true;
     const { userId } = await detectUserIdentity.andDetails(req);
     search.tmpl('visibilityWhere', '#visibilityAuthorMode');
-    search.data('rqUserId', userId);
+    search.data('rqUserId', userId || '');
     stampParserOpts.lowlineStamps = {};
   }
 
