@@ -9,7 +9,7 @@ import learnOneSimplifierEntry from './learnOneSimplifierEntry.mjs';
 const EX = function learnTransforms(acl, origTransforms) {
   const popTr = objPop(origTransforms, { mustBe }).mustBe;
 
-  (popTr('ary | undef', 'simplify') || []).forEach(
+  (popTr('ary | nul | undef', 'simplify') || []).forEach(
     (s, i) => learnOneSimplifierEntry(acl, s, i));
 
   popTr.expectEmpty('Unsupported transforms');
@@ -19,7 +19,7 @@ const EX = function learnTransforms(acl, origTransforms) {
 Object.assign(EX, {
 
   configSectionName: 'upstream_userid_transforms',
-  expectedConfigSectionFormat: 'obj | undef',
+  expectedConfigSectionFormat: 'obj | nul | undef',
 
 });
 
