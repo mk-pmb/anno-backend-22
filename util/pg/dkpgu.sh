@@ -65,11 +65,24 @@ function dkpgu_export () {
 
 
 function dkpgu_cmd () { dkpgu_psql --command="$1"; }
-function dkpgu_file () { dkpgu_psql --file="$1"; }
 function dkpgu_pg_dump () { dkpgu_psql_dfopt pg_dump "$@"; }
 function dkpgu_psql () { dkpgu_psql_dfopt psql "$@"; }
 function dkpgu_psql () { dkpgu_psql_dfopt psql "$@"; }
 
+
+function dkpgu_is_gzip_file () {
+  # Checking the magic number bytes in the header is good enough for us.
+  head -c 2 -- "$1" | LANG=C grep -qxFe $'\x1F\x8B'
+}
+
+
+function dkpgu_file () {
+  if dkpgu_is_gzip_file "$1"; then
+    exec < <(gzip -dc -- "$1")
+    set -- /dev/stdin
+  fi
+  dkpgu_psql --file="$1"
+}
 
 
 
