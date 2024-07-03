@@ -16,7 +16,7 @@ Some are for clarification or error handling.
       * optionally, some sort of user login mechanism for Apache.
       * [How to configure your Apache](../../cfg/reverse_proxy/apache/)
     * [DevDock][devdock-readme] (a templating system for docker-compose).
-      * Version 0.2.1 should work. At time of writing (2024-01-09),
+      * DevDock version 0.2.6 should work. At time of writing (2024-07-03),
         this is the latest.
 1.  Make sure that the hostname is configured correctly for use as a
     FQDN (fully-qualified domain name).
