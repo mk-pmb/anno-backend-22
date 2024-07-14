@@ -8,7 +8,9 @@
     targetUrlMetadata:
         prefixes:
           - 'https://digi.ub.uni-heidelberg.de/diglit/'
-          # Example annotation: 0b3c9340-11f7-3ec8-8721-09504062a007
+          # ^-- Example annotation: 0b3c9340-11f7-3ec8-8721-09504062a007
+          - 'https://digi.ub.uni-heidelberg.de/diglit_protected/'
+          # ^-- Example annotation: UL9bSMsbQwu8rBaZO5HrqA
 
     rssFeeds:
 
