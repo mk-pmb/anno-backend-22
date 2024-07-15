@@ -2,9 +2,9 @@
 
 const EX = {
 
-  latestOnly: `WITH "in" AS (\n#|\n)
+  latestOnly: `WITH "latest_only_in" AS (\n#|\n)
     SELECT DISTINCT ON ("base_id") *
-    FROM "in" ORDER BY "base_id" ASC, "version_num" DESC
+    FROM "latest_only_in" ORDER BY "base_id" ASC, "version_num" DESC
     `,
 
 
