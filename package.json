@@ -53,6 +53,7 @@
     "express-final-text-response-pmb": "^0.1.10",
     "express-promise-router": "^4.1.1",
     "express-timeout-handler": "^2.2.2",
+    "fix-unicode-strings-deeply-inplace-pmb": "^0.1.0",
     "getoraddkey-simple": "^0.1.6",
     "getown": "^1.0.0",
     "is-string": "^1.0.7",
