@@ -4,6 +4,7 @@ import arrayOfTruths from 'array-of-truths';
 import loMapValues from 'lodash.mapvalues';
 import mustBe from 'typechecks-pmb/must-be';
 
+import fakeSubmitHook from '../../../../dirtyhax/fakeSubmitHook.mjs';
 import redundantGenericAnnoMeta from '../redundantGenericAnnoMeta.mjs';
 
 import fixLocalUrlFieldsInplace from './fixLocalUrlFieldsInplace.mjs';
@@ -106,6 +107,7 @@ const EX = function parseSubmittedAnno(mustPopInput, cfg) {
 
   mustPopInput.expectEmpty('Unsupported annotation field');
   fixLocalUrlFieldsInplace(cfg, anno);
+  fakeSubmitHook(anno);
   return anno;
 };
 
