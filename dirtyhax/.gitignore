@@ -1,0 +1,6 @@
+
+/plugin.sanitize-html.js
+# ^-- Symlink to or copy of anno-frontend/test/html/plugin.sanitize-html.js
+#     Keep in sync with frontend!
+#     Alternatively, to accept any HTML whatsoever, you can symlink the
+#     `dummy.sanitize-html.js` in this directory.
