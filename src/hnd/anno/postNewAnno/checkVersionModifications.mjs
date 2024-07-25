@@ -134,7 +134,7 @@ Object.assign(EX, {
       const err = badRequest(msg);
       const url = genericAnnoMeta.constructVersionNumberPubUrl(ctx.srv,
         latestReviIdParts);
-      err.headers = { 'Working-Copy': url };
+      err.links = { 'working-copy': url };
       throw err;
     }
   },
