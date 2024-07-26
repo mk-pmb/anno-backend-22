@@ -11,6 +11,7 @@
         revise_own:             allow
         revise_own_creator:     allow
         revise_own_body:        allow
+        revise_own_rights:      allow
         revise_own_target_add:  allow
         revise_own_target_del:  allow
 
@@ -39,6 +40,7 @@
         # !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !! !!
 
         revise_any_body:        allow
+        revise_any_rights:      allow
         revise_any_target_add:  allow
         revise_any_target_del:  allow
 
