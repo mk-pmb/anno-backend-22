@@ -195,6 +195,7 @@ Object.assign(EX, {
     await chkPerm('creator', opaque);
     await chkPerm('dc:title', opaque, 'body');
     await chkPerm('body', opaque);
+    await chkPerm('rights', opaque);
 
     // At this point of control flow we know the submitter has permission
     // to modify dc:title AND body, so they should probably also be allowed
