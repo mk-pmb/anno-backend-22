@@ -23,11 +23,12 @@ const {
 const approverPrivilegeName = 'stamp_any_add_dc_dateAccepted';
 
 
+function ifDefined(x, d) { return (x === undefined ? d : x); }
 function orf(x) { return x || false; }
 
 
 const EX = async function lookupExactVersion(ctx) {
-  const { srv, req, idParts } = ctx;
+  const { srv, req, idParts, overrideRoleName } = ctx;
   const { baseId, versNum, versId } = idParts;
   const targetLookupDeniedReason = await srv.acl.whyDeny(req,
     { privilegeName: 'lookupAnnoTargets', versId });
@@ -82,10 +83,10 @@ const EX = async function lookupExactVersion(ctx) {
       subjTgtUrlsForAclCheckRead, { privilegeName, ...opt });
   }
 
+  const asRoleName = ifDefined(overrideRoleName, req.asRoleName);
   const topExtraFields = {};
-
   const aclReadOpt = {};
-  if (req.asRoleName) {
+  if (asRoleName) {
     const apre = {}; // ACL preview container
     aclReadOpt.aclMetaSpy = { aclPreviewBySubjectTargetUrl: apre };
     topExtraFields[miscMetaFieldInfos.subjTgtAclField] = apre;
@@ -103,7 +104,6 @@ const EX = async function lookupExactVersion(ctx) {
   let clientMustCopeWithLowlineStamps = false;
   const allowReadUnapproved = await (async function decide() {
     if (ctx.allowReadUnapprovedAnnos === '*') { return true; }
-    const { asRoleName } = req;
     if (!asRoleName) { return false; }
     if (asRoleName === 'approver') {
       clientMustCopeWithLowlineStamps = true;
