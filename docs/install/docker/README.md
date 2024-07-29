@@ -56,7 +56,9 @@ Some are for clarification or error handling.
 1.  If you already have a `/srv/annosrv/anno-server-22` from a previous
     install attempt, move it to some backup directory.
     The next step (cloning) would fail if the directory already exists.
-1.  `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-server-22`
+1.  `git clone --branch stable https://github.com/UB-Heidelberg/anno-server-22`
+    * Earlier versions of this guide suggested `--single-branch` in hopes of
+      reducing download effort, but this turned out to complicate updates.
 1.  Verify the cloning: `ls anno-server-22/run_*.sh` — the expected good
     response is `anno-server-22/run_server.sh`.
 
@@ -73,9 +75,9 @@ The anno server works perfectly well even without a DOI bot.
     We'll assume `/srv/annosrv/doibot`.
 1.  `cd /srv/annosrv/doibot`
 1.  Clone the main DOI bot repo:
-    `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-doi-bot-23`
+    `git clone --branch stable https://github.com/UB-Heidelberg/anno-doi-bot-23`
 1.  If you also want the DataCite registry adapter:
-    `git clone --single-branch --branch stable https://github.com/UB-Heidelberg/anno-doi-bot-23-adapter-datacite`
+    `git clone --branch stable https://github.com/UB-Heidelberg/anno-doi-bot-23-adapter-datacite`
 1.  Pre-emptive hints for the next step:
     * You do not need to `npm install` those repos individually.
       Skip that step, because the docker install script will do that soon.
