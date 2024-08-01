@@ -41,20 +41,25 @@ Object.assign(EX, {
     const [dir1, ...subDirs] = urlSubDirs;
     if (dir1 === 'by') { return searchBy(subDirs, req, srv); }
     // console.debug('annoHnd: urlSubDirs =', urlSubDirs);
-    const { versId, subRoute } = EX.decideSubRoute(urlSubDirs);
+    const { versId, subRoute } = EX.decideSubRoute(urlSubDirs, req);
     // req.logCkp('annoRoute', { method, versId });
     if (versId) { return EX.annoIdRoute(srv, req, versId, subRoute); }
     return EX.emptyIdRoute(srv, req, subRoute);
   },
 
 
-  decideSubRoute(urlSubDirs) {
+  decideSubRoute(urlSubDirs, req) {
     const nSub = urlSubDirs.length;
     const [versId, sub1] = urlSubDirs;
     const deci = { versId, subRoute: orf(sub1) };
     if (nSub === 1) { return deci; }
     if (versId && (nSub === 2)) {
       if (sub1 === 'versions') { return deci; }
+      if (sub1 === 'json.txt') {
+        // eslint-disable-next-line no-param-reassign
+        req.headers.accept = 'text/plain,';
+        return { ...deci, subRoute: false };
+      }
     }
     if (nSub >= 2) {
       const msg = 'Anno subresource not implemented: ' + sub1;
