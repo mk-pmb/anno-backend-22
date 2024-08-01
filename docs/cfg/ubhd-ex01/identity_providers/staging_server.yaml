@@ -42,11 +42,6 @@ upstream_userid_transforms:
         -   replace_regexp: >
                 ^https://idp\.uni-heidelberg\.de!https://\w+\.ub\.uni-heidelberg\.de/[#-~]+!
             # ^-- Shibboleth URLs on our staging server.
-            # For regexp flags, you can use the syntax from
-            # [`regexp-flags-upfront`](https://npm.im/regexp-flags-upfront).
-            # Beware that all trailing newline characters in the regexp will
-            # be trimmed because our YAML reader adds one for values written
-            # in ">" notation. If you really need one, just write `\n`.
             replace_with: 'staging:'
 
 
