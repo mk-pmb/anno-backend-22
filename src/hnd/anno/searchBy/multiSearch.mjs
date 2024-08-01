@@ -68,14 +68,15 @@ const EX = async function multiSearch(ctx) {
     search.data('searchStampName', st.stType);
   }
 
+  const delayedPrivilegeChecks = new Set();
+  const additionalTargetUrls = [];
+
   if (subjTgtSpec) {
     const byPrefix = subjTgtSpec.endsWith('/*') && subjTgtSpec.slice(0, -1);
     const cmp = (byPrefix ? 'Prefix' : 'Exact');
     search.tmpl('inquiryType', qryTpl.inquiryLink('subject', cmp));
     search.data('byLinkUrl', byPrefix || subjTgtSpec);
   }
-
-  const delayedPrivilegeChecks = new Set();
 
   function addRequiredPrivilege(privilegeName) {
     if (skipAcl) { return; }
@@ -114,6 +115,7 @@ const EX = async function multiSearch(ctx) {
     //  * To validate read (or similar) on all targets,
     //  * For ACL preview.
     delayedPrivilegeChecks.add(contentMode.priv);
+    additionalTargetUrls.push(subjTgtSpec);
     if (asRoleName) {
       // ^-- i.e., client can be expected to tolerate our custom fields.
       delayedPrivilegeChecks.aclPreviewPriv = contentMode.priv;
@@ -137,7 +139,7 @@ const EX = async function multiSearch(ctx) {
   // console.debug('subjectTarget: found =', found, '</</ subjTgt found');
 
   await (skipAcl || EX.checkSubjTgtAcl(srv, req,
-    delayedPrivilegeChecks, found));
+    delayedPrivilegeChecks, found, additionalTargetUrls));
   stopwatch.lateAcl = Date.now();
 
   Object.assign(found, {
@@ -167,11 +169,11 @@ Object.assign(EX, {
   },
 
 
-  async checkSubjTgtAcl(srv, req, privNamesSet, found) {
+  async checkSubjTgtAcl(srv, req, privNamesSet, found, additionalTargetUrls) {
     const privNames = Array.from(privNamesSet);
     if (!privNames.length) { return; }
 
-    const allSubjTgtUrls = found.map(function findSubjectTargets(rec) {
+    const foundSubjTgtUrls = found.map(function findSubjectTargets(rec) {
       const subj = rec.subject_target_rel_urls;
       if (subj) { return subj; }
       if (!rec.details) {
@@ -183,6 +185,10 @@ Object.assign(EX, {
       return categorizeTargets(srv, rec.details,
         { errInvalidAnno: fubar }).subjTgtUrls;
     }).flat();
+    const allSubjTgtUrls = [
+      ...foundSubjTgtUrls,
+      ...additionalTargetUrls,
+    ].filter(Boolean);
     if (!allSubjTgtUrls.length) { return; }
 
     const { aclPreviewPriv, aclPreviewBySubjectTargetUrl } = privNamesSet;
