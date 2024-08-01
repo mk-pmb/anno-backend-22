@@ -9,6 +9,7 @@ const archiveBotKeywordsLowercase = [
 function lcHdr(req, h) { return String(req.header(h) || '').toLowerCase(); }
 
 const EX = function guessClientPrefersHtml(req) {
+  if (req.debugOpt().text) { return false; }
   if (req.asRoleName) { return false; }
   const userAgent = lcHdr(req, 'user-agent');
   if (!userAgent) { return false; }

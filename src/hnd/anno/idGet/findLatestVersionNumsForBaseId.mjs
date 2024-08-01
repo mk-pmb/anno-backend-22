@@ -78,10 +78,9 @@ Object.assign(EX, {
       throw noSuchResource();
     }());
     if (!redirVer) { throw noSuchAnno(); }
-    const { res } = ctx.req;
     const baseUrlRel = ctx.idParts.baseId + versionSep;
-    res.links({ 'working-copy': baseUrlRel + max });
-    return res.redirect(baseUrlRel + redirVer);
+    ctx.req.res.links({ 'working-copy': baseUrlRel + max });
+    return ctx.req.nicerRedirect(baseUrlRel + redirVer);
   },
 
 
