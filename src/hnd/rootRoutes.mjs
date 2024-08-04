@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import express from 'express';
+import cookieParser from 'cookie-parser';
 
 import eternal from './wrap/eternal.mjs';
 import plumb from './util/miscPlumbing.mjs';
@@ -18,6 +19,7 @@ const EX = async function installRootRoutes(srv) {
   const rt = srv.getRootRouter();
   const { popCfg } = srv;
 
+  rt.use(cookieParser());
   rt.use(loggingUtil.middleware.logIncomingRequest);
 
 

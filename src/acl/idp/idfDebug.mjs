@@ -12,24 +12,15 @@ const { dummyGuestSession } = idfGuestAccessOnly;
 const EX = {
 
   cookie(ctx) {
-    const prefix = ctx.popDetail('nonEmpty str', 'cookie_name') + '=';
+    const ckName = ctx.popDetail('nonEmpty str', 'cookie_name');
     const dumpAllCk = ctx.popDetail('bool', 'dump_all', false);
     return function detectIdentityCookie(req) {
-      let report = false;
-      const cookies = (req.header('cookie') || '').split(/;\s*/);
-      if (dumpAllCk) { console.debug('IDP cookies:', { prefix, cookies }); }
-      cookies.forEach(function maybe(ck) {
-        if (report) { return; }
-        if (!ck.startsWith(prefix)) { return; }
-        const un = decodeURIComponent(ck.slice(prefix.length));
-        if (!un) { return; }
-        if (un === '-') {
-          report = { userId: '' };
-          return;
-        }
-        report = { userId: un };
-      });
-      return dummyGuestSession(report);
+      const { cookies } = req;
+      if (dumpAllCk) { console.debug('IDP cookies:', { ckName, cookies }); }
+      let u = cookies[ckName];
+      if (!u) { return false; } // make no identity decision
+      if (u === '-') { u = ''; }
+      return dummyGuestSession({ userId: u });
     };
   },
 
