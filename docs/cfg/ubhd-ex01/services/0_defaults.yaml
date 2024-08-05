@@ -32,6 +32,38 @@
             #   targetUrlMetadata prefix URL.
 
 
+    targetUrlMetadata:
+        scopeSubUrlRules:
+            maxTotalLength: 300
+            maxPathLength:  80
+            maxQueryLength: 9009009
+            # ^-- i.e. don't care, just rely on maxTotalLength.
+
+            okPathCharsRegExp:  '[\w\-\.\:\/,;=]+'
+            okQueryCharsRegExp: '[\w\-\.\:\/,;=&]+'
+            # ATTN: If you allow `%`, it may be allow potential attackers
+            #   to use any escaped character. The redirect mechanisms in
+            #   the anno server are very limited, meant to only redirect
+            #   to target and scope URLs, which hopefully consist of only
+            #   boring characters.
+            #   Query strings are meant to allow for stuff like a session
+            #   id/key in the login redirect. Keep all login redirect
+            #   parameters very simple, with only very boring values!
+            #   If you need more redirect capabilities, please write a
+            #   specialized CGI instead, and have your reverse proxy map
+            #   it into the anno server's URL namespace.
+
+            forbiddenStrings:
+                initialSlash: '</'
+                dotSlash: './'
+                doubleSlash: '//'
+                slashDot: '/.'
+
+
+
+
+
+
 
 
 
