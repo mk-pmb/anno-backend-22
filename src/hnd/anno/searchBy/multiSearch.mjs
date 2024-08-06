@@ -28,7 +28,7 @@ const EX = async function multiSearch(ctx) {
   const stopwatch = { ZERO: Date.now() };
   const { srv, req } = ctx;
   const {
-    latestOnly,
+    latestVersionOnly,
     overrideSearchTmpl,
     searchAllWithStamp,
     searchBaseId,
@@ -105,7 +105,7 @@ const EX = async function multiSearch(ctx) {
 
   if (!validRole) { throw noSuchResource('Unsupported role name'); }
 
-  if (latestOnly) { search.wrapSeed('latestOnly'); }
+  if (latestVersionOnly) { search.wrapSeed('latestVersionOnly'); }
   search.wrapSeed('orderedSearch');
   search.tmplIf(ctx.rowsLimit, 'orderedSearchLimit');
 

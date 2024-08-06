@@ -20,7 +20,7 @@ const EX = async function latestAnnosFeed(how) {
     rowsLimit: (+how.rowsLimit || fmtAnnosAsRssFeed.defaultMaxItems),
     subjTgtSpec: prefix + (req.query.subj || '*'),
     overrideSearchTmpl,
-    latestOnly: true,
+    latestVersionOnly: true,
     readContent: 'justTitles',
   });
   const annos = found.toFullAnnos();

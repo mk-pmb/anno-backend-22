@@ -62,7 +62,7 @@ async function fmtColl({ srv, req }, annoListPr) {
 
 function makeSubPathUrlSearch(pathKey, customOpt) {
   const opt = {
-    latestOnly: true,
+    latestVersionOnly: true,
     readContent: 'full',
     rssMaxItems: -1,
     ...customOpt,
