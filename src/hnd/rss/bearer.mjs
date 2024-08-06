@@ -9,7 +9,7 @@ import mustLookupProp from 'must-lookup-prop-in-dict-pmb';
 
 import httpErrors from '../../httpErrors.mjs';
 
-import approvalFeedHnd from './approvalFeed.mjs';
+import latestFeedHnd from './latestAnnosFeed.mjs';
 
 
 const {
@@ -67,7 +67,8 @@ EX.keyAlgos = {
 
 
 EX.feedTypes = {
-  approval: approvalFeedHnd,
+  approval: latestFeedHnd.withVisibility('#visibilityUndecided'),
+  latest: latestFeedHnd,
 };
 
 

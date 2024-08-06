@@ -4,22 +4,22 @@ import multiSearch from '../anno/searchBy/multiSearch.mjs';
 import fmtAnnosAsRssFeed from '../anno/fmtAnnosAsRssFeed.mjs';
 
 
-const EX = async function approvalFeed(how) {
+const EX = async function latestAnnosFeed(how) {
   const {
     feedTitle,
     linkTpl,
+    overrideSearchTmpl,
     prefix,
-    staticMeta,
     req,
     srv,
+    staticMeta,
   } = how;
-  req.asRoleName = 'approver';
   const found = await multiSearch({
     srv,
     req,
     rowsLimit: (+how.rowsLimit || fmtAnnosAsRssFeed.defaultMaxItems),
     subjTgtSpec: prefix + (req.query.subj || '*'),
-    overrideSearchTmpl: { visibilityWhere: '#visibilityUndecided' },
+    overrideSearchTmpl,
     latestOnly: true,
     readContent: 'justTitles',
   });
@@ -33,6 +33,21 @@ const EX = async function approvalFeed(how) {
     srv,
   });
 };
+
+
+Object.assign(EX, {
+
+  withForcedPresets(presets) {
+    return function presetFeed(how) { return EX({ ...how, ...presets }); };
+  },
+
+  withVisibility(visibilityWhere) {
+    return EX.withForcedPresets({ overrideSearchTmpl: { visibilityWhere } });
+  },
+
+
+
+});
 
 
 export default EX;
