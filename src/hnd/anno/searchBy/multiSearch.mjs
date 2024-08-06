@@ -109,6 +109,12 @@ const EX = async function multiSearch(ctx) {
   search.wrapSeed('orderedSearch');
   search.tmplIf(ctx.rowsLimit, 'orderedSearchLimit');
 
+  search.tmpl('orderByTimeDirection', (function decide() {
+    if (popUntrustedOpt('oldestFirst')) { return 'ASC'; }
+    if (ctx.rowsLimit) { return 'DESC'; }
+    return 'ASC';
+  }()));
+
   const contentMode = getOwn(EX.contentModeDetails, ctx.readContent, false);
   if (contentMode.priv) {
     // Always delay:
@@ -224,7 +230,7 @@ Object.assign(EX, {
 
 
   processRssOptionsInplace(how) {
-    const { ctx, search, meta, popUntrustedOpt } = how;
+    const { ctx, meta, popUntrustedOpt } = how;
     let max = ctx.rssMaxItems;
     if (!max) {
       if (meta.outFmt === 'rss') {
@@ -235,16 +241,17 @@ Object.assign(EX, {
     }
     if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
 
+    const userLimit = +popUntrustedOpt('limit') || 0;
+    if ((userLimit > 0) && (userLimit < max)) { max = userLimit; }
+    const limit = (+ctx.rowsLimit || 0);
+    if ((!limit) || (limit > max)) { ctx.rowsLimit = max; }
+
     EX.applyUserRssOptsInplace({ meta, popUntrustedOpt });
     if (meta.outFmt !== 'rss') { return; }
 
     ctx.readContent = 'justTitles';
     // ^- It would be nice if we could also populate the RSS <author> and
     //    <description> fields, but generating them is too much effort.
-
-    search.tmpl('orderByTimeDirection', 'DESC');
-    const limit = (+ctx.rowsLimit || 0);
-    if ((!limit) || (limit > max)) { ctx.rowsLimit = max; }
   },
 
 
