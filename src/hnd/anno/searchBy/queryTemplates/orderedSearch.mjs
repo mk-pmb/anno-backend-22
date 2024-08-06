@@ -29,7 +29,12 @@ const EX = {
   orderedSearchSource: '#unrestrictedSearch',
   orderedSearchPrioritize: '',
   orderedSearchLimit: 'ALL',
-  orderByTimeDirection: 'ASC',
+
+  orderByTimeDirection: 'DESC', /*
+    Usually, people are more interested in newest annos.
+    Bot queues however will usually want FIFO, but bots can say so.
+    */
+
   orderedSearchDefaultOrder: defaultSearchOrder,
   orderedSearchDefaultOrderNoPrefix: defaultSearchOrder(),
 

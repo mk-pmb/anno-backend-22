@@ -67,8 +67,12 @@ EX.keyAlgos = {
 
 
 EX.feedTypes = {
-  approval: latestFeedHnd.withVisibility('#visibilityUndecided'),
   latest: latestFeedHnd,
+
+  approval: latestFeedHnd.withForcedPresets({ overrideSearchTmpl: {
+    visibilityWhere: '#visibilityUndecided',
+    orderByTimeDirection: 'ASC', // first come = first served
+  } }),
 };
 
 
