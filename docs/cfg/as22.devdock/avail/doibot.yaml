@@ -22,7 +22,7 @@ services:
         CFG[doibot_auth_baseurl]='http://annosrv:8080/anno/'
     command: >
         bash -c '/app/"$$doibot_appdir"/doibot.sh cron_task'
-    restart: 'always'
+    restart: ${dd_cfg doibot_docker_autorestart}''
 
 
 ...
