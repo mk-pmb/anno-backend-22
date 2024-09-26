@@ -19,6 +19,13 @@ const externalDefs = { /*
 console.log('-- -*- coding: UTF-8, tab-width: 2 -*-\n');
 console.log('-- $date$ File generated at ' + (new Date()).toString() + '\n');
 
+
+function createSimpleTable(name, fields) {
+  console.log(pgDumpWriter.fmtCreateSimpleTable(name, fields));
+}
+
+
+
 const annoAddrTypes = {
   base_id: 'char*',
   version_num: 'smallint',
@@ -27,11 +34,6 @@ const annoAddrTypes = {
 const annoAddrUniq = loMapValues(annoAddrTypes, v => v + ' ¹addr');
 
 const indexColumnFlag = ' B'; // btree
-
-
-const dfOpt = {
-  tableNamePrefix: 'anno_',
-};
 
 
 const visibilityViews = (function compile() {
@@ -91,35 +93,29 @@ Object.keys(views).reverse().forEach(
   name => console.log('DROP VIEW IF EXISTS "' + name + '";'));
 
 
-console.log(pgDumpWriter.fmtCreateSimpleTable('data', {
+createSimpleTable('anno_data', {
   ...annoAddrUniq,
   time_created: 'ts',
   author_local_userid: 'char* B',
   details: 'json',
-}, {
-  ...dfOpt,
-}));
+});
 
 
-console.log(pgDumpWriter.fmtCreateSimpleTable('links', {
+createSimpleTable('anno_links', {
   ...annoAddrTypes,
   rel: 'char*' + indexColumnFlag,
   url: 'char*' + indexColumnFlag,
-}, {
-  ...dfOpt,
-}));
+});
 
 
-console.log(pgDumpWriter.fmtCreateSimpleTable('stamps', {
+createSimpleTable('anno_stamps', {
   ...annoAddrUniq,
   st_type: 'char* ¹addr',
   st_at: 'ts',
   st_effts: 'ts ?',   // effective timestamp, if different from st_at
   st_by: 'char*',
   st_detail: 'json ?',
-}, {
-  ...dfOpt,
-}));
+});
 
 
 
