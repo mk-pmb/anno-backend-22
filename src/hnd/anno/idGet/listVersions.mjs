@@ -29,8 +29,10 @@ const EX = async function listVersions(ctx) {
   const latestPubUrl = genericAnnoMeta.constructLatestPubUrl(srv, idParts);
 
   // await minis.lookupLatestVersionNum(ctx);
-  const searchBaseId = idParts.baseId;
-  const allVisibleVersions = await multiSearch({ srv, req, searchBaseId });
+  const searchConfig = {
+    searchBaseId: idParts.baseId,
+  };
+  const allVisibleVersions = await multiSearch({ srv, req, ...searchConfig });
   // console.debug('listVersions: allVisibleVersions:', allVisibleVersions);
   if (!allVisibleVersions.length) { throw noSuchAnno(); }
 
