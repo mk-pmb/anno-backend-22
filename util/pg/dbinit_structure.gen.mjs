@@ -35,6 +35,13 @@ const annoAddrUniq = loMapValues(annoAddrTypes, v => v + ' ¹addr');
 
 const indexColumnFlag = ' B'; // btree
 
+const annoDataFields = {
+  ...annoAddrUniq,
+  time_created: 'ts',
+  author_local_userid: 'char* B',
+  details: 'json',
+};
+
 
 const visibilityViews = (function compile() {
   const colsGlued = '"base_id", "version_num"';
@@ -93,12 +100,7 @@ Object.keys(views).reverse().forEach(
   name => console.log('DROP VIEW IF EXISTS "' + name + '";'));
 
 
-createSimpleTable('anno_data', {
-  ...annoAddrUniq,
-  time_created: 'ts',
-  author_local_userid: 'char* B',
-  details: 'json',
-});
+createSimpleTable('anno_data', annoDataFields);
 
 
 createSimpleTable('anno_links', {
