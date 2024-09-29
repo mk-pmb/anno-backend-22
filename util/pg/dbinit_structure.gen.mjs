@@ -11,8 +11,9 @@ const externalDefs = { /*
   generator might make it easier to mount less directory scope into a
   DB-related docker container, so I'm not entirely decided yet. */
 
-  unappStamp: '_ubhd:unapproved', /*
-    from `../../src/hnd/anno/miscMetaFieldInfos.mjs` */
+  // from `../../src/hnd/anno/miscMetaFieldInfos.mjs`:
+  doiStampName: 'dc:identifier',
+  unappStamp: '_ubhd:unapproved',
 };
 
 
@@ -93,6 +94,33 @@ const views = { // in order of creation – will be dropped in reverse order.
     FROM "anno_links" WHERE "rel" = 'subject' GROUP BY "base_id", "version_num"
     `,
 
+  anno_dois: (function compile() {
+    const { doiStampName } = externalDefs;
+    const dataRowsGlued = [
+      "details->>'" + doiStampName + "'::text AS da_ident",
+      ...Object.keys(annoDataFields),
+    ].map(f => '\n        , da.' + f).join('');
+    return `
+      WITH extracted AS (
+        -- Extract both ways a DOI can be assigned: In data, and as stamp.
+        SELECT st.st_detail::text AS st_ident${dataRowsGlued}
+        FROM anno_data AS da NATURAL LEFT JOIN anno_stamps AS st
+        WHERE ( st.st_type = '${doiStampName}' OR st.st_type IS NULL )
+        ), combined AS (
+        -- Find the stronger DOI assignment.
+        SELECT COALESCE(st_ident, da_ident) AS ident
+          , ((da_ident IS NOT NULL)
+              AND (st_ident IS NOT NULL)
+              AND (st_ident != da_ident)
+            ) AS conflict
+          , *
+          FROM extracted
+        )
+      SELECT * FROM combined WHERE ident IS NOT NULL
+      `;
+  }()),
+
+
 };
 
 // We have to drop all views before we can drop their tables.
@@ -123,6 +151,10 @@ createSimpleTable('anno_stamps', {
 
 
 loMapValues(views, function createView(recipe, name) {
+  console.log('DROP VIEW IF EXISTS "' + name + '";'); /*
+    ^-- This drop is useless if you import the entire file, as we already
+    deleted all views above. However, it's useful if you want to recreate
+    a single view as part of an update. */
   console.log('CREATE VIEW "' + name + '" AS ' + recipe.trimEnd() + ';\n');
 });
 
