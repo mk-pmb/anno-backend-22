@@ -40,7 +40,7 @@ const EX = function fmtAnnosAsRssFeed(how) {
     ...annos.filter(Boolean).map(a => ('  <item>\n'
       + xmlStrTag('title', a['dc:title'] || a.title || '(untitled)')
       + xmlStrTag('link', fmtAnnoRssLink(lnk, a, meta))
-      + xmlStrTag('pubDate', dateFmtRfc822(a[dateFieldName]))
+      + xmlStrTag('pubDate', dateFmtRfc822(new Date(a[dateFieldName])))
       + '  </item>')),
     '</channel>',
     '</rss>',
