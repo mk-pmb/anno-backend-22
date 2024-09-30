@@ -24,6 +24,9 @@ const {
 
 
 
+function uts2iso(u) { return (new Date((+u || 0) * 1e3)).toISOString(); }
+
+
 const EX = async function multiSearch(ctx) {
   const stopwatch = { ZERO: Date.now() };
   const { srv, req } = ctx;
@@ -230,6 +233,7 @@ Object.assign(EX, {
     });
     delete fullAnno[miscMetaFieldInfos.unapprovedStampName];
     if (!rec.disclosed) { fullAnno['dc:dateAccepted'] = false; }
+    if (!rec.sunny) { fullAnno['as:deleted'] = uts2iso(rec.sunset_uts); }
     return fullAnno;
   },
 
