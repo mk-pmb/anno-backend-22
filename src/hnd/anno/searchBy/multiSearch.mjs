@@ -30,6 +30,7 @@ const EX = async function multiSearch(ctx) {
   const {
     latestVersionOnly,
     overrideSearchTmpl,
+    reviverOpts: customReviverOpts,
     searchAllWithStamp,
     searchBaseId,
     skipAcl,
@@ -84,7 +85,7 @@ const EX = async function multiSearch(ctx) {
     return srv.acl.requirePerm(req, { privilegeName, targetUrl: subjTgtSpec });
   }
 
-  const stampParserOpts = {};
+  const annoReviverOpts = { ...customReviverOpts };
 
   const { asRoleName } = req;
   let validRole = !asRoleName;
@@ -100,7 +101,7 @@ const EX = async function multiSearch(ctx) {
     const { userId } = await detectUserIdentity.andDetails(req);
     search.tmpl('visibilityWhere', '#visibilityAuthorMode');
     search.data('rqUserId', userId || '');
-    stampParserOpts.lowlineStamps = {};
+    annoReviverOpts.lowlineStamps = {};
   }
 
   if (!validRole) { throw noSuchResource('Unsupported role name'); }
@@ -153,7 +154,7 @@ const EX = async function multiSearch(ctx) {
     meta,
 
     toFullAnnos() {
-      const a = found.map(r => EX.resultToFullAnno(srv, stampParserOpts, r));
+      const a = found.map(r => EX.resultToFullAnno(srv, annoReviverOpts, r));
       a.meta = found.meta;
       return a;
     },
@@ -208,21 +209,25 @@ Object.assign(EX, {
   },
 
 
-  resultToFullAnno(srv, stampParserOpts, rec) {
+  resultToFullAnno(srv, opts, rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
-    const stamps = parseStampRows(rec.stamps, stampParserOpts);
+    const { lowlineStamps } = opts;
+    const stamps = parseStampRows(rec.stamps, { lowlineStamps });
     // console.debug('rec:', rec, 'stamps:', stampInfos);
-    const fullAnno = {
-      ...genericAnnoMeta.add(srv, idParts, {
-        'dc:title': rec.title,
-        created: rec.time_created,
-        ...rec.details,
-      }),
+    let fullAnno = {
+      'dc:title': rec.title,
+      created: rec.time_created.toISOString(),
+      ...rec.details,
+    };
+    if (!opts.omitGenericMeta) {
+      fullAnno = genericAnnoMeta.add(srv, idParts, fullAnno);
+    }
+    Object.assign(fullAnno, {
       ...stamps,
-      ...stampParserOpts.lowlineStamps,
+      ...lowlineStamps,
       // xDisclosed: rec.disclosed,
       // xSunny: rec.sunny,
-    };
+    });
     delete fullAnno[miscMetaFieldInfos.unapprovedStampName];
     if (!rec.disclosed) { fullAnno['dc:dateAccepted'] = false; }
     return fullAnno;
