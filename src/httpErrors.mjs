@@ -17,6 +17,7 @@ const simpleCanneds = {
   noSuchAnno: makeCanned(404, 'Annotation not found'),
   stateConflict: makeCanned(409, 'Conflict'),
   gone: makeCanned(410, 'Gone'),
+  payloadTooLarge: makeCanned(413, 'Submission exceeds the upload size limit.'),
   notImpl: makeCanned(501, 'Not Implemented'),
 
   noSuchResource: makeCanned(405, 'Method Not Allowed',

@@ -11,6 +11,7 @@ import httpErrors from '../../httpErrors.mjs';
 
 const {
   badRequest,
+  payloadTooLarge,
 } = httpErrors.throwable;
 
 
@@ -22,6 +23,7 @@ const bodyFixOpt = { eol: true, trim: true };
 
 
 function explainBodyParseError(err) {
+  if (err.type === 'entity.too.large') { throw payloadTooLarge(); }
   if (err.statusCode !== 400) { throw err; }
   throw badRequest(['Cannot parse request body', err]);
 }
