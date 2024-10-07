@@ -15,3 +15,7 @@ CFG[anno_response_timeout_sec]='10'
 # the website load before the browser (or user) gives up.
 
 
+###:maybe_customize:
+CFG[anno_upload_size_limit]='1 MB'
+# Maximum acceptable size for incoming HTTP request bodies.
+
