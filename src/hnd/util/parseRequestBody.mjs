@@ -15,10 +15,7 @@ const {
 } = httpErrors.throwable;
 
 
-const promisifiedParsers = {
-  json: pify(bodyParser.json({})),
-};
-
+const parsers = {};
 const bodyFixOpt = { eol: true, trim: true };
 
 
@@ -30,7 +27,8 @@ function explainBodyParseError(err) {
 
 
 const EX = async function parseRequestBody(fmt, req) {
-  const impl = getOwn(promisifiedParsers, fmt);
+  if (!parsers.json) { throw new Error('Parsers are not initialized yet!'); }
+  const impl = getOwn(parsers, fmt);
   if (!impl) { throw new Error('No parser for format ' + fmt); }
   await impl(req, req.res).catch(explainBodyParseError);
   // eslint-disable-next-line no-param-reassign
@@ -53,10 +51,20 @@ async function catchBadInput(impl, ...args) {
 
 Object.assign(EX, {
 
+  async init(cfg) {
+    if (!cfg) { return EX.init({}); }
+    if (parsers.json) { throw new Error('Already initialized!'); }
+    parsers.json = pify(bodyParser.json({
+      limit: (cfg.uploadSizeLimit || '1 MB'),
+    }));
+  },
+
+
   async fancy(fmt, req) {
     const origInput = await EX(fmt, req);
     return EX.fancify(origInput, req);
   },
+
 
   fancify(origInput, req) {
     const mustPopInput = objPop(origInput,
@@ -69,6 +77,7 @@ Object.assign(EX, {
     };
     return ctx;
   },
+
 
 });
 
