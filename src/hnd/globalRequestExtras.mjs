@@ -40,6 +40,9 @@ EX.initialExtras = {
       const msg = 'Debug cookie prevented redirect to: <' + destUrl + '>\n';
       return sendFinalTextResponse(req, msg, { type: 'plain' });
     }
+    req.logCkp('RedirN', // <-- The "N" means "nicer".
+      // … $verb $url …
+      '->', destUrl);
     return req.res.redirect(destUrl);
   },
 
