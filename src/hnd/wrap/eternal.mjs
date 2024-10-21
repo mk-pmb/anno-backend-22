@@ -1,15 +1,12 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
-const farFutureGmtString = 'Fri, 31 Dec 9999 22:59:59 GMT';
-// ^- In theory, we could go up to
-//    (new Date(Number.MAX_SAFE_INTEGER * 0.9592326)).toGMTString()
-//    but some clients will probably use bad RegExps that expect
-//    exactly 4 digits in the year.
+import thh from 'trivial-http-headers';
 
+const { farFuture } = thh.expires;
 
 function eternal(hnd) {
   function addExpiry(req, ...args) {
-    req.res.header('Expires', farFutureGmtString);
+    req.res.header('Expires', farFuture);
     if (hnd) { return hnd(req, ...args); }
     return req.next();
   }
