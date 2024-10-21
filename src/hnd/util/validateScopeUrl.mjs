@@ -23,19 +23,12 @@ Object.assign(EX, {
     const { href, hash } = parsedUrl;
     if (hash) { return 'Hash currently is not allowed'; }
     if (href !== potentialScopeUrl) { return 'Not fully normalized'; }
-    const svcInfo = srv.services.get(svcId);
-    if (!svcInfo) { return 'Unknown service ID'; }
-    const {
-      prefixes,
-      scopeSubUrlRules,
-    } = svcInfo.targetUrlMetadata;
-    if (!prefixes) { return 'No prefixes configured for this service'; }
-    const firstPrefixIdx = prefixes.findIndex(p => href.startsWith(p));
-    const firstPrefixUrl = ((firstPrefixIdx >= 0) && prefixes[firstPrefixIdx]);
-    if (!firstPrefixUrl) { return 'Unexpected prefix'; }
-
-    const subUrl = href.slice(firstPrefixUrl.length);
+    const foundSvc = srv.services.findServiceByTargetUrl(href);
+    if (!foundSvc) { return 'Found no service for this prefix'; }
+    if (foundSvc.svcId !== svcId) { return 'Wrong service ID for prefix'; }
+    const { subUrl } = foundSvc;
     if (!subUrl) { return ''; }
+    const { scopeSubUrlRules } = (foundSvc.svc.targetUrlMetadata || false);
     if (!scopeSubUrlRules) { return 'Service allows no sub URLs'; }
 
     function checkMaxLen(part, orig) {
