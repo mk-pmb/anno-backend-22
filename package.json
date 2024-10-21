@@ -101,7 +101,7 @@
   "devDependencies": {
     "eslint-config-nodejs-pmb": "^0.3.6",
     "eslint-plugin-json-light-pmb": "^1.0.7",
-    "eslint-plugin-n": "^15.2.4"
+    "eslint-plugin-n": "^17.10.2"
   },
 
 
