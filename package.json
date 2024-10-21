@@ -51,7 +51,7 @@
     "error-util-pmb": "^0.1.0",
     "exit-code": "^1.0.2",
     "express": "^4.19.2",
-    "express-final-text-response-pmb": "^0.1.12",
+    "express-final-text-response-pmb": "^0.1.13",
     "express-promise-router": "^4.1.1",
     "express-timeout-handler": "^2.2.2",
     "fix-unicode-strings-deeply-inplace-pmb": "^0.1.0",

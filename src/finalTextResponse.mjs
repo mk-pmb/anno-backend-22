@@ -36,6 +36,10 @@ Object.assign(EX, {
 
   json(req, anno, ftrOpt) {
     const opt = { ...ftrOpt };
+    opt.headers = {
+      Expires: true, // already expired = please don't cache
+      ...opt.headers,
+    };
     if (debugFxDecidePlainText(req, opt)) { opt.type = 'plain'; }
     return origJsonMthd.call(this, req, anno, opt);
   },
