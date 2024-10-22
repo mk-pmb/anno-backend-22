@@ -27,6 +27,7 @@
   "scripts": {
     "sh": "\"$@\"",
     "start": "bash run_server.sh",
+    "lint": "elp",
     "test": "bash test/all.sh",
     "ZZZ": "echo This exists just because JSON doesn't allow a comma here -->"
   },
