@@ -4,12 +4,11 @@
 
 function all_tests () {
   export LANG{,UAGE}=en_US.UTF-8  # make error messages search engine-friendly
-  local REPOPATH="$(readlink -m -- "$BASH_SOURCE"/../..)"
-  cd -- "$REPOPATH" || return $?
+  local TEST_DIR="$(readlink -m -- "$BASH_SOURCE"/..)"
+  cd -- "$TEST_DIR" || return $?
 
-  echo 'D: lint: …'
-  elp || return $?
-  npm start testfx_exit_soon_sec=1
+  npm run lint || return $?
+  npm start testfx_exit_soon_sec=1 || return $?
 
   echo '+OK all tests passed.'
 }
