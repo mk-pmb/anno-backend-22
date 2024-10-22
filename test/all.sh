@@ -10,6 +10,9 @@ function all_tests () {
   npm run lint || return $?
   npm start testfx_exit_soon_sec=1 || return $?
 
+  nodemjs ../util/pg/dbinit_structure.gen.mjs >/dev/null || return $?
+  # ^-- Run the integrated sanity checks.
+
   echo '+OK all tests passed.'
 }
 

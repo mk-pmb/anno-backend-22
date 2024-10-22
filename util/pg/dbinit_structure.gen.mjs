@@ -4,6 +4,9 @@ import loMapValues from 'lodash.mapvalues';
 import pgDumpWriter from 'postgres-dump-writer-helpers-220524-pmb';
 
 
+let outputSql = '';
+function wrSql(add) { outputSql += add + '\n'; }
+
 const externalDefs = { /*
   These definitions have their authoritative source in other files of the
   project which usually should be `import`ed rather than defined here.
@@ -17,12 +20,12 @@ const externalDefs = { /*
 };
 
 
-console.log('-- -*- coding: UTF-8, tab-width: 2 -*-\n');
-console.log('-- $date$ File generated at ' + (new Date()).toString() + '\n');
+wrSql('-- -*- coding: UTF-8, tab-width: 2 -*-\n');
+wrSql('-- $date$ File generated at ' + (new Date()).toString() + '\n');
 
 
 function createSimpleTable(name, fields) {
-  console.log(pgDumpWriter.fmtCreateSimpleTable(name, fields));
+  wrSql(pgDumpWriter.fmtCreateSimpleTable(name, fields));
 }
 
 
@@ -125,7 +128,7 @@ const views = { // in order of creation – will be dropped in reverse order.
 
 // We have to drop all views before we can drop their tables.
 Object.keys(views).reverse().forEach(
-  name => console.log('DROP VIEW IF EXISTS "' + name + '";'));
+  name => wrSql('DROP VIEW IF EXISTS "' + name + '";'));
 
 
 createSimpleTable('anno_data', annoDataFields);
@@ -151,16 +154,27 @@ createSimpleTable('anno_stamps', {
 
 
 loMapValues(views, function createView(recipe, name) {
-  console.log('DROP VIEW IF EXISTS "' + name + '";'); /*
+  wrSql('DROP VIEW IF EXISTS "' + name + '";'); /*
     ^-- This drop is useless if you import the entire file, as we already
     deleted all views above. However, it's useful if you want to recreate
     a single view as part of an update. */
-  console.log('CREATE VIEW "' + name + '" AS ' + recipe.trimEnd() + ';\n');
+  wrSql('CREATE VIEW "' + name + '" AS ' + recipe.trimEnd() + ';\n');
 });
 
 
 
 
+outputSql = outputSql.trim();
+
+const fails = [];
+if (outputSql.includes('undef')) { fails.push('undef'); }
+if (!outputSql.includes('CREATE TABLE ')) { fails.push('no table'); }
+if (!outputSql.includes('CREATE VIEW ')) { fails.push('no view'); }
+
+if (fails.length) {
+  console.error('SQL that failed the self test:', outputSql);
+  throw new Error('Generated SQL failed the self test: ' + fails.join(', '));
+}
 
 
 
@@ -168,6 +182,4 @@ loMapValues(views, function createView(recipe, name) {
 
 
 
-
-
-// eof
+console.log(outputSql);
