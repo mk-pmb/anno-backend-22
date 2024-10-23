@@ -39,7 +39,7 @@
     "array-of-truths": "^1.0.2",
     "bcryptjs": "^2.4.3",
     "bind-all-methods-nondestructive-pmb": "^0.1.0",
-    "body-parser": "^1.20.0",
+    "body-parser": "^1.20.3",
     "cfg-cli-env-180111-pmb": "^0.1.2",
     "childprocess-spawn-detached": "^0.1.0",
     "cookie-parser": "^1.4.6",
@@ -103,7 +103,8 @@
   "devDependencies": {
     "eslint-config-nodejs-pmb": "^0.3.6",
     "eslint-plugin-json-light-pmb": "^1.0.7",
-    "eslint-plugin-n": "^17.10.2"
+    "eslint-plugin-n": "^17.10.2",
+    "eslint-pretty-pmb": "^1.0.5"
   },
 
 
