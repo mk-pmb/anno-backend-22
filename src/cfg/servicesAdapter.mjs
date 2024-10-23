@@ -2,12 +2,13 @@
 
 import arrayOfTruths from 'array-of-truths';
 import loMapValues from 'lodash.mapvalues';
-import splitOnce from 'split-string-or-buffer-once-pmb';
+import lookupRevHostInDeepDict from 'lookup-reverse-hostname-in-deep-dict';
 import mergeOpt from 'merge-options';
-
+import splitOnce from 'split-string-or-buffer-once-pmb';
 
 import httpErrors from '../httpErrors.mjs';
 
+import lazyMergeTruthyPropInplace from './util/lazyMergeTruthyPropInplace.mjs';
 import learnTopicDict from './learnTopicDict.mjs';
 
 const OrderedMap = Map; // to clarify where we do care.
@@ -22,6 +23,7 @@ const EX = {
     const svcs = new Map();
     Object.assign(svcs, EX.api, {
       idByPrefix: new OrderedMap(),
+      prefixReverseHostnameAliases: false,
     });
     const ctx = { srv, svcs, learnMeta: EX.learnServicesMeta };
     await learnTopicDict(ctx, 'services', EX.learnOneService);
@@ -37,10 +39,11 @@ const EX = {
 
 
   learnOneService(ctx, svcId, mustPopDetail) {
+    const { svcs } = ctx;
     const det = {};
     if (svcId) {
       det.id = svcId;
-      ctx.svcs.set(svcId, det);
+      svcs.set(svcId, det);
     }
 
     function copy(prop, rules, dflt) {
@@ -53,12 +56,13 @@ const EX = {
       'dictObj' + (svcId ? '' : ' | undef')));
     const { prefixes } = tum;
     if (svcId) {
-      arrayOfTruths(prefixes).forEach(
-        pfx => ctx.svcs.idByPrefix.set(pfx, svcId));
+      arrayOfTruths(prefixes).forEach(pfx => svcs.idByPrefix.set(pfx, svcId));
     } else if (prefixes !== undefined) {
       const msg = 'Services defaults must not include URL prefixes.';
       throw new Error(msg);
     }
+
+    lazyMergeTruthyPropInplace(svcs, 'prefixReverseHostnameAliases', tum);
 
     EX.learnRssFeeds(ctx, svcId, prefixes,
       copy('rssFeeds', 'dictObj | nul | undef'));
@@ -99,15 +103,28 @@ const EX = {
 
   api: {
 
-    findServiceByTargetUrl(tgtUrl) {
+    findServiceByTargetUrl(tgtUrl, origOpt) {
       const svcs = this;
-      let found = false;
+      let found;
       svcs.idByPrefix.forEach(function check(svcId, pfx) {
         if (found) { return; }
         if (!tgtUrl.startsWith(pfx)) { return; }
-        found = { pfx, svcId, svc: svcs.get(svcId) };
+        const subUrl = tgtUrl.slice(pfx.length);
+        found = { pfx, svcId, subUrl, svc: svcs.get(svcId) };
       });
-      return found;
+      if (found) { return found; }
+
+      const opt = orf(origOpt);
+      if (opt.ignoreAliases !== true) { // e.g. ignoreAliases === undefined
+        const canonical = svcs.canonicalizePrefixReverseHostnameAliases(tgtUrl);
+        if (canonical) {
+          found = svcs.findServiceByTargetUrl(canonical,
+            { ...origOpt, ignoreAliases: true });
+          if (found) { return found; }
+        }
+      }
+
+      return false;
     },
 
     findMetadataByTargetUrl(tgtUrl) {
@@ -141,6 +158,15 @@ const EX = {
       return meta;
     },
 
+    canonicalizePrefixReverseHostnameAliases(tgtUrl) {
+      const svcs = this;
+      const k = 'prefixReverseHostnameAliases';
+      const found = lookupRevHostInDeepDict.fromUrl(svcs[k], tgtUrl);
+      if (!found) { return false; }
+      const { urlParsed: url, val, parent } = found;
+      url.hostname = (val.endsWith('.') ? val.slice(0, -1) : val + parent);
+      return url.href;
+    },
   },
 
 

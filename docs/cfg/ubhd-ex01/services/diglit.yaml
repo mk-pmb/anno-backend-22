@@ -12,6 +12,15 @@
           - 'https://digi.ub.uni-heidelberg.de/diglit_protected/'
           # ^-- Example annotation: UL9bSMsbQwu8rBaZO5HrqA
 
+        prefixReverseHostnameAliases:
+            de:
+                uni-heidelberg:
+                    ub:
+                        '…*':
+                            serv: 'digi'
+
+
+
     rssFeeds:
 
         team23: # <- The sub URL (inside /rssb) of this feed
