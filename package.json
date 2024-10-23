@@ -33,7 +33,6 @@
   "directories": { "test": "test" },
   "eslintConfig": { "extends": "nodejs-pmb" },
 
-  "engines": { "npm": ">=7.0.0", "node": ">=16.0.0" },
   "dependencies": {
     "absdir": "^1.0.6",
     "array-of-truths": "^1.0.1",
@@ -104,5 +103,5 @@
   },
 
 
-  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+  "engines": { "npm": ">=7.0.0", "node": ">=16.0.0" }
 }
