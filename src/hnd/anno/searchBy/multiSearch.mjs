@@ -166,6 +166,7 @@ const EX = async function multiSearch(ctx) {
 
   stopwatch.packaged = Date.now();
   meta.stopwatchDurations = stopwatchUtil.durations(stopwatch);
+  meta.stopwatchDurations += ', nResult=' + found.length;
   return found;
 };
 
