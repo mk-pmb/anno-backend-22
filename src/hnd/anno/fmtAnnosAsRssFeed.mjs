@@ -14,6 +14,17 @@ function orf(x) { return x || false; }
 function xmlStrTag(t, c) { return `    <${t}>${xmlenc(c)}</${t}>\n`; }
 
 
+function fmtAnnoRssDate(x, a) {
+  let d = x;
+  if ((!d) && (d !== 10)) {
+    console.warn('W: fmtAnnoRssDate: Invalid date:', d, 'in anno', a.id);
+    d = 0;
+  }
+  if (!d.getDay) { d = new Date(d); }
+  return dateFmtRfc822(d);
+}
+
+
 const EX = function fmtAnnosAsRssFeed(how) {
   const {
     annos,
@@ -40,7 +51,7 @@ const EX = function fmtAnnosAsRssFeed(how) {
     ...annos.filter(Boolean).map(a => ('  <item>\n'
       + xmlStrTag('title', a['dc:title'] || a.title || '(untitled)')
       + xmlStrTag('link', fmtAnnoRssLink(lnk, a, meta))
-      + xmlStrTag('pubDate', dateFmtRfc822(new Date(a[dateFieldName])))
+      + xmlStrTag('pubDate', fmtAnnoRssDate(a[dateFieldName], a))
       + '  </item>')),
     '</channel>',
     '</rss>',
@@ -59,6 +70,8 @@ Object.assign(EX, {
     if (rssMode === 'version-history') { return '%hu'; }
     return '%au';
   },
+
+  fmtAnnoRssDate,
 
 
 });
