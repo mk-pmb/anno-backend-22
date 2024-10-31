@@ -1,5 +1,5 @@
 { "name": "anno-server-22",
-  "version": "1.0.2408290800",
+  "version": "1.0.2410311050",
   "description": "Accepts and serves annotations in our flavor of the W3C Web Annotation Protocol and W3C Web Annotation Data Model.",
   "keywords": [
     "annotation",
@@ -52,7 +52,7 @@
     "error-util-pmb": "^0.1.0",
     "exit-code": "^1.0.2",
     "express": "^4.19.2",
-    "express-final-text-response-pmb": "^0.1.13",
+    "express-final-text-response-pmb": "^0.1.15",
     "express-promise-router": "^4.1.1",
     "express-timeout-handler": "^2.2.2",
     "fix-unicode-strings-deeply-inplace-pmb": "^0.1.0",
