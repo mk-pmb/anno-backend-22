@@ -96,9 +96,11 @@ Object.assign(EX, {
         sideEffectFactories, ':',
         { namePropDescr: 'side effect name' })));
 
-    rule.subChainNameBuilders = arrayOfTruths.ifAnyMap(
-      popRuleProp('undef | str | ary', 'aclSubChain'),
-      metaSlotTemplate.compile);
+    rule.subChainNameBuilders = metaSlotTemplate.bulkCompile({
+      specsList: popRuleProp('undef | str | ary', 'aclSubChain'),
+      specsItemDescr: 'sub chain name template',
+      // debugHint: traceDescr + ' |subChainNameBuilders |bulkCompile',
+    }).allIfAny();
 
     await pEachSeries(EX.supportedCondGroups, async function cg(spec) {
       const { propKeyBase } = spec;

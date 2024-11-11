@@ -92,7 +92,7 @@
     "split-string-or-buffer-once-pmb": "^1.0.0",
     "summarize-express-request-pmb": "^0.1.2",
     "trivial-http-headers": "^0.1.1",
-    "typechecks-pmb": "^0.240627.0",
+    "typechecks-pmb": "^0.240627.1",
     "usnam-pmb": "^0.2.5",
     "uuid-random": "^1.3.2",
     "uuidv5": "^1.0.0",
