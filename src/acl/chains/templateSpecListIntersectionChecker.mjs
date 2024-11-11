@@ -7,13 +7,14 @@ function alwaysFalse() { return false; }
 
 
 const EX = function makeTemplateSpecListIntersectionChecker(how) {
-  const acceptable = metaSlotTemplate.bulkCompile(how);
-  if (!acceptable.nTotal) { return alwaysFalse; }
+  const comp = metaSlotTemplate.bulkCompile(how);
+  if (!comp.nTotal) { return alwaysFalse; }
   const debugSpy = EX.makeDebugSpy(how);
-  const ckf = EX.buildCheckFunc(how.getAclCtxValues,
-    EX.makeSetChecker(acceptable.verbatims, debugSpy),
-    EX.makeRenderersChecker(acceptable.renderers, debugSpy),
-    debugSpy);
+  const { getAclCtxValues } = how;
+  const checkVerbatims = EX.makeSetChecker(comp.verbatims, debugSpy);
+  const checkRenderers = EX.makeRenderersChecker(comp.renderers, debugSpy);
+  const ckf = EX.buildCheckFunc(getAclCtxValues,
+    checkVerbatims, checkRenderers, debugSpy);
   return ckf;
 };
 
