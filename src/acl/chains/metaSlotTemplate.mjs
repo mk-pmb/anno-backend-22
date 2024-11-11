@@ -12,6 +12,11 @@ allSlotsRgx.reset = function reset() {
   return allSlotsRgx;
 };
 
+
+function emptyMeansFalse(x) { return ((x && x.length) ? x : false); }
+function allIfAny() { return emptyMeansFalse(this.all); }
+
+
 const EX = {
 
   hasSlots(spec) {
@@ -34,18 +39,32 @@ const EX = {
     return r;
   },
 
-  bulkCompile(opt, specsList) {
+  bulkCompile(opt) {
+    const all = [];
     const renderers = [];
     const verbatims = new Set();
-    (opt.specsList || specsList).forEach(function compile(spec, idx) {
+    const report = {
+      all,
+      renderers,
+      verbatims,
+      nTotal: null,
+      allIfAny,
+    };
+    const { flagPrefix } = opt;
+    [].concat(opt.specsList).forEach(function compile(spec, idx) {
       if ((spec === '') && opt.allowEmptySpec) { return verbatims.add(spec); }
-      mustBe.nest(opt.specsItemDescr + ' #' + (idx + 1), spec);
+      if (!spec) { return; }
+      mustBe.str(opt.specsItemDescr + ' #' + (idx + 1), spec);
+      if (flagPrefix && spec.startsWith(flagPrefix)) {
+        report[spec.slice(flagPrefix.length)] = true;
+        return;
+      }
       const r = EX.compile(spec);
+      all.push(r);
       if (r.hasSlots) { return renderers.push(r); }
       verbatims.add(spec);
     });
-    const nTotal = renderers.length + verbatims.size;
-    const report = { renderers, verbatims, nTotal };
+    report.nTotal = all.length;
     if (opt.debugHint) { console.debug(opt.debugHint, report); }
     return report;
   },
