@@ -6,6 +6,14 @@ import pgLib from 'pg';
 import pgPool from 'postgres-pool-pmb';
 
 
+import httpErrors from '../../httpErrors.mjs';
+
+
+const {
+  databaseUnavailable,
+} = httpErrors.throwable;
+
+
 const dfCfg = {
   pool: {
     ...pgPool.initPool.defaultConfig.defaultsDict,
@@ -40,6 +48,10 @@ async function runOnePoolQuery(query, slots) {
   try {
     return await this.getPool().query(query, slots);
   } catch (err) {
+    const msg = String(err.message || err);
+    if (msg.startsWith('Connection terminated due to ')) {
+      throw databaseUnavailable();
+    }
     Object.assign(err, {
       via: errUtil.trace(),
       // query, // usually too verbose
