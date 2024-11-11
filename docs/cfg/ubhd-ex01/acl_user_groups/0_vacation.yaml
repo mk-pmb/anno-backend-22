@@ -12,7 +12,7 @@
 
         # Making a group that abstracts a user is an easy way to configure
         # another user as temporary vacation replacement.
-        'acting_for_*':
+        'acting_for/*':
             usernames:
                 - '*'
 
