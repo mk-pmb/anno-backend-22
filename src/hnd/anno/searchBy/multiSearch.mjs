@@ -99,11 +99,12 @@ const EX = async function multiSearch(ctx) {
     search.tmpl('visibilityWhere', '#visibilityAny');
   }
 
+  let userId = null;
   if (asRoleName === 'author') {
     validRole = true;
-    const { userId } = await detectUserIdentity.andDetails(req);
+    userId = ((await detectUserIdentity.andDetails(req)).userId || '');
     search.tmpl('visibilityWhere', '#visibilityAuthorMode');
-    search.data('rqUserId', userId || '');
+    search.data('rqUserId', userId);
     annoReviverOpts.lowlineStamps = {};
   }
 
@@ -130,6 +131,7 @@ const EX = async function multiSearch(ctx) {
       // ^-- i.e., client can be expected to tolerate our custom fields.
       delayedPrivilegeChecks.aclPreviewPriv = contentMode.priv;
       const apre = {}; // ACL preview container
+      apre[''] = { userId };
       meta.extraTopFields = { [miscMetaFieldInfos.subjTgtAclField]: apre };
       delayedPrivilegeChecks.aclPreviewBySubjectTargetUrl = apre;
     }
