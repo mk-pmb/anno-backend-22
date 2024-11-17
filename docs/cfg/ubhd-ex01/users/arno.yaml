@@ -55,6 +55,19 @@
               - 'https://orcid.org/0000-0002-1825-0097'
 
 
+        'urn:uuid:6a98d57d-084d-425a-abce-396606cdfed7':
+            name: 'UUID URN example'
+            type: Person
+
+
+        '142a18b7-4e78-4f52-8fa2-07f63caeb942':
+            # Using a raw UUID here can be confusing because the server will
+            # construct an identity URL using the raw UUID and will then
+            # calculate a UUIDv5 URN based on the constructed URL, resulting
+            # in a new UUID that will usually be totally different.
+            name: 'Raw UUID example'
+            type: Person
+
 
     acl_user_groups:
         - 'svc_anno-frontend-tests/author'
