@@ -37,6 +37,12 @@ const EX = {
   ],
 
 
+  alwaysOmitFields: [
+    'iana:latest-version',
+    'iana:version-history',
+  ],
+
+
   dbRecords: {
     data: [],
     links: [],
@@ -102,6 +108,7 @@ const EX = {
 
   async importOneAnno(origAnno) {
     const rawInputAnno = { ...origAnno };
+    EX.alwaysOmitFields.forEach(k => delete rawInputAnno[k]);
     const isoDateNow = (new Date()).toISOString();
     let { annoUser } = EX.cfg;
     const minimumConfig = { publicBaseUrlNoSlash: EX.cfg.baseUrl };
