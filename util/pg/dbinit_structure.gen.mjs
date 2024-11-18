@@ -67,15 +67,20 @@ const visibilityViews = (function compile() {
 }());
 
 
+const effUtsExpr = 'extract(epoch from COALESCE("st_effts", "st_at"))';
+const effUtsZeroHint = ['',
+  'COALESCE-ing with 0 here would be useless for most JOINs because',
+  'a non-existing stamp would still produce either NULL or row omission,',
+  'never number 0.',
+];
+
+
 const views = { // in order of creation – will be dropped in reverse order.
 
   ...visibilityViews.views,
 
   anno_stamps_effuts: `
-    SELECT *, extract(epoch from COALESCE("st_effts", "st_at")) AS st_effuts
-    -- Appending 0 to the arguments list of COALESCE here would be useless
-    -- for most JOINs because a non-existing stamp would still produce either
-    -- NULL or row omission, never number 0.
+    SELECT *, ${effUtsExpr} AS st_effuts${effUtsZeroHint.join('\n    -- ')}
     FROM "anno_stamps"
     `,
 
@@ -83,7 +88,7 @@ const views = { // in order of creation – will be dropped in reverse order.
     SELECT ${visibilityViews.colsGlued}, json_agg(
       jsonb_build_object(
         'type', "st_type",
-        'ts', COALESCE(extract(epoch from COALESCE("st_effts", "st_at")), 0),
+        'ts', COALESCE(${effUtsExpr}, 0),
         'detail', "st_detail")
       ORDER BY "st_type" ASC
       ) AS "stamps"
