@@ -91,7 +91,7 @@ const views = { // in order of creation – will be dropped in reverse order.
         'ts', COALESCE(${effUtsExpr}, 0),
         'detail', "st_detail")
       ORDER BY "st_type" ASC
-      ) AS "stamps"
+      ) AS "stamps", MAX("st_at") AS "latest_st_at"
     FROM "anno_stamps"
     GROUP BY "base_id", "version_num"
     `),
