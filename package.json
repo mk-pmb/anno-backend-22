@@ -79,7 +79,7 @@
     "p-props": "^4.0.0",
     "pg": "^8.7.3",
     "pify": "^5.0.0",
-    "postgres-dump-writer-helpers-220524-pmb": "^0.1.9",
+    "postgres-dump-writer-helpers-220524-pmb": "^0.3.1",
     "postgres-pool-pmb": "^0.1.2",
     "qrystr": "^0.1.4",
     "read-data-file": "^2.0.11",
