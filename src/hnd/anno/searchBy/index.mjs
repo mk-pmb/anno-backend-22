@@ -4,7 +4,7 @@ import getOwn from 'getown';
 import qrystr from 'qrystr';
 import splitStringOnce from 'split-string-or-buffer-once-pmb';
 
-import libFmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
+import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import fmtAnnosAsRssFeed from '../fmtAnnosAsRssFeed.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 
@@ -56,7 +56,7 @@ async function fmtColl({ srv, req }, annoListPr) {
   const extraTopFields = {
     'skos:note': stopwatchReport,
   };
-  libFmtAnnoCollection.replyToRequest(srv, req, { annos, extraTopFields });
+  fmtAnnoCollection.replyToRequest(srv, req, { annos, extraTopFields });
 }
 
 
