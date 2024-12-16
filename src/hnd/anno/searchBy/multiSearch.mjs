@@ -59,7 +59,10 @@ const EX = async function multiSearch(ctx) {
   const search = buildSearchQuery.prepare('#defaultSearchCore');
   if (searchBaseId) { search.data({ searchBaseId }); }
 
-  EX.processRssOptionsInplace({ ctx, search, meta, popUntrustedOpt });
+  (function parseOptions() {
+    const optCtx = { ctx, search, meta, popUntrustedOpt };
+    EX.processRssOptionsInplace(optCtx);
+  }());
 
   if (searchAllWithStamp) {
     const st = stampUtil.splitStampNameNS(searchAllWithStamp, noSuchResource);
