@@ -1,0 +1,7 @@
+
+*.gif -text
+*.gz -text
+*.pdf -text
+*.png -text
+*.tgz -text
+*.zip -text
