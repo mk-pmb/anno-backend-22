@@ -1,0 +1,35 @@
+{ "@context": "http://www.w3.org/ns/anno.jsonld",
+  "type": "Annotation",
+  "id": "5237554d-612e-3ac0-b1a9-633755f9f769.4~1",
+  "canonical": "https://anno.ub.uni-heidelberg.de/anno/5237554d-612e-3ac0-b1a9-633755f9f769.4~1",
+  "as:inReplyTo": "5237554d-612e-3ac0-b1a9-633755f9f769",
+  "body": {
+    "dc:title": "Bild\u00fcbersicht zu dieser Figur",
+    "purpose": "linking",
+    "rdf:predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+    "source": "http://wgd.materiale-textkulturen.de/illustrationen/akteur.php?a=324",
+    "type": "SpecificResource"
+  },
+  "created": "2017-03-13T20:28:18Z",
+  "creator": {
+    "id": "urn:uuid:07ec28ad-50f6-59fb-a1f1-df56518d12a7",
+    "name": "Projekt \u203aWelscher Gast digital\u2039",
+    "type": "Organization"
+  },
+  "dc:title": "Bildzyklus zum \u203aWelschen Gast\u2039, Figur (Gegenstand): \u203aDer Baum\u2039",
+  "motivation": "replying",
+  "rights": "https://creativecommons.org/licenses/by/4.0/",
+  "target": [
+    { "id": "5237554d-612e-3ac0-b1a9-633755f9f769",
+      "scope": "https://digi.ub.uni-heidelberg.de/diglit/cpg389/0015"
+    },
+    { "scope": "https://digi.ub.uni-heidelberg.de/diglit/cpg389/0015",
+      "selector": {
+        "type": "SvgSelector",
+        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"3000\">\n    <polygon points=\"2375,3889.375 2466.25,3885.625 2455,3736.25 2573.75,3773.75 2637.5,3727.5 2587.5,3673.75 2657.5,3560 2560,3412.5 2617.5,3326.25 2630,3215 2512.5,3117.5 2465,3132.5 2465,3207.5 2442.5,3245 2327.5,3235 2252.5,3282.5 2220,3257.5 2232.5,3207.5 2160,3220 2132.5,3227.5 2127.5,3280 2125,3370 2115,3405 2115,3460 2147.5,3470 2165,3505 2190,3540 2230,3537.5 2280,3565 2305,3542.5 2265,3595 2227.5,3615 2205,3635 2207.5,3667.5 2225,3690 2260,3712.5 2292.5,3697.5 2327.5,3662.5 2347.5,3637.5 2380,3710 2390,3805 2375,3889.375\"/>\n</svg>"
+      },
+      "source": "https://digi.ub.uni-heidelberg.de/diglit/cpg389/0015/_image",
+      "skos:note": "2025-02-05: The annotation was created using a higher resolution image. Currently, the source is served at 1494×2348 pixels. This fixture is for testing automatic scaling of the SVG selector."
+    }
+  ]
+}

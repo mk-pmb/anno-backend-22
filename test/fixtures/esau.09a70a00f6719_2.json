@@ -1,0 +1,28 @@
+{ "@context": "http://www.w3.org/ns/anno.jsonld",
+  "type": "Annotation",
+  "id": "09a70a00f6719~2",
+  "canonical": "https://anno.ub.uni-heidelberg.de/anno/09a70a00f6719~2",
+  "body": {
+    "format": "text/html",
+    "type": "TextualBody",
+    "value": "<p>Die Biblia Pauperum Cod. Pal. germ. 148 bietet &hellip;</p>"
+  },
+  "created": "2017-12-05T13:27:07Z",
+  "creator": {
+    "id": "urn:uuid:c2423986-2e7e-5354-b973-eb4658aa5a1d",
+    "name": "Margit Krenn",
+    "type": "Person"
+  },
+  "dc:isVersionOf": "09a70a00f6719",
+  "dc:replaces": "09a70a00f6719~1",
+  "dc:title": "Sigismund von Luxemburg und Fried\u2026",
+  "rights": "https://creativecommons.org/licenses/by/4.0/",
+  "target": {
+    "scope": "https://digi.ub.uni-heidelberg.de/diglit/cpg148/0074",
+    "selector": {
+      "type": "SvgSelector",
+      "value": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"\n  width=\"1233\">\n  <rect x=\"671.1871941783539\" y=\"214.082639681301\" width=\"281.414117647494\" height=\"422.1211764700081\" />\n</svg>"
+    },
+    "source": "https://digi.ub.uni-heidelberg.de/diglitData/image/cpg148/4/033v.jpg"
+  }
+}
