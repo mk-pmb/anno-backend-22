@@ -134,7 +134,7 @@ const EX = {
         const msg = 'No service configured for target URL: ' + tgtUrl;
         throw httpErrors.aclDeny.throwable(msg);
       }
-      const { svcId } = svcFromPrefix;
+      const { svcId, pfx } = svcFromPrefix;
       const svcInfo = svcFromPrefix.svc;
       if (!svcInfo) {
         const msg = 'No data for service ID: ' + svcId;
@@ -142,6 +142,7 @@ const EX = {
       }
       const meta = {
         serviceId: svcId,
+        serviceUrlPrefix: pfx,
         ...svcInfo.staticAclMeta,
       };
       EX.svcCfgFlagNames.forEach((k) => { meta[k] = Boolean(svcInfo[k]); });
