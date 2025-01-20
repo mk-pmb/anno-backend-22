@@ -145,7 +145,7 @@ createSimpleTable('anno_links', {
   ...annoAddrTypes,
   rel: 'char*' + indexColumnFlag,
   url: 'char*' + indexColumnFlag,
-});
+}, { noDuplicateRows: true });
 
 
 createSimpleTable('anno_stamps', {

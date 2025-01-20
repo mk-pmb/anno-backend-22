@@ -1,5 +1,5 @@
 { "name": "anno-server-22",
-  "version": "1.0.2410311050",
+  "version": "1.0.2501200400",
   "description": "Accepts and serves annotations in our flavor of the W3C Web Annotation Protocol and W3C Web Annotation Data Model.",
   "keywords": [
     "annotation",
@@ -36,7 +36,7 @@
 
   "dependencies": {
     "absdir": "^1.0.6",
-    "array-of-truths": "^1.0.2",
+    "array-of-truths": "^1.0.4",
     "bcryptjs": "^2.4.3",
     "bind-all-methods-nondestructive-pmb": "^0.1.0",
     "body-parser": "^1.20.3",
@@ -57,7 +57,7 @@
     "express-timeout-handler": "^2.2.2",
     "fix-unicode-strings-deeply-inplace-pmb": "^0.1.0",
     "getoraddkey-simple": "^0.1.7",
-    "getown": "^1.0.0",
+    "getown": "^1.0.1",
     "is-string": "^1.0.7",
     "lodash.mapkeys": "^4.6.0",
     "lodash.mapvalues": "^4.6.0",
@@ -71,7 +71,7 @@
     "nullify-object-values-shallow-inplace": "^0.1.0",
     "obj-from-keys-list": "^0.1.0",
     "objdive": "^0.1.4",
-    "objpop": "^0.3.3",
+    "objpop": "^0.3.4",
     "ordered-map-extended-pmb": "^0.1.2",
     "p-each-series": "^2.2.0",
     "p-fatal": "^0.1.5",
@@ -79,7 +79,7 @@
     "p-props": "^4.0.0",
     "pg": "^8.7.3",
     "pify": "^5.0.0",
-    "postgres-dump-writer-helpers-220524-pmb": "^0.3.1",
+    "postgres-dump-writer-helpers-220524-pmb": "^0.3.2",
     "postgres-pool-pmb": "^0.1.2",
     "qrystr": "^0.1.4",
     "read-data-file": "^2.0.11",
