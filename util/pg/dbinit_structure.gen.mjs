@@ -29,6 +29,8 @@ function createSimpleTable(name, fields) {
 }
 
 
+const { schemaName } = pgDumpWriter.fmtCreateSimpleTable.dfOpt;
+
 
 const annoAddrTypes = {
   base_id: 'char*',
@@ -133,7 +135,7 @@ const views = { // in order of creation – will be dropped in reverse order.
 
 // We have to drop all views before we can drop their tables.
 Object.keys(views).reverse().forEach(
-  name => wrSql('DROP VIEW IF EXISTS "' + name + '";'));
+  name => wrSql('DROP VIEW IF EXISTS "' + schemaName + '"."' + name + '";'));
 
 
 createSimpleTable('anno_data', annoDataFields);
@@ -159,16 +161,16 @@ createSimpleTable('anno_stamps', {
 
 
 loMapValues(views, function createView(recipe, name) {
-  wrSql('DROP VIEW IF EXISTS "' + name + '";'); /*
+  wrSql('DROP VIEW IF EXISTS "' + schemaName + '"."' + name + '";'); /*
     ^-- This drop is useless if you import the entire file, as we already
     deleted all views above. However, it's useful if you want to recreate
     a single view as part of an update. */
-  wrSql('CREATE VIEW "' + name + '" AS ' + recipe.trimEnd() + ';\n');
+  wrSql('CREATE VIEW "' + schemaName + '"."' + name + '" AS '
+    + recipe.trimEnd() + ';\n');
 });
 
 
-
-
+wrSql('\n-- End of generated DB structure initialization file. --');
 outputSql = outputSql.trim();
 
 const fails = [];
