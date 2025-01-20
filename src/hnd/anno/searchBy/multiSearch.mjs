@@ -54,6 +54,7 @@ const EX = async function multiSearch(ctx) {
 
   const meta = {
     outFmt: ctx.outFmt || '',
+    subjTgtSpec: subjTgtSpec || '',
   };
 
   const search = buildSearchQuery.prepare('#defaultSearchCore');
