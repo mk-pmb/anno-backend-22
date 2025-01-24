@@ -59,6 +59,12 @@
                 doubleSlash: '//'
                 slashDot: '/.'
 
+    staticAclMeta:
+        iiifCanvasIdPattern: >
+            %{serviceUrlPrefix}iiif3/%{projectName}/canvas/%{pageNumStr}
+        iiifAnnoIdUrlLinkCaption: '🌐↗'
+        iiifAnnoIdUrlLinkToScope: false
+
 
 
 
