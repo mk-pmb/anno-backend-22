@@ -6,6 +6,7 @@ import splitStringOnce from 'split-string-or-buffer-once-pmb';
 
 import fmtAnnoCollection from '../fmtAnnosAsSinglePageCollection.mjs';
 import fmtAnnosAsRssFeed from '../fmtAnnosAsRssFeed.mjs';
+import fmtAnnosAsIiif3 from '../fmtAnnosAsIiif3.mjs';
 import httpErrors from '../../../httpErrors.mjs';
 
 import multiSearch from './multiSearch.mjs';
@@ -15,6 +16,8 @@ const unsupportedCriterion = httpErrors.notImpl.explain(
   'Search criterion not implemented.').throwable;
 const missingCriterionParam = httpErrors.noSuchResource.explain(
   'Search criterion requires a parameter.').throwable;
+const outFmtUnsupported = httpErrors.notImpl.explain(
+  'Requested output format is not currently supported.').throwable;
 
 
 function apacheSlashes(sub) {
@@ -27,6 +30,12 @@ function apacheSlashes(sub) {
 
   return url;
 }
+
+
+const rtrFormatLibs = {
+  '': fmtAnnoCollection,
+  iiif3: fmtAnnosAsIiif3,
+};
 
 
 const EX = async function searchBy(pathParts, req, srv) {
@@ -53,10 +62,12 @@ async function fmtColl({ srv, req }, annoListPr) {
     return fmtAnnosAsRssFeed({ ...rssOpt, annos, req, srv });
   }
 
+  const fmtLib = getOwn(rtrFormatLibs, outFmt || '');
+  if (!fmtLib) { throw outFmtUnsupported(); }
   const extraTopFields = {
     'skos:note': stopwatchReport,
   };
-  fmtAnnoCollection.replyToRequest(srv, req, { annos, extraTopFields });
+  fmtLib.replyToRequest(srv, req, { annos, extraTopFields });
 }
 
 

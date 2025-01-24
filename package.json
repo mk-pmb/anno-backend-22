@@ -99,6 +99,7 @@
     "vtry": "^1.0.9",
     "webanno-compare-target-lists-pmb": "^0.1.2",
     "webanno-guess-subject-target-url-pmb": "^1.0.4",
+    "xmlattrdict": "^0.1.15",
     "xmlunidefuse": "^0.1.4"
   },
   "devDependencies": {
