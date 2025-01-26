@@ -3,6 +3,7 @@
 import arrayOfTruths from 'array-of-truths';
 import getOwn from 'getown';
 import mustBe from 'typechecks-pmb/must-be';
+import shapeToPath from 'svg-shape-to-path-pmb';
 import xmlAttrDict from 'xmlattrdict';
 
 import sendFinalTextResponse from '../../finalTextResponse.mjs';
@@ -26,12 +27,22 @@ const EX = function fmtAnnosAsIiif3() {
 Object.assign(EX, {
 
   miradorAcceptableMotivation: 'commenting', /*
-    Mirador 3 will ignore annos with these motivations:
+    Mirador 3 accepts these motivations:
       * commenting
+      * tagging (ignores body type and assumes text/plain)
+    Mirador 3 will ignore annos with these motivations:
       * linking
       * replying
       * (maybe more?)
   */
+
+
+  forceCustomSvgStartTag: ('<svg'
+    // Mirador is very picky about the opening SVG tag!
+    // For example, it flinches when you omit the quotes:
+    + " xmlns='http://www.w3.org/2000/svg'"
+    + " version='1.1'"
+    + '>'),
 
 
   replyToRequest(srv, req, origHow) {
@@ -109,7 +120,12 @@ Object.assign(EX, {
   fmtOneAnno(fmtCtx, origAnno) {
     const annoIdUrl = origAnno.id;
     const annoTarget = EX.pickIiifTarget(fmtCtx.subjTgtSpec, origAnno);
+    const selector = orf(annoTarget.selector);
+    const svgShapes = orf((selector.type === 'SvgSelector')
+      && EX.findSvgShapes(selector.value));
     const tgtMeta = fmtCtx.subjTgtMeta;
+    const iiifTarget = EX.fmtIiifTarget(fmtCtx,
+      { annoTarget, selector, svgShapes });
 
     /* As of 2025-01-24, Mirador 3 seems to not support IIIF cookbook
       recipe #22 "Linking with a hotspot", so instead we have to try and
@@ -126,9 +142,6 @@ Object.assign(EX, {
         '¶': tgtMeta.iiifAnnoIdUrlLinkCaption || '[link]',
       }) + '&nbsp;&nbsp; ' + htmlBody;
     }
-    if (fmtCtx.svgShapes) {
-      htmlBody += (' / shapes: ' + fmtCtx.svgShapes.map(s => s['']).join(','));
-    }
     htmlBody = xmlAttrDict({
       '': 'p', /*
         Mirador 3 loads the body into a span, so we shouldn't wrap it in a
@@ -137,8 +150,6 @@ Object.assign(EX, {
       '|': htmlBody,
     });
 
-    const iiifTarget = (EX.fmtIiifTarget(fmtCtx, annoTarget)
-      || 'about:error/no_iiif_target_canvas');
     const iiifAnno = {
       id: annoIdUrl,
       type: 'Annotation',
@@ -154,50 +165,52 @@ Object.assign(EX, {
   },
 
 
-  fmtIiifTarget(fmtCtx, annoTarget) {
-    const { logCkp } = fmtCtx;
-    const { canvasId } = fmtCtx;
-
-    const sel = orf(annoTarget.selector);
-    if (sel.type === 'SvgSelector') {
-      const svgShapes = EX.findSvgShapes(sel.value);
-      Object.assign(fmtCtx, { svgShapes });
-      if (svgShapes) {
-        const { single } = svgShapes;
-        if (single[''] === 'rect') {
-          const nums = ['x', 'y', 'width', 'height'].map(
-            k => Math.round(+single[k] || 0));
-          return canvasId + '#xywh=' + nums.join(',');
-        }
-      }
-
-      // logCkp('IIIF unvalidated SVG selector:', { canvasId, svgShapes });
-      return { type: 'SpecificResource', source: canvasId, selector: sel };
-    }
-
-    logCkp('IIIF no selector:', { canvasId });
-    return canvasId;
+  fmtIiifTarget(fmtCtx, how) {
+    if (!fmtCtx.canvasId) { throw new Error('Missing canvasId!'); }
+    if (how.svgShapes) { return EX.fmtIiifTargetSvgSelector(fmtCtx, how); }
+    return fmtCtx.canvasId;
   },
 
 
-  xmlTagsRgx: /<[ -;=\?-\uFFFF]+>/g,
+  fmtIiifTargetSvgSelector(fmtCtx, how) {
+    // const { logCkp } = fmtCtx;
+    const { canvasId } = fmtCtx;
+    const { svgShapes } = how;
+    const { single } = svgShapes;
+    if (single[''] === 'rect') {
+      const nums = ['x', 'y', 'width', 'height'].map(
+        k => Math.round(+single[k] || 0));
+      return canvasId + '#xywh=' + nums.join(',');
+    }
+
+    const sel = { ...how.selector };
+    sel.value = ((EX.forceCustomSvgStartTag || svgShapes.svgTag)
+      + svgShapes.map(shapeToPath).join('')
+      + '</svg>');
+    // logCkp('IIIF converted SVG selector:', { canvasId, svgShapes, sel });
+    return { type: 'SpecificResource', source: canvasId, selector: sel };
+  },
 
 
-  findSvgShapes(origSvg) {
-    let svg = origSvg.replace(/\s+/g, ' ');
+  findSvgShapes(svg) {
     const shapes = [];
-    svg = svg.replace(EX.xmlTagsRgx, function foundTag(m) {
-      const t = xmlAttrDict(m);
+
+    function foundTag(t) {
       const n = t[''];
-      if (n.startsWith('/')) { return ''; }
-      if (n === '?xml') { return ''; }
-      if (n === 'svg') { return ''; }
+      if (n.startsWith('/')) { return; }
+      if (n === '?xml') { return; }
+      if (n === 'svg') {
+        shapes.svgTag = t['<>'];
+        return;
+      }
       shapes.push(t);
-      return '';
-    });
-    shapes.textContent = svg.trim();
-    shapes.single = orf((shapes.length <= 1) && shapes[0]);
-    return shapes.length && shapes;
+    }
+
+    xmlAttrDict.splitXml(svg, { onto: null, verbatim: '<>', onTag: foundTag });
+    const n = shapes.length;
+    if (!n) { return false; }
+    shapes.single = orf((n <= 1) && shapes[0]);
+    return shapes;
   },
 
 
