@@ -32,7 +32,7 @@ Some are for clarification or error handling.
     * Alternatively, you may configure them manually according to
       the hints in [secrets/.gitignore](secrets/.gitignore).
 1.  If you would like to use a Web GUI to manage Postgres,
-    `ln --symbolic --target-directory=enabled -- ../avail/pgadminer.yaml`
+    `ln --symbolic --target-directory=enabled -- ../avail/adminer.yaml`
     * If your shell completion lacks support for `--target-directory=`,
       you may want to first omit `../`, complete the path, then insert `../`.
 1.  If you would like to use the DOI bot,
@@ -117,7 +117,7 @@ How to interact with the database
 
 
 
-### Using pgAdminer
+### Using Adminer
 
 * Navigate your browser to the public URL of your Adminer.
   If you have configured a public IP address in the `adminer_dkport` setting,

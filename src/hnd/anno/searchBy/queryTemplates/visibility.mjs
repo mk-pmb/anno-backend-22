@@ -22,7 +22,11 @@ const EX = {
   visibilityWhere: '#visibilityIsOrWasPublic',
   visibilityAny: 'True',
   visibilityAuthorMode: '#visibilityOwnAnnos OR ( #visibilityIsOrWasPublic )',
-  visibilityOwnAnnos: '"da"."author_local_userid" = $rqUserId',
+
+  visibilityOwnAnnos: ["( $rqUserId <> ''",
+    // ^- This safety check also helps pg to potentially omit the next parts:
+    'IS NOT NULL', '= $rqUserId )'].join(' AND "da"."author_local_userid" '),
+
   visibilityIsOrWasPublic: '"da"."disclosed"',
   visibilityUndecided: '"da"."sunny" AND NOT "da"."disclosed"',
 

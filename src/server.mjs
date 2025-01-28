@@ -15,6 +15,7 @@ import installGlobalRequestExtras from './hnd/globalRequestExtras.mjs';
 import installListenAddrPlumbing from './listenAddrPlumbing.mjs';
 import installRootRoutes from './hnd/rootRoutes.mjs';
 import loggingUtil from './hnd/util/logging.mjs';
+import parseRequestBody from './hnd/util/parseRequestBody.mjs';
 import lusrmgr from './cfg/lusrmgr/index.mjs';
 import makeGenericCorsHandler from './hnd/util/genericCorsHandler.mjs';
 import prepareAcl from './acl/prepareAcl.mjs';
@@ -35,6 +36,7 @@ const defaultConfig = {
   notify_server_listening: '',
   public_baseurl: '',
   wwwpub_path: pathInRepo('wwwpub'),
+  upload_size_limit: '', // default is defined in parseRequestBody
 
   response_timeout_sec: 5,
 
@@ -49,6 +51,10 @@ const EX = async function createServer(customConfig) {
   console.debug('Server config:', entireConfig);
   const popCfg = objPop(entireConfig, { mustBe }).mustBe;
   popCfg('str | eeq:false', 'envcfg_prefix');
+
+  await parseRequestBody.init({
+    uploadSizeLimit: popCfg('str | undef', 'upload_size_limit'),
+  });
 
   const webSrv = nodeHttp.createServer();
   const app = express();

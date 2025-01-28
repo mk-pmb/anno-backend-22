@@ -3,12 +3,15 @@
 ---
 
 version: '2.2'
+
 services:
 
   ${dd_tpl_bn}'':
-    image: 'postgres:14-alpine'
+    #%sed s!<pg_major_version>!17!g
+    image: 'postgres:<pg_major_version>-alpine'
     volumes:
-      - ${dd_dir}'.containerdata/postgres.data/v14:/pgdata:rw'
+      - ${dd_dir}'.containerdata/postgres.data/v<pg_major_version>:/pgdata:rw'
+      - ${dd_dir}'.containerdata/postgres.dumps/:/pgdumps:rw'
       - ${dd_dir}'secrets/postgres.pswd.txt:/run/secrets/postgres/initpswd:ro'
         #!^# volume_entry_expect_file: -f …
       - ${dd_cfg annosrv_appdir}'/util/pg:/asu:ro'

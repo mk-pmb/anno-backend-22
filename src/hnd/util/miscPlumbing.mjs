@@ -13,7 +13,9 @@ const EX = {
   makeRedirector(pattern) {
     const redir = EX.legacyMultiArg(deviate(pattern));
     function hnd(req) {
-      req.logCkp('Redirecting:', '->', pattern);
+      req.logCkp('RedirS', // <-- The "S" means "static".
+        // … $verb $url …
+        '->', pattern);
       return redir(req);
     }
     return hnd;

@@ -24,4 +24,19 @@ CFG[doibot_hostname]='dkdoi'
 #   * Should not contain any dots.
 #   * Other than that, you can (optionally) be rather creative.
 
+###:maybe_customize:
+CFG[doibot_docker_autorestart]='always'
+# Who starts the DOI bot.
+#   'no': Docker shall start the DOI bot only once whenever the entire
+#       DevDock project is (re)started. This is a good compromise between
+#       ease of configuration and avoiding unexpected bot runs if you're
+#       trying to manually debug the DOI bot
+#       (docker stop as22_doibot_1 && docker start --attach as22_doibot_1)
+#       or you want to use an external scheduler like the host system's cron.
+#   'always': Docker shall start the DOI bot whenever it feels appropriate.
+#       Usually this occurrs when the container was down for a few minutes,
+#       sometimes even immediately. Unfortunately the community edition of
+#       Docker doesn't support a proper time schedule, but the DOI bot itself
+#       has a configurable minimum rerun delay that can mitigate this lack.
+
 

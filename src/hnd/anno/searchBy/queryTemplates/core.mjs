@@ -5,9 +5,9 @@ const EX = {
   defaultSearchCore: `
     WITH "criteria_filter" AS ( SELECT DISTINCT #inquiryType ),
     "visibility_prep" AS (
-      SELECT "da"."base_id", "da"."version_num"
-        \r, "da"."time_created"
-        \r, "da"."author_local_userid",
+      SELECT "da"."base_id", "da"."version_num",
+        \r "da"."time_created",
+        \r "da"."author_local_userid",
         #visibilityStampCols
       FROM "criteria_filter" AS "cf" NATURAL JOIN "anno_data" AS "da"
       #visibilityStampJoins

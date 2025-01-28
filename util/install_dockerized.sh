@@ -10,6 +10,8 @@ function dinst_main () {
   local REPOPATH="$(dirname -- "$SELFPATH")"
   dinst_validate_docker_volume_path 'repo path' "$REPOPATH" || return $?
 
+  local NPM_AUDIT_LOG="$REPOPATH"/npm-audit.log
+
   local TASK="${1:-dockerize}"; shift
   "${FUNCNAME%_*}_$TASK" "$@" || return $?$(
     echo "E: Task '$TASK' failed with error code $?" >&2)
@@ -61,6 +63,11 @@ function dinst_dockerize () {
   dinst_fix_npm_file_perms /extras || return $?
 
   echo; chapterize 'All done.'
+  case "$DK_TASK" in
+    install )
+      grep -HnPie '\b(?!0 )\d+ vulnerabilit' -- "$NPM_AUDIT_LOG" || true
+      ;;
+  esac
 }
 
 
@@ -84,6 +91,8 @@ function dinst_validate_docker_volume_path () {
 
 function dinst_inside_docker_install () {
   local RUNMJS="$REPOPATH/node_modules/.bin/nodemjs"
+  >"$NPM_AUDIT_LOG" || return $?$(
+    echo "E: Failed to clear the npm audit log: $NPM_AUDIT_LOG" >&2)
 
   chapterize dinst_configure_npm || return $?
   dinst_maybe_install_extras || return $?
@@ -135,7 +144,16 @@ function dinst_maybe_install_extras () {
 
 
 function dinst_install_npm_module () {
-  npm install . || return $?
+  # We temporarily activate the package lock in order to be able to audit:
+  local ENABLE_PKGLOCK='--package-lock=true'
+
+  npm install $ENABLE_PKGLOCK . || return $?$(
+    echo E: "Failed to install npm package in $PWD" >&2)
+  ( printf -- '\n\n===== %(%F %T %Z)T npm audit @ %s =====\n' -1 "$PWD"
+    sha1sum --binary -- package-lock.json
+    npm audit fix $ENABLE_PKGLOCK --dry-run || true
+  ) &>>"$NPM_AUDIT_LOG" || return $?$(
+    echo E: "Failed to audit npm package in $PWD" >&2)
   rm -- package-lock.json 2>/dev/null || true
 }
 

@@ -5,7 +5,7 @@ import getOwn from 'getown';
 
 const EX = function learnGroup(ctx, grpName, mustPopDetail) {
   const { users } = ctx.mgr;
-  const members = mustPopDetail('undef | ary', 'usernames');
+  const members = mustPopDetail('ary | undef | nul', 'usernames');
   (members || []).forEach(function learn(userName) {
     const u = users.get(userName);
     if (!u) {

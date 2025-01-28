@@ -1,4 +1,8 @@
 
+# Host-specific stuff
+/*.@*
+
+
 # Auto-generated files:
 /dbinit_structure.sql
 

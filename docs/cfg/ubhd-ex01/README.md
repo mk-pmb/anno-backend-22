@@ -127,6 +127,26 @@ YAML files in alphabetical order of the filenames the data comes from.
 
 
 
+Special data types
+------------------
+
+### Regular Expression (RegExp)
+
+Some settings allow or require a RegExp. We represent them as YAML strings
+using the syntax from
+[`regexp-flags-upfront`](https://npm.im/regexp-flags-upfront).
+Beware that all trailing newline characters in the regexp will be trimmed
+because our YAML reader adds one for values written in ">" notation.
+If you really need a newline character, just write `\n`.
+
+
+
+
+
+
+
+
+
 
 
 

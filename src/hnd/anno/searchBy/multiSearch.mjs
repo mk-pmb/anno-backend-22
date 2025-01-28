@@ -24,12 +24,16 @@ const {
 
 
 
+function uts2iso(u) { return (new Date((+u || 0) * 1e3)).toISOString(); }
+
+
 const EX = async function multiSearch(ctx) {
   const stopwatch = { ZERO: Date.now() };
   const { srv, req } = ctx;
   const {
-    latestOnly,
+    latestVersionOnly,
     overrideSearchTmpl,
+    reviverOpts: customReviverOpts,
     searchAllWithStamp,
     searchBaseId,
     skipAcl,
@@ -49,13 +53,17 @@ const EX = async function multiSearch(ctx) {
   stopwatch.earlyAcl = Date.now();
 
   const meta = {
-    outFmt: ctx.outFmt || '',
+    outFmt: ctx.outFmt || popUntrustedOpt('fmt') || '',
+    subjTgtSpec: subjTgtSpec || '',
   };
 
   const search = buildSearchQuery.prepare('#defaultSearchCore');
   if (searchBaseId) { search.data({ searchBaseId }); }
 
-  EX.processRssOptionsInplace({ ctx, search, meta, popUntrustedOpt });
+  (function parseOptions() {
+    const optCtx = { ctx, search, meta, popUntrustedOpt };
+    EX.processRssOptionsInplace(optCtx);
+  }());
 
   if (searchAllWithStamp) {
     const st = stampUtil.splitStampNameNS(searchAllWithStamp, noSuchResource);
@@ -68,6 +76,9 @@ const EX = async function multiSearch(ctx) {
     search.data('searchStampName', st.stType);
   }
 
+  const delayedPrivilegeChecks = new Set();
+  const additionalTargetUrls = [];
+
   if (subjTgtSpec) {
     const byPrefix = subjTgtSpec.endsWith('/*') && subjTgtSpec.slice(0, -1);
     const cmp = (byPrefix ? 'Prefix' : 'Exact');
@@ -75,15 +86,13 @@ const EX = async function multiSearch(ctx) {
     search.data('byLinkUrl', byPrefix || subjTgtSpec);
   }
 
-  const delayedPrivilegeChecks = new Set();
-
   function addRequiredPrivilege(privilegeName) {
     if (skipAcl) { return; }
     if (!subjTgtSpec) { return delayedPrivilegeChecks.add(privilegeName); }
     return srv.acl.requirePerm(req, { privilegeName, targetUrl: subjTgtSpec });
   }
 
-  const stampParserOpts = {};
+  const annoReviverOpts = { ...customReviverOpts };
 
   const { asRoleName } = req;
   let validRole = !asRoleName;
@@ -94,19 +103,26 @@ const EX = async function multiSearch(ctx) {
     search.tmpl('visibilityWhere', '#visibilityAny');
   }
 
+  let userId = null;
   if (asRoleName === 'author') {
     validRole = true;
-    const { userId } = await detectUserIdentity.andDetails(req);
+    userId = ((await detectUserIdentity.andDetails(req)).userId || '');
     search.tmpl('visibilityWhere', '#visibilityAuthorMode');
     search.data('rqUserId', userId);
-    stampParserOpts.lowlineStamps = {};
+    annoReviverOpts.lowlineStamps = {};
   }
 
   if (!validRole) { throw noSuchResource('Unsupported role name'); }
 
-  if (latestOnly) { search.wrapSeed('latestOnly'); }
+  if (latestVersionOnly) { search.wrapSeed('latestVersionOnly'); }
   search.wrapSeed('orderedSearch');
   search.tmplIf(ctx.rowsLimit, 'orderedSearchLimit');
+
+  search.tmpl('orderByTimeDirection', (function decide() {
+    if (popUntrustedOpt('oldestFirst')) { return 'ASC'; }
+    if (ctx.rowsLimit) { return 'DESC'; }
+    return 'ASC';
+  }()));
 
   const contentMode = getOwn(EX.contentModeDetails, ctx.readContent, false);
   if (contentMode.priv) {
@@ -114,10 +130,12 @@ const EX = async function multiSearch(ctx) {
     //  * To validate read (or similar) on all targets,
     //  * For ACL preview.
     delayedPrivilegeChecks.add(contentMode.priv);
+    additionalTargetUrls.push(subjTgtSpec);
     if (asRoleName) {
       // ^-- i.e., client can be expected to tolerate our custom fields.
       delayedPrivilegeChecks.aclPreviewPriv = contentMode.priv;
       const apre = {}; // ACL preview container
+      apre[''] = { userId };
       meta.extraTopFields = { [miscMetaFieldInfos.subjTgtAclField]: apre };
       delayedPrivilegeChecks.aclPreviewBySubjectTargetUrl = apre;
     }
@@ -137,7 +155,7 @@ const EX = async function multiSearch(ctx) {
   // console.debug('subjectTarget: found =', found, '</</ subjTgt found');
 
   await (skipAcl || EX.checkSubjTgtAcl(srv, req,
-    delayedPrivilegeChecks, found));
+    delayedPrivilegeChecks, found, additionalTargetUrls));
   stopwatch.lateAcl = Date.now();
 
   Object.assign(found, {
@@ -145,7 +163,7 @@ const EX = async function multiSearch(ctx) {
     meta,
 
     toFullAnnos() {
-      const a = found.map(r => EX.resultToFullAnno(srv, stampParserOpts, r));
+      const a = found.map(r => EX.resultToFullAnno(srv, annoReviverOpts, r));
       a.meta = found.meta;
       return a;
     },
@@ -154,6 +172,7 @@ const EX = async function multiSearch(ctx) {
 
   stopwatch.packaged = Date.now();
   meta.stopwatchDurations = stopwatchUtil.durations(stopwatch);
+  meta.stopwatchDurations += ', nResult=' + found.length;
   return found;
 };
 
@@ -167,11 +186,11 @@ Object.assign(EX, {
   },
 
 
-  async checkSubjTgtAcl(srv, req, privNamesSet, found) {
+  async checkSubjTgtAcl(srv, req, privNamesSet, found, additionalTargetUrls) {
     const privNames = Array.from(privNamesSet);
     if (!privNames.length) { return; }
 
-    const allSubjTgtUrls = found.map(function findSubjectTargets(rec) {
+    const foundSubjTgtUrls = found.map(function findSubjectTargets(rec) {
       const subj = rec.subject_target_rel_urls;
       if (subj) { return subj; }
       if (!rec.details) {
@@ -183,6 +202,10 @@ Object.assign(EX, {
       return categorizeTargets(srv, rec.details,
         { errInvalidAnno: fubar }).subjTgtUrls;
     }).flat();
+    const allSubjTgtUrls = [
+      ...foundSubjTgtUrls,
+      ...additionalTargetUrls,
+    ].filter(Boolean);
     if (!allSubjTgtUrls.length) { return; }
 
     const { aclPreviewPriv, aclPreviewBySubjectTargetUrl } = privNamesSet;
@@ -196,29 +219,34 @@ Object.assign(EX, {
   },
 
 
-  resultToFullAnno(srv, stampParserOpts, rec) {
+  resultToFullAnno(srv, opts, rec) {
     const idParts = { baseId: rec.base_id, versNum: rec.version_num };
-    const stamps = parseStampRows(rec.stamps, stampParserOpts);
+    const { lowlineStamps } = opts;
+    const stamps = parseStampRows(rec.stamps, { lowlineStamps });
     // console.debug('rec:', rec, 'stamps:', stampInfos);
-    const fullAnno = {
-      ...genericAnnoMeta.add(srv, idParts, {
-        'dc:title': rec.title,
-        created: rec.time_created,
-        ...rec.details,
-      }),
+    let fullAnno = {
+      'dc:title': rec.title,
+      created: rec.time_created.toISOString(),
+      ...rec.details,
+    };
+    if (!opts.omitGenericMeta) {
+      fullAnno = genericAnnoMeta.add(srv, idParts, fullAnno);
+    }
+    Object.assign(fullAnno, {
       ...stamps,
-      ...stampParserOpts.lowlineStamps,
+      ...lowlineStamps,
       // xDisclosed: rec.disclosed,
       // xSunny: rec.sunny,
-    };
+    });
     delete fullAnno[miscMetaFieldInfos.unapprovedStampName];
     if (!rec.disclosed) { fullAnno['dc:dateAccepted'] = false; }
+    if (!rec.sunny) { fullAnno['as:deleted'] = uts2iso(rec.sunset_uts); }
     return fullAnno;
   },
 
 
   processRssOptionsInplace(how) {
-    const { ctx, search, meta, popUntrustedOpt } = how;
+    const { ctx, meta, popUntrustedOpt } = how;
     let max = ctx.rssMaxItems;
     if (!max) {
       if (meta.outFmt === 'rss') {
@@ -229,16 +257,17 @@ Object.assign(EX, {
     }
     if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
 
+    const userLimit = +popUntrustedOpt('limit') || 0;
+    if ((userLimit > 0) && (userLimit < max)) { max = userLimit; }
+    const limit = (+ctx.rowsLimit || 0);
+    if ((!limit) || (limit > max)) { ctx.rowsLimit = max; }
+
     EX.applyUserRssOptsInplace({ meta, popUntrustedOpt });
     if (meta.outFmt !== 'rss') { return; }
 
     ctx.readContent = 'justTitles';
     // ^- It would be nice if we could also populate the RSS <author> and
     //    <description> fields, but generating them is too much effort.
-
-    search.tmpl('orderByTimeDirection', 'DESC');
-    const limit = (+ctx.rowsLimit || 0);
-    if ((!limit) || (limit > max)) { ctx.rowsLimit = max; }
   },
 
 

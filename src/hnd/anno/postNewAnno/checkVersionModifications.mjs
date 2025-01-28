@@ -27,13 +27,20 @@ function commaList(x) { return toSortedList(x).join(', '); }
 function repackIdStr(x) { return ((x && isStr(x) && { id: x }) || x || false); }
 function unpackSingleItem(a) { return (a && (a.length === 1)) ? a[0] : a; }
 
-const readUnapproved = { allowReadUnapprovedAnnos: '*' };
+const oldAnnoReadOpts = {
+  allowReadUnapprovedAnnos: '*',
+  overrideRoleName: '', /*
+    This override avoids producing non-standard additional anno fields (e.g.
+    the ACL preview). Since those are not allowed in submission, having them
+    in the comparison version would falsely detect them as an omission.
+    */
+};
 
 const EX = async function checkVersionModifications(ctx) {
   await EX.validateAnnoIdParts(ctx);
   const { anno, idParts, req } = ctx;
   if (!idParts.baseId) { return; }
-  const lookup = await lookupExactVersion({ ...ctx, ...readUnapproved });
+  const lookup = await lookupExactVersion({ ...ctx, ...oldAnnoReadOpts });
   ctx.oldAnnoDetails = lookup.annoDetails;
   idParts.versNum += 1;
 
@@ -134,7 +141,7 @@ Object.assign(EX, {
       const err = badRequest(msg);
       const url = genericAnnoMeta.constructVersionNumberPubUrl(ctx.srv,
         latestReviIdParts);
-      err.headers = { 'Working-Copy': url };
+      err.links = { 'working-copy': url };
       throw err;
     }
   },
@@ -195,6 +202,7 @@ Object.assign(EX, {
     await chkPerm('creator', opaque);
     await chkPerm('dc:title', opaque, 'body');
     await chkPerm('body', opaque);
+    await chkPerm('rights', opaque);
 
     // At this point of control flow we know the submitter has permission
     // to modify dc:title AND body, so they should probably also be allowed

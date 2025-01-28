@@ -17,18 +17,22 @@ const simpleCanneds = {
   noSuchAnno: makeCanned(404, 'Annotation not found'),
   stateConflict: makeCanned(409, 'Conflict'),
   gone: makeCanned(410, 'Gone'),
+  payloadTooLarge: makeCanned(413, 'Submission exceeds the upload size limit.'),
   notImpl: makeCanned(501, 'Not Implemented'),
 
   noSuchResource: makeCanned(405, 'Method Not Allowed',
     { getLike: { code: 404, text: 'Resource not found' } }),
   unexpectedlySlowTask: makeCanned(500,
-    'Internal Server Error: Task exceeds expected time limit'),
+    'Internal Server Error: Task exceeds expected time limit.'),
   fubar: makeCanned(500, 'Internal Server Error'),
 
   genericDeny: makeCanned(403, 'Forbidden'),
   aclDeny: makeCanned(403, 'Forbidden by ACL'),
   authorIdentityNotConfigured: makeCanned(403,
     'The requested creator id was not found in your configured identities.'),
+
+  databaseUnavailable: makeCanned(503,
+    'Database server is unavailable or too busy.'),
 
 };
 

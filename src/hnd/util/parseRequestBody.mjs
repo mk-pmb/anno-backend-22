@@ -1,6 +1,7 @@
 // -*- coding: utf-8, tab-width: 2 -*-
 
 import bodyParser from 'body-parser';
+import fixStringsDeeplyInplace from 'fix-unicode-strings-deeply-inplace-pmb';
 import getOwn from 'getown';
 import mustBe from 'typechecks-pmb/must-be';
 import objPop from 'objpop';
@@ -10,24 +11,30 @@ import httpErrors from '../../httpErrors.mjs';
 
 const {
   badRequest,
+  payloadTooLarge,
 } = httpErrors.throwable;
 
 
-const promisifiedParsers = {
-  json: pify(bodyParser.json({})),
-};
+const parsers = {};
+const bodyFixOpt = { eol: true, trim: true };
 
 
 function explainBodyParseError(err) {
+  if (err.type === 'entity.too.large') { throw payloadTooLarge(); }
   if (err.statusCode !== 400) { throw err; }
   throw badRequest(['Cannot parse request body', err]);
 }
 
 
 const EX = async function parseRequestBody(fmt, req) {
-  const impl = getOwn(promisifiedParsers, fmt);
+  if (!parsers.json) { throw new Error('Parsers are not initialized yet!'); }
+  const impl = getOwn(parsers, fmt);
   if (!impl) { throw new Error('No parser for format ' + fmt); }
   await impl(req, req.res).catch(explainBodyParseError);
+  // eslint-disable-next-line no-param-reassign
+  req.body = fixStringsDeeplyInplace(req.body, bodyFixOpt); /*
+    The assignment is for cases where body is not a container,
+    e.g. a JSON body encoding a string or a number. */
   return req.body;
 };
 
@@ -44,10 +51,20 @@ async function catchBadInput(impl, ...args) {
 
 Object.assign(EX, {
 
+  async init(cfg) {
+    if (!cfg) { return EX.init({}); }
+    if (parsers.json) { throw new Error('Already initialized!'); }
+    parsers.json = pify(bodyParser.json({
+      limit: (cfg.uploadSizeLimit || '1 MB'),
+    }));
+  },
+
+
   async fancy(fmt, req) {
     const origInput = await EX(fmt, req);
     return EX.fancify(origInput, req);
   },
+
 
   fancify(origInput, req) {
     const mustPopInput = objPop(origInput,
@@ -60,6 +77,7 @@ Object.assign(EX, {
     };
     return ctx;
   },
+
 
 });
 

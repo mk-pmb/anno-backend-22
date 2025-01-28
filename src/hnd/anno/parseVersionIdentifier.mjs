@@ -37,25 +37,40 @@ const EX = function parseVersId(errInvalidAnno, versId) {
 };
 
 
+function maybeFullUrl(s) { return s.includes(':') || s.includes('/'); }
+
+
 Object.assign(EX, {
 
-  fromLocalUrl(srv, errInvalidAnno, url) {
-    let versId = url;
+  errNonLocalVersId: 'Currently, only local anno IDs are supported.',
+  wrongBaseUrlHint: (' Ensure that `anno_public_baseurl`'
+    + ' is set correctly in your config'
+    + ' and matches the annotation(s) in your database.'),
+
+
+  fromLocalUrl(srv, errInvalidAnno, urlOrVersId) {
+    let versId = urlOrVersId;
     let baseUrl = srv.publicBaseUrlNoSlash + '/';
-    if (versId.startsWith(baseUrl)) {
-      const v = url.slice(baseUrl.length);
-      const m = orf(/^(?:as\/\w+\/|)anno\//.exec(v))[0];
-      if (m) {
-        baseUrl += m;
-        versId = v.slice(m.length);
+
+    (function maybeStripOrAdjustBaseUrl() {
+      if (!maybeFullUrl(versId)) { return; }
+      let msg = EX.errNonLocalVersId;
+      if (versId.startsWith(baseUrl)) {
+        const v = versId.slice(baseUrl.length);
+        const m = orf(/^(?:as\/\w+\/|)anno\//.exec(v))[0];
+        if (m) {
+          baseUrl += m;
+          versId = v.slice(m.length);
+          return;
+        }
+      } else { // i.e. not versId.startsWith(baseUrl)
+        msg += EX.wrongBaseUrlHint;
       }
-    }
-    if (versId.includes(':') || versId.includes('/')) {
-      const msg = 'Currently, only local anno IDs are supported.';
       const err = errInvalidAnno(msg);
       err.versId = versId;
       throw err;
-    }
+    }());
+
     const p = EX(errInvalidAnno, versId);
     p.url = baseUrl + p.versId;
     return p;
