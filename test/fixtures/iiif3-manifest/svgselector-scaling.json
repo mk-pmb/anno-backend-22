@@ -1,0 +1,87 @@
+﻿{ "@context": "http://iiif.io/api/presentation/3/context.json",
+  "type": "Manifest",
+  "items": [
+    { "id": "https://example.net/canvas1",
+      "type": "Canvas",
+      "height": 756,
+      "width": 1008,
+      "items": [
+        { "id": "https://example.net/iiifpage1",
+          "type": "AnnotationPage",
+          "items": [
+            { "id": "https://example.net/paint1",
+              "type": "Annotation",
+              "motivation": "painting",
+              "body": {
+                "id": "https://iiif.io/api/image/3.0/example/reference/918ecd18c2592080851777620de9bcb5-gottingen/full/1008,756/0/gray.jpg",
+                "type": "Image",
+                "format": "image/jpeg",
+                "height": 756,
+                "width": 1008
+              },
+              "target": "https://example.net/canvas1"
+            }
+          ]
+        }
+      ],
+      "annotations": [
+        { "id": "https://example.net/annopage1",
+          "type": "AnnotationPage",
+          "items": [
+            { "id": "https://example.net/anno1-half-resolution",
+              "type": "Annotation",
+              "motivation": "tagging",
+              "body": {
+                "type": "TextualBody",
+                "value": "Windows (half resolution)",
+                "format": "text/plain"
+              },
+              "target": {
+                "type": "SpecificResource",
+                "source": "https://example.net/canvas1",
+                "selector": {
+                  "type": "SvgSelector",
+                  "value": "<svg xmlns='http://www.w3.org/2000/svg' width='504'><path d='M 102,71 L 234,104 L 234,132 L 102,110 Z' /></svg>"
+                }
+              }
+            },
+            { "id": "https://example.net/anno1-orig-resolution",
+              "type": "Annotation",
+              "motivation": "tagging",
+              "body": {
+                "type": "TextualBody",
+                "value": "Windows (original resolution)",
+                "format": "text/plain"
+              },
+              "target": {
+                "type": "SpecificResource",
+                "source": "https://example.net/canvas1",
+                "selector": {
+                  "type": "SvgSelector",
+                  "value": "<svg xmlns='http://www.w3.org/2000/svg' width='1008'><path d='M 204,142 L 468,208 L 468,264 L 204,220 Z' /></svg>"
+                }
+              }
+            },
+            { "id": "https://example.net/anno1-double-resolution",
+              "type": "Annotation",
+              "motivation": "tagging",
+              "body": {
+                "type": "TextualBody",
+                "value": "Windows (double resolution)",
+                "format": "text/plain"
+              },
+              "target": {
+                "type": "SpecificResource",
+                "source": "https://example.net/canvas1",
+                "selector": {
+                  "type": "SvgSelector",
+                  "value": "<svg xmlns='http://www.w3.org/2000/svg' width='2016'><path d='M 408,284 L 936,416 L 936,528 L 408,440 Z' /></svg>"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
