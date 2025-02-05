@@ -3,6 +3,7 @@
 import arrayOfTruths from 'array-of-truths';
 import getOwn from 'getown';
 import mustBe from 'typechecks-pmb/must-be';
+import shapeToPath from 'svg-shape-to-path-pmb';
 import xmlAttrDict from 'xmlattrdict';
 
 import httpErrors from '../../httpErrors.mjs';
@@ -26,12 +27,26 @@ const EX = function fmtAnnosAsIiif3() {
 Object.assign(EX, {
 
   miradorAcceptableMotivation: 'commenting', /*
-    Mirador 3 will ignore annos with these motivations:
+    Mirador 3 accepts these motivations:
       * commenting
+      * tagging (ignores body type and assumes text/plain)
+    Mirador 3 will ignore annos with these motivations:
       * linking
       * replying
       * (maybe more?)
   */
+
+
+  openSvgTagBaseProps: {
+    '': 'svg',
+    xmlns: 'http://www.w3.org/2000/svg',
+    version: '1.1',
+  },
+  openSvgTagCopyProps: ['x', 'y', 'width', 'height', 'viewbox'], /*
+    Some of our annos carry useless xlink NS in their SVG tags, so we only
+    copy essential attributes, and also only ones for which we can rely on
+    having simple values that we can blindly requote from double quotes to
+    apostrophe. */
 
 
   replyToRequest(srv, req, origHow) {
@@ -84,32 +99,58 @@ Object.assign(EX, {
 
 
   iiifTargetMatchPropsOrder: [
+    'id',
     'source',
     'scope',
   ],
 
 
+  isTargetMatch(wantUrl, curTgt) {
+    return ((curTgt === wantUrl)
+      || EX.iiifTargetMatchPropsOrder.some(p => (curTgt[p] === wantUrl)));
+  },
+
+
   pickIiifTarget(subjTgtSpec, origAnno) {
     /* Since some viewers cannot handle multi-target annos, we have to
       extract the one target that was searched for. */
-    const origTargets = arrayOfTruths(origAnno.target);
-    let foundProp;
-    const foundIdx = origTargets.findIndex(function findIiifTarget(origTgt) {
-      const k = EX.iiifTargetMatchPropsOrder.find(
-        p => (origTgt[p] === subjTgtSpec));
-      if (!k) { return false; }
-      foundProp = k;
-      return true;
+    const origTargets = arrayOfTruths.ifAny(origAnno.target);
+    if (!origTargets) { return ''; }
+    const replyTargets = arrayOfTruths.ifAny(origAnno['as:inReplyTo']);
+    let firstSelectorMatch;
+    let firstWholeMatch;
+    origTargets.some(function findIiifTarget(origTgt) {
+      if (!EX.isTargetMatch(subjTgtSpec, origTgt)) {
+        // console.debug('pickIiifTarget: no match:', subjTgtSpec, origTgt);
+        return false;
+      }
+      if (replyTargets) {
+        const isReply = replyTargets.find(t => EX.isTargetMatch(t, origTgt));
+        if (isReply) {
+          // console.debug('pickIiifTarget: reply:', isReply, origTgt);
+          return false;
+        }
+      }
+      if (origTgt.selector) {
+        if (!firstSelectorMatch) { firstSelectorMatch = origTgt; }
+        return true; // perfect, stop scanning.
+      }
+      if (!firstWholeMatch) { firstWholeMatch = origTgt; }
+      return false;
     });
-    if (!foundProp) { return ''; }
-    return origTargets[foundIdx];
+    return (firstSelectorMatch || firstWholeMatch || '');
   },
 
 
   fmtOneAnno(fmtCtx, origAnno) {
     const annoIdUrl = origAnno.id;
     const annoTarget = EX.pickIiifTarget(fmtCtx.subjTgtSpec, origAnno);
+    const selector = orf(annoTarget.selector);
+    const svgShapes = orf((selector.type === 'SvgSelector')
+      && EX.findSvgShapes(selector.value));
     const tgtMeta = fmtCtx.subjTgtMeta;
+    const iiifTarget = EX.fmtIiifTarget(fmtCtx,
+      { annoTarget, selector, svgShapes });
 
     /* As of 2025-01-24, Mirador 3 seems to not support IIIF cookbook
       recipe #22 "Linking with a hotspot", so instead we have to try and
@@ -126,9 +167,6 @@ Object.assign(EX, {
         '¶': tgtMeta.iiifAnnoIdUrlLinkCaption || '[link]',
       }) + '&nbsp;&nbsp; ' + htmlBody;
     }
-    if (fmtCtx.svgShapes) {
-      htmlBody += (' / shapes: ' + fmtCtx.svgShapes.map(s => s['']).join(','));
-    }
     htmlBody = xmlAttrDict({
       '': 'p', /*
         Mirador 3 loads the body into a span, so we shouldn't wrap it in a
@@ -137,8 +175,6 @@ Object.assign(EX, {
       '|': htmlBody,
     });
 
-    const iiifTarget = (EX.fmtIiifTarget(fmtCtx, annoTarget)
-      || 'about:error/no_iiif_target_canvas');
     const iiifAnno = {
       id: annoIdUrl,
       type: 'Annotation',
@@ -154,50 +190,58 @@ Object.assign(EX, {
   },
 
 
-  fmtIiifTarget(fmtCtx, annoTarget) {
-    const { logCkp } = fmtCtx;
-    const { canvasId } = fmtCtx;
-
-    const sel = orf(annoTarget.selector);
-    if (sel.type === 'SvgSelector') {
-      const svgShapes = EX.findSvgShapes(sel.value);
-      Object.assign(fmtCtx, { svgShapes });
-      if (svgShapes) {
-        const { single } = svgShapes;
-        if (single[''] === 'rect') {
-          const nums = ['x', 'y', 'width', 'height'].map(
-            k => Math.round(+single[k] || 0));
-          return canvasId + '#xywh=' + nums.join(',');
-        }
-      }
-
-      // logCkp('IIIF unvalidated SVG selector:', { canvasId, svgShapes });
-      return { type: 'SpecificResource', source: canvasId, selector: sel };
-    }
-
-    logCkp('IIIF no selector:', { canvasId });
-    return canvasId;
+  fmtIiifTarget(fmtCtx, how) {
+    if (!fmtCtx.canvasId) { throw new Error('Missing canvasId!'); }
+    if (how.svgShapes) { return EX.fmtIiifTargetSvgSelector(fmtCtx, how); }
+    return fmtCtx.canvasId;
   },
 
 
-  xmlTagsRgx: /<[ -;=\?-\uFFFF]+>/g,
+  fmtIiifTargetSvgSelector(fmtCtx, how) {
+    // const { logCkp } = fmtCtx;
+    const { canvasId } = fmtCtx;
+    const { svgShapes } = how;
+    const { single } = svgShapes;
+    if (single[''] === 'rect') {
+      const nums = ['x', 'y', 'width', 'height'].map(
+        k => Math.round(+single[k] || 0));
+      return canvasId + '#xywh=' + nums.join(',');
+    }
 
-
-  findSvgShapes(origSvg) {
-    let svg = origSvg.replace(/\s+/g, ' ');
-    const shapes = [];
-    svg = svg.replace(EX.xmlTagsRgx, function foundTag(m) {
-      const t = xmlAttrDict(m);
-      const n = t[''];
-      if (n.startsWith('/')) { return ''; }
-      if (n === '?xml') { return ''; }
-      if (n === 'svg') { return ''; }
-      shapes.push(t);
-      return '';
+    const sel = { ...how.selector };
+    const openSvgTag = { ...EX.openSvgTagBaseProps };
+    EX.openSvgTagCopyProps.forEach(function copy(k) {
+      const v = svgShapes.svgTag[k];
+      if (v) { openSvgTag[k] = v; }
     });
-    shapes.textContent = svg.trim();
-    shapes.single = orf((shapes.length <= 1) && shapes[0]);
-    return shapes.length && shapes;
+
+    sel.value = (xmlAttrDict(openSvgTag).replace(/"/g, "'")
+      + svgShapes.map(shapeToPath).join('')
+      + '</svg>');
+    // logCkp('IIIF converted SVG selector:', { canvasId, svgShapes, sel });
+    return { type: 'SpecificResource', source: canvasId, selector: sel };
+  },
+
+
+  findSvgShapes(svg) {
+    const shapes = [];
+
+    function foundTag(t) {
+      const n = t[''];
+      if (n.startsWith('/')) { return; }
+      if (n === '?xml') { return; }
+      if (n === 'svg') {
+        shapes.svgTag = t;
+        return;
+      }
+      shapes.push(t);
+    }
+
+    xmlAttrDict.splitXml(svg, { onto: null, verbatim: '<>', onTag: foundTag });
+    const n = shapes.length;
+    if (!n) { return false; }
+    shapes.single = orf((n <= 1) && shapes[0]);
+    return shapes;
   },
 
 
