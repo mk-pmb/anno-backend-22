@@ -56,6 +56,10 @@ const EX = async function multiSearch(ctx) {
     outFmt: ctx.outFmt || popUntrustedOpt('fmt') || '',
     subjTgtSpec: subjTgtSpec || '',
   };
+  EX.miscUntrustedMetaOptNames.forEach(function maybeCopy(k) {
+    const v = popUntrustedOpt(k);
+    if (v !== undefined) { meta[k] = v; }
+  });
 
   const search = buildSearchQuery.prepare('#defaultSearchCore');
   if (searchBaseId) { search.data({ searchBaseId }); }
@@ -184,6 +188,12 @@ Object.assign(EX, {
     full:         { priv: 'read', wrap: 'addFullContent', hasSubjs: true },
     justTitles:   { priv: 'read', wrap: 'addAnnoTitle' },
   },
+
+
+  miscUntrustedMetaOptNames: [
+    'scaleTargetWidth',
+    'scaleTargetHeight',
+  ],
 
 
   async checkSubjTgtAcl(srv, req, privNamesSet, found, additionalTargetUrls) {
