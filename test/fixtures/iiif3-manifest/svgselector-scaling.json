@@ -28,12 +28,15 @@
         { "id": "https://example.net/annopage1",
           "type": "AnnotationPage",
           "items": [
-            { "id": "https://example.net/anno1-half-resolution",
+
+
+
+            { "id": "https://example.net/anno1-half-width",
               "type": "Annotation",
               "motivation": "tagging",
               "body": {
                 "type": "TextualBody",
-                "value": "Windows (half resolution)",
+                "value": "Windows (half width, no height)",
                 "format": "text/plain"
               },
               "target": {
@@ -45,12 +48,12 @@
                 }
               }
             },
-            { "id": "https://example.net/anno1-orig-resolution",
+            { "id": "https://example.net/anno1-orig-width",
               "type": "Annotation",
               "motivation": "tagging",
               "body": {
                 "type": "TextualBody",
-                "value": "Windows (original resolution)",
+                "value": "Windows (original width, no height)",
                 "format": "text/plain"
               },
               "target": {
@@ -62,12 +65,12 @@
                 }
               }
             },
-            { "id": "https://example.net/anno1-double-resolution",
+            { "id": "https://example.net/anno1-double-width",
               "type": "Annotation",
               "motivation": "tagging",
               "body": {
                 "type": "TextualBody",
-                "value": "Windows (double resolution)",
+                "value": "Windows (double width, no height)",
                 "format": "text/plain"
               },
               "target": {
@@ -78,7 +81,64 @@
                   "value": "<svg xmlns='http://www.w3.org/2000/svg' width='2016'><path d='M 408,284 L 936,416 L 936,528 L 408,440 Z' /></svg>"
                 }
               }
+            },
+
+
+
+            { "id": "https://example.net/anno1-half-sides",
+              "type": "Annotation",
+              "motivation": "tagging",
+              "body": {
+                "type": "TextualBody",
+                "value": "Windows (half width, half height)",
+                "format": "text/plain"
+              },
+              "target": {
+                "type": "SpecificResource",
+                "source": "https://example.net/canvas1",
+                "selector": {
+                  "type": "SvgSelector",
+                  "value": "<svg xmlns='http://www.w3.org/2000/svg' width='504' height='378'><path d='M 102,71 L 234,104 L 234,132 L 102,110 Z' /></svg>"
+                }
+              }
+            },
+            { "id": "https://example.net/anno1-orig-sides",
+              "type": "Annotation",
+              "motivation": "tagging",
+              "body": {
+                "type": "TextualBody",
+                "value": "Windows (original width, original height)",
+                "format": "text/plain"
+              },
+              "target": {
+                "type": "SpecificResource",
+                "source": "https://example.net/canvas1",
+                "selector": {
+                  "type": "SvgSelector",
+                  "value": "<svg xmlns='http://www.w3.org/2000/svg' width='1008' height='756'><path d='M 204,142 L 468,208 L 468,264 L 204,220 Z' /></svg>"
+                }
+              }
+            },
+            { "id": "https://example.net/anno1-double-sides",
+              "type": "Annotation",
+              "motivation": "tagging",
+              "body": {
+                "type": "TextualBody",
+                "value": "Windows (double width, double height)",
+                "format": "text/plain"
+              },
+              "target": {
+                "type": "SpecificResource",
+                "source": "https://example.net/canvas1",
+                "selector": {
+                  "type": "SvgSelector",
+                  "value": "<svg xmlns='http://www.w3.org/2000/svg' width='2016' height='1512'><path d='M 408,284 L 936,416 L 936,528 L 408,440 Z' /></svg>"
+                }
+              }
             }
+
+
+
           ]
         }
       ]
