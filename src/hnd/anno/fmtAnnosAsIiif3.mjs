@@ -13,6 +13,14 @@ import sendFinalTextResponse from '../../finalTextResponse.mjs';
 
 const errNoCanvasPattern = httpErrors.notImpl.explain(
   'This service is not configured to support IIIF.').throwable;
+const errSvgSelectorLacksDimension = httpErrors.fubar.explain(
+  'The SVG selector for this annotation cannot be scaled to the target image'
+  + ' size because it lacks required size information or uses an unsupported'
+  + ' unit of length');
+const errSvgSelectorExoticScalingFailure = httpErrors.fubar.explain(
+  'Exotic failure in control flow or math while trying to scale SVG selector.');
+const errSvgSelectorNotOpened = httpErrors.fubar.explain(
+  'The SVG selector for this annotation lacks an opening SVG tag');
 
 
 function orf(x) { return x || false; }
@@ -59,6 +67,7 @@ Object.assign(EX, {
     const fmtCtx = {
       ...EX.predictCanvasForMultiTargetAnno(annoListMeta, req.aclMetaCache),
       logCkp: req.logCkp.bind(req),
+      scaleTo: EX.decideTargetScaling(annoListMeta),
     };
 
     const coll = {
@@ -83,7 +92,19 @@ Object.assign(EX, {
     const subjTgtMeta = aclMetaCache['tgtUrl:' + subjTgtSpec];
     const canvasId = EX.constructCanvasId(subjTgtMeta);
     if (!canvasId) { throw errNoCanvasPattern(); }
-    return { canvasId, subjTgtSpec, subjTgtMeta };
+    return { canvasId, subjTgtMeta, subjTgtSpec };
+  },
+
+
+  decideTargetScaling(meta) {
+    /* Some viewers, like Mirador (@2025-02-06, issue 3875), don't scale
+      the SVG selector to the target image. Also for single rectangles,
+      we have to provide absolute xywh. Both mean we need to scale the
+      SVG selector server-side. */
+    const w = (+meta.scaleTargetWidth || 0);
+    const h = (+meta.scaleTargetHeight || 0);
+    return ((w >= 1) || (h >= 1)) && { w, h };
+    // ^-- These checks are meant to be quick, not overly fool-proof.
   },
 
 
@@ -147,7 +168,7 @@ Object.assign(EX, {
     const annoTarget = EX.pickIiifTarget(fmtCtx.subjTgtSpec, origAnno);
     const selector = orf(annoTarget.selector);
     const svgShapes = orf((selector.type === 'SvgSelector')
-      && EX.findSvgShapes(selector.value));
+      && EX.findSvgShapes(selector.value, annoIdUrl, fmtCtx.scaleTo));
     const tgtMeta = fmtCtx.subjTgtMeta;
     const iiifTarget = EX.fmtIiifTarget(fmtCtx,
       { annoTarget, selector, svgShapes });
@@ -186,6 +207,7 @@ Object.assign(EX, {
         value: htmlBody,
       },
     };
+    // if (!svgShapes) { iiifAnno['skos:note'] = { nShapes: 0, annoTarget }; }
     return iiifAnno;
   },
 
@@ -216,15 +238,16 @@ Object.assign(EX, {
     });
 
     sel.value = (xmlAttrDict(openSvgTag).replace(/"/g, "'")
-      + svgShapes.map(shapeToPath).join('')
+      + svgShapes.map(shapeToPath.xad).join('')
       + '</svg>');
     // logCkp('IIIF converted SVG selector:', { canvasId, svgShapes, sel });
     return { type: 'SpecificResource', source: canvasId, selector: sel };
   },
 
 
-  findSvgShapes(svg) {
+  findSvgShapes(svg, annoIdUrl, scaleTo) {
     const shapes = [];
+    let doScale;
 
     function foundTag(t) {
       const n = t[''];
@@ -232,17 +255,48 @@ Object.assign(EX, {
       if (n === '?xml') { return; }
       if (n === 'svg') {
         shapes.svgTag = t;
+        doScale = EX.calcScalingFactors(annoIdUrl, scaleTo, t); /*
+          If the width and/or height attribute of .svgTag needed adjusting,
+          calcScalingFactors has sneakily done that inplace. */
         return;
       }
-      shapes.push(t);
+      const s = (doScale ? shapeToPath.scaleOneSvgTag(doScale, t) : t);
+      shapes.push(s);
     }
 
     xmlAttrDict.splitXml(svg, { onto: null, verbatim: '<>', onTag: foundTag });
+    if (!shapes.svgTag) { throw errSvgSelectorNotOpened.explain(annoIdUrl); }
     const n = shapes.length;
     if (!n) { return false; }
     shapes.single = orf((n <= 1) && shapes[0]);
     return shapes;
   },
+
+
+  calcScalingFactors: (function compile() {
+    const f = function calcScalingFactors(annoIdUrl, scaleTo, t) {
+      if (!scaleTo) { return false; }
+      const x = f.div(annoIdUrl, scaleTo.w, t, 'width');
+      const y = f.div(annoIdUrl, scaleTo.h, t, 'height') || x;
+      if (!y) { throw errSvgSelectorExoticScalingFailure; }
+      if ((x === 1) && (y === 1)) { return false; }
+      return { x, y };
+    };
+    f.div = function scaleDivide(annoIdUrl, to, svgTag, svgProp) {
+      if (!to) { return 0; }
+      let v = (svgTag[svgProp] || '');
+      if (v.endsWith('px')) { v = v.slice(0, -2); }
+      v = (+v || 0);
+      if (v === to) { return 1; }
+      if (v >= 1) {
+        // console.debug('scaleDivide', annoIdUrl, svgProp, to, svgTag);
+        svgTag[svgProp] = to; // eslint-disable-line no-param-reassign
+        return to / v;
+      }
+      throw errSvgSelectorLacksDimension.explain(svgProp + ' in ' + annoIdUrl);
+    };
+    return f;
+  }()),
 
 
 });
