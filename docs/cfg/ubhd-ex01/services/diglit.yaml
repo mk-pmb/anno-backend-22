@@ -18,6 +18,7 @@
                     ub:
                         '…*':
                             serv: 'digi'
+                        digi-test: 'digi'
 
 
 
