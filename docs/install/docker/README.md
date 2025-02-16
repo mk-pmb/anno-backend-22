@@ -40,7 +40,7 @@ Some are for clarification or error handling.
       * Do not confuse `sudo`'s `-su` flags with the `su` command,
         which would probably fail when login is disabled.
         With `sudo`, `-s` means to start a `--shell`,
-        and `-u annosrv` means `--other-user=annosrv`.
+        and `-u annosrv` means `--user=annosrv`.
 1.  `chown --recursive annosrv:annosrv -- /srv/annosrv`
 1.  Put the root shell aside, we'll need it again later.
 1.  Start a shell session as user `annosrv`.
