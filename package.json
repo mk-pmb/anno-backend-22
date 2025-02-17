@@ -1,5 +1,5 @@
 { "name": "anno-server-22",
-  "version": "1.0.2502061050",
+  "version": "1.0.2502061052",
   "description": "Accepts and serves annotations in our flavor of the W3C Web Annotation Protocol and W3C Web Annotation Data Model.",
   "keywords": [
     "annotation",
@@ -71,7 +71,7 @@
     "nullify-object-values-shallow-inplace": "^0.1.0",
     "obj-from-keys-list": "^0.1.0",
     "objdive": "^0.1.4",
-    "objpop": "^0.3.4",
+    "objpop": "^0.3.5",
     "ordered-map-extended-pmb": "^0.1.2",
     "p-each-series": "^2.2.0",
     "p-fatal": "^0.1.5",
