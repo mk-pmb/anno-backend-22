@@ -47,12 +47,17 @@ function replyToRequest(srv, req, how) {
     const canonicalUrl = plumb.guessOrigReqUrl(srv, req);
     return replyToRequest(srv, req, { ...how, canonicalUrl });
   }
-  return sendFinalTextResponse.json(req, EX(how));
+  return sendFinalTextResponse.json(req, EX(how), EX.jsonReplyOpt);
 }
 
 
 Object.assign(EX, {
   replyToRequest,
+
+  jsonReplyOpt: {
+    sorted: false,
+  },
+
 });
 
 
