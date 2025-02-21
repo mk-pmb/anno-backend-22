@@ -8,7 +8,10 @@
     targetUrlMetadata:
         prefixes:
           - 'https://bibliotheca-laureshamensis-digital.de/bav/'
-          # Example annotation: 3d82c273-c104-3023-90dc-bb48f0d4ba87
+          # ^-- Example annotation: 3d82c273-c104-3023-90dc-bb48f0d4ba87
+          - 'https://bibliotheca-laureshamensis-digital.de/view/'
+          # ^-- Example scope: …/view/bodleian_mslaudmisc130/
+          - 'https://bibliotheca-laureshamensis-digital.de/view_protected/'
 
 
 ...
