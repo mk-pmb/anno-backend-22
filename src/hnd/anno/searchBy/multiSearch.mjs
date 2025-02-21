@@ -25,6 +25,9 @@ const {
 
 
 function uts2iso(u) { return (new Date((+u || 0) * 1e3)).toISOString(); }
+function numOr0(x) { return (+x || 0); }
+function posOr0(n) { return (n > 0 ? n : 0); }
+function nonNegNum(x) { return posOr0(numOr0(x)); }
 
 
 const EX = async function multiSearch(ctx) {
@@ -68,7 +71,7 @@ const EX = async function multiSearch(ctx) {
 
   (function parseOptions() {
     const optCtx = { ctx, search, meta, popUntrustedOpt };
-    EX.processRssOptionsInplace(optCtx);
+    EX.processLimitAndRssOptionsInplace(optCtx);
   }());
 
   if (searchAllWithStamp) {
@@ -192,15 +195,22 @@ Object.assign(EX, {
   },
 
 
+  defaultContentMode: 'full',
+
+
   decideContentMode(how) {
-    const { ctx, popUntrustedOpt } = how;
-    let cm = ctx.readContent;
-    if (cm === undefined) {
-      cm = popUntrustedOpt.firstDefinedKey(EX.requestedContentModePriority);
-      cm = cm.key;
+    const { ctx, meta } = how; // , popUntrustedOpt
+    // console.debug('decideContentMode:', { ctx_rC: ctx.readContent });
+    let cm = ctx.readContent || EX.defaultContentMode;
+    if (cm === 'full') {
+      const { just } = meta;
+      if (just === 'title') { cm = 'justTitles'; }
+      // console.debug('decideContentMode:', { just, cm });
     }
-    if (!cm) { return false; }
-    cm = getOwn(EX.contentModeDetails, cm, false);
+    // console.debug('getOwn?', { cm });
+    cm = getOwn(EX.contentModeDetails, cm);
+    // console.debug('gotOwn!', { cm });
+    if (!cm) { throw noSuchResource('Unsupported content mode option'); }
     return cm;
   },
 
@@ -264,26 +274,27 @@ Object.assign(EX, {
   },
 
 
-  processRssOptionsInplace(how) {
+  processLimitAndRssOptionsInplace(how) {
     const { ctx, meta, popUntrustedOpt } = how;
-    let max = ctx.rssMaxItems;
-    if (!max) {
-      if (meta.outFmt === 'rss') {
-        max = -1;
-      } else {
-        return; // RSS not allowed
-      }
-    }
-    if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
+    const apiWantsRss = (ctx.outFmt === 'rss');
+    const requestWantsRss = (meta.outFmt === 'rss');
+    const giveRss = apiWantsRss || requestWantsRss;
 
-    const userLimit = +popUntrustedOpt('limit') || 0;
-    if ((userLimit > 0) && (userLimit < max)) { max = userLimit; }
-    const limit = (+ctx.rowsLimit || 0);
-    if ((!limit) || (limit > max)) { ctx.rowsLimit = max; }
+    let max = Infinity;
+    if (giveRss) {
+      max = (+ctx.rssMaxItems || -1);
+      if (max === -1) { max = fmtAnnosAsRssFeed.defaultMaxItems; }
+    }
+
+    const userLimit = nonNegNum(popUntrustedOpt('limit'));
+    if ((userLimit >= 1) && (userLimit < max)) { max = userLimit; }
+    const origRowsLimit = (+ctx.rowsLimit || 0);
+    if ((origRowsLimit >= 1) && (origRowsLimit < max)) { max = origRowsLimit; }
+    if (max !== Infinity) { ctx.rowsLimit = max; }
+
+    if (!giveRss) { return; }
 
     EX.applyUserRssOptsInplace({ meta, popUntrustedOpt });
-    if (meta.outFmt !== 'rss') { return; }
-
     ctx.readContent = 'justTitles';
     // ^- It would be nice if we could also populate the RSS <author> and
     //    <description> fields, but generating them is too much effort.
@@ -310,13 +321,8 @@ Object.assign(EX, {
 });
 
 
-EX.requestedContentModePriority = [
-  'justTitles',
-];
-
-
 EX.miscUntrustedMetaOptNames = [
-  ...EX.requestedContentModePriority,
+  'just',
   'scaleTargetWidth',
   'scaleTargetHeight',
 ];
