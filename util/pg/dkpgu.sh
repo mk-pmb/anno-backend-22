@@ -7,6 +7,7 @@ function dkpgu_main () {
   export LANG{,UAGE}=en_US.UTF-8  # make error messages search engine-friendly
   local SELFFILE="$(readlink -f -- "$BASH_SOURCE")"
   local SELFPATH="$(dirname -- "$SELFFILE")"
+  local DK_SELF='/asu/dkpgu.sh'
   local INVOKED_AS="$0"
   cd -- "$SELFPATH" || return $?
 
@@ -14,8 +15,27 @@ function dkpgu_main () {
   dkpgu_maybe_set_task_from_invocation || return $?
   if [ -z "$TASK" ]; then TASK="$1"; shift; fi
 
-  "${FUNCNAME%_*}_$TASK" "$@" || return $?$(
-    echo "E: Task '$TASK' failed with error code $?" >&2)
+  if dkpgu_running_inside_docker; then
+    "${FUNCNAME%_*}_$TASK" "$@" || return $?$(
+      echo "E: Task '$TASK' failed with error code $?" >&2)
+    return 0
+  fi
+
+  local DK_CTNR="$(docker ps \
+    --format '{{ .Image }} {{ .Ports }} {{ .Names }}' |
+    sed -nre 's~^postgres:\S+ 127\.0\.0\.1:5432->\S+/tcp ($\
+      |\S*postgres_[0-9]+)$~\1~p')"
+  echo D: "Re-executing in docker container '$DK_CTNR': $DK_SELF $TASK $*"
+  [ -n "$DK_CTNR" ] || return 4$(
+    echo E: 'Failed to guess the postgres container name.' >&2)
+  exec docker exec "$DK_CTNR" "$DK_SELF" "$TASK" "$@" || return $?$(
+    echo E: "Failed to re-execute in docker: rv=$?" >&2)
+}
+
+
+function dkpgu_running_inside_docker () {
+  [ "$SELFFILE" -ef "$DK_SELF" ] || return 1
+  which docker 2>/dev/null | grep -qe '^/' && return 1 || true
 }
 
 
@@ -24,15 +44,12 @@ function dkpgu_maybe_set_task_from_invocation () {
   case "$INV" in
     "$SELFPATH"/*/* ) return 0;;
     "$SELFPATH"/* ) INV="${INV:${#SELFPATH}}"; INV="${INV#/}";;
-    * ) return 0;;
   esac
-  case "$INV" in
-    '' ) return 0;;
-    *[^a-z_]* ) return 0;;
-  esac
+  [ -n "$INV" ] || return 0
 
   if [ -L "$INV" -a "$INV" -ef "$SELFFILE" ]; then
     # ^-- i.e., a symlink that points to this file.
+    INV="$(basename -- "$INV")"
     case "$INV" in
       c ) TASK='cmd';;
       f ) TASK='file';;
